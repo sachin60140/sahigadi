@@ -67,17 +67,26 @@
                 </td>
                 <td><?php echo e($dealer->created_at->format('d M Y')); ?></td>
                 <td>
-                    <a href="<?php echo e(route('admin.dealers.show', $dealer)); ?>" class="btn btn-sm btn-outline-primary me-1">
+                    <a href="<?php echo e(route('admin.dealers.show', $dealer)); ?>" class="btn btn-sm btn-outline-primary me-1" title="View Details">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <?php if($dealer->status === 'pending'): ?>
-                    <form action="<?php echo e(route('admin.dealers.approve', $dealer)); ?>" method="POST" class="d-inline">
+                    
+                    <form action="<?php echo e(route('admin.dealers.toggle-status', $dealer)); ?>" method="POST" class="d-inline">
                         <?php echo csrf_field(); ?>
-                        <button type="submit" class="btn btn-sm btn-success">
-                            <i class="bi bi-check-circle"></i>
-                        </button>
+                        <?php if($dealer->status === 'approved'): ?>
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to completely deactivate this dealer?')" title="Deactivate">
+                                <i class="bi bi-power"></i> Deactivate
+                            </button>
+                        <?php elseif($dealer->status === 'rejected'): ?>
+                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to reactivate this dealer?')" title="Activate">
+                                <i class="bi bi-person-check-fill"></i> Activate
+                            </button>
+                        <?php elseif($dealer->status === 'pending'): ?>
+                            <button type="submit" class="btn btn-sm btn-success" title="Approve Dealer">
+                                <i class="bi bi-check-circle"></i> Approve
+                            </button>
+                        <?php endif; ?>
                     </form>
-                    <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>

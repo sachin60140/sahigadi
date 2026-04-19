@@ -348,6 +348,11 @@
                 </div>
             </div>
 
+            <div class="menu-header">Dealer Finance</div>
+            <a href="{{ route('admin.wallet-recharges.index') }}" class="nav-link {{ request()->routeIs('admin.wallet-recharges.*') ? 'active' : '' }}">
+                <i class="bi bi-cash-stack"></i> Wallet Recharges
+            </a>
+
             <div class="menu-header">Customer Finance</div>
             <a href="{{ route('admin.customer-transactions.index') }}" class="nav-link {{ request()->routeIs('admin.customer-transactions.*') ? 'active' : '' }}">
                 <i class="bi bi-wallet2"></i> Payments & Refunds

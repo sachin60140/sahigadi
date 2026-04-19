@@ -22,6 +22,8 @@ class Dealer extends Authenticatable
         'company_name',
         'address',
         'city',
+        'state',
+        'pincode',
         'status',
         'rejection_reason',
         'gst_number',
@@ -29,6 +31,8 @@ class Dealer extends Authenticatable
         'kyc_document_number',
         'kyc_document_path',
         'gst_document_path',
+        'pan_number',
+        'pan_document_path',
         'gst_verified',
         'gst_verified_at',
     ];

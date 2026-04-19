@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9PBTKQDNF5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9PBTKQDNF5');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
@@ -338,6 +347,11 @@
                     </a>
                 </div>
             </div>
+
+            <div class="menu-header">Dealer Finance</div>
+            <a href="<?php echo e(route('admin.wallet-recharges.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.wallet-recharges.*') ? 'active' : ''); ?>">
+                <i class="bi bi-cash-stack"></i> Wallet Recharges
+            </a>
 
             <div class="menu-header">Customer Finance</div>
             <a href="<?php echo e(route('admin.customer-transactions.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.customer-transactions.*') ? 'active' : ''); ?>">

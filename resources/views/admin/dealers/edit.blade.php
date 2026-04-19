@@ -43,9 +43,21 @@
                         <label class="form-label">Company Name</label>
                         <input type="text" name="company_name" class="form-control" value="{{ old('company_name', $dealer->company_name) }}">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
+                        <label class="form-label">Full Address</label>
+                        <textarea name="address" rows="2" class="form-control">{{ old('address', $dealer->address) }}</textarea>
+                    </div>
+                    <div class="col-md-4">
                         <label class="form-label">City</label>
                         <input type="text" name="city" class="form-control" value="{{ old('city', $dealer->city) }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">State</label>
+                        <input type="text" name="state" class="form-control" value="{{ old('state', $dealer->state) }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Pincode</label>
+                        <input type="text" name="pincode" class="form-control" value="{{ old('pincode', $dealer->pincode) }}">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Password <small class="text-muted">(Leave blank to keep current)</small></label>
@@ -67,24 +79,15 @@
                     </div>
                 </div>
 
-                <h5 class="mb-3"><i class="bi bi-file-earmark-text me-2"></i>KYC Document</h5>
+                <h5 class="mb-3"><i class="bi bi-file-earmark-text me-2"></i>KYC Documents</h5>
+                <h6 class="text-secondary fw-bold mb-3 border-bottom pb-2">Aadhaar Card</h6>
                 <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label">Document Type</label>
-                        <select name="kyc_document_type" class="form-select">
-                            <option value="">Select Type</option>
-                            <option value="aadhar" {{ old('kyc_document_type', $dealer->kyc_document_type) == 'aadhar' ? 'selected' : '' }}>Aadhaar Card</option>
-                            <option value="pan" {{ old('kyc_document_type', $dealer->kyc_document_type) == 'pan' ? 'selected' : '' }}>PAN Card</option>
-                            <option value="voter_id" {{ old('kyc_document_type', $dealer->kyc_document_type) == 'voter_id' ? 'selected' : '' }}>Voter ID</option>
-                            <option value="driving_license" {{ old('kyc_document_type', $dealer->kyc_document_type) == 'driving_license' ? 'selected' : '' }}>Driving License</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Document Number</label>
+                    <div class="col-md-12">
+                        <label class="form-label">Aadhaar Number</label>
                         <input type="text" name="kyc_document_number" class="form-control" value="{{ old('kyc_document_number', $dealer->kyc_document_number) }}">
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Upload KYC Document (PDF, JPG, PNG - Max 5MB)</label>
+                        <label class="form-label">Update Aadhaar Document (PDF, JPG, PNG - Max 5MB)</label>
                         @if($dealer->kyc_document_path)
                         <div class="mb-2">
                             <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Current document uploaded</span>
@@ -95,6 +98,29 @@
                         @endif
                         <input type="file" name="kyc_document" class="form-control @error('kyc_document') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
                         @error('kyc_document')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <h6 class="text-secondary fw-bold mb-3 border-bottom pb-2">PAN Card</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-12">
+                        <label class="form-label">PAN Number</label>
+                        <input type="text" name="pan_number" style="text-transform:uppercase" class="form-control" value="{{ old('pan_number', $dealer->pan_number) }}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Update PAN Document (PDF, JPG, PNG - Max 5MB)</label>
+                        @if($dealer->pan_document_path)
+                        <div class="mb-2">
+                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Current document uploaded</span>
+                            <a href="{{ asset('storage/'.$dealer->pan_document_path) }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                <i class="bi bi-eye me-1"></i>View Current
+                            </a>
+                        </div>
+                        @endif
+                        <input type="file" name="pan_document" class="form-control @error('pan_document') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
+                        @error('pan_document')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

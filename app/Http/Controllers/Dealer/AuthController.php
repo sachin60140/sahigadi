@@ -43,15 +43,20 @@ class AuthController extends Controller
             'password' => 'required|min:8|confirmed',
             'phone' => 'required|string|max:20',
             'company_name' => 'nullable|string|max:255',
-            'city' => 'nullable|string|max:100',
+            'address' => 'required|string|max:500',
+            'city' => 'required|string|max:100',
+            'state' => 'required|string|max:100',
+            'pincode' => 'required|string|max:20',
             'gst_number' => 'nullable|string|max:15',
-            'kyc_document_type' => 'required|in:aadhar,pan,voter_id,driving_license',
             'kyc_document_number' => 'required|string|max:20',
             'kyc_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'pan_number' => 'required|string|max:20',
+            'pan_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'gst_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         $kycPath = $request->file('kyc_document')->store('dealers/kyc', 'public');
+        $panPath = $request->file('pan_document')->store('dealers/pan', 'public');
         $gstPath = $request->hasFile('gst_document') ? $request->file('gst_document')->store('dealers/gst', 'public') : null;
 
         $dealer = Dealer::create([
@@ -60,11 +65,16 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
             'company_name' => $request->company_name,
+            'address' => $request->address,
             'city' => $request->city,
+            'state' => $request->state,
+            'pincode' => $request->pincode,
             'gst_number' => $request->gst_number,
-            'kyc_document_type' => $request->kyc_document_type,
+            'kyc_document_type' => 'aadhar',
             'kyc_document_number' => $request->kyc_document_number,
             'kyc_document_path' => $kycPath,
+            'pan_number' => $request->pan_number,
+            'pan_document_path' => $panPath,
             'gst_document_path' => $gstPath,
             'status' => 'pending',
         ]);

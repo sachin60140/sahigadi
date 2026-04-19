@@ -50,10 +50,31 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">City</label>
-                                <input type="text" name="city" class="form-control @error('city') is-invalid @enderror" value="{{ old('city') }}" placeholder="Your city">
+                            <div class="col-md-12">
+                                <label class="form-label">Full Address *</label>
+                                <textarea name="address" rows="2" class="form-control @error('address') is-invalid @enderror" required placeholder="Enter your complete street address">{{ old('address') }}</textarea>
+                                @error('address')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">City *</label>
+                                <input type="text" name="city" class="form-control @error('city') is-invalid @enderror" value="{{ old('city') }}" required placeholder="Your city">
                                 @error('city')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">State *</label>
+                                <input type="text" name="state" class="form-control @error('state') is-invalid @enderror" value="{{ old('state') }}" required placeholder="Your state">
+                                @error('state')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Pincode *</label>
+                                <input type="text" name="pincode" class="form-control @error('pincode') is-invalid @enderror" value="{{ old('pincode') }}" required placeholder="Pincode / ZIP">
+                                @error('pincode')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -72,36 +93,45 @@
 
                         <hr class="my-4">
 
-                        <h5 class="mb-3"><i class="bi bi-file-earmark-text me-2"></i>KYC Document * (Mandatory)</h5>
+                        <h5 class="mb-3"><i class="bi bi-file-earmark-text me-2"></i>KYC Documents * (Mandatory)</h5>
                         <div class="alert alert-info mb-4">
                             <i class="bi bi-info-circle me-2"></i>
-                            <strong>Required:</strong> KYC document is mandatory for dealer registration. Please upload any one of the following: Aadhaar Card, PAN Card, Voter ID, or Driving License.
+                            <strong>Required:</strong> Please upload both your **Aadhaar Card** and **PAN Card** to complete your KYC registration.
                         </div>
+                        
+                        <!-- Aadhaar Card Details -->
+                        <h6 class="text-secondary fw-bold mb-3 border-bottom pb-2">Aadhaar Card</h6>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label">Document Type *</label>
-                                <select name="kyc_document_type" class="form-select @error('kyc_document_type') is-invalid @enderror" required>
-                                    <option value="">Select Document Type</option>
-                                    <option value="aadhar" {{ old('kyc_document_type') == 'aadhar' ? 'selected' : '' }}>Aadhaar Card</option>
-                                    <option value="pan" {{ old('kyc_document_type') == 'pan' ? 'selected' : '' }}>PAN Card</option>
-                                    <option value="voter_id" {{ old('kyc_document_type') == 'voter_id' ? 'selected' : '' }}>Voter ID</option>
-                                    <option value="driving_license" {{ old('kyc_document_type') == 'driving_license' ? 'selected' : '' }}>Driving License</option>
-                                </select>
-                                @error('kyc_document_type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Document Number *</label>
-                                <input type="text" name="kyc_document_number" class="form-control @error('kyc_document_number') is-invalid @enderror" value="{{ old('kyc_document_number') }}" required placeholder="Enter document number">
+                                <label class="form-label">Aadhaar Number *</label>
+                                <input type="text" name="kyc_document_number" class="form-control @error('kyc_document_number') is-invalid @enderror" value="{{ old('kyc_document_number') }}" required placeholder="12-digit Aadhaar Number">
                                 @error('kyc_document_number')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col-12">
-                                <label class="form-label">Upload KYC Document * (PDF, JPG, PNG - Max 5MB)</label>
+                            <div class="col-md-6">
+                                <label class="form-label">Upload Aadhaar Document * <small>(PDF, JPG, PNG - Max 5MB)</small></label>
                                 <input type="file" name="kyc_document" class="form-control @error('kyc_document') is-invalid @enderror" required accept=".pdf,.jpg,.jpeg,.png">
                                 @error('kyc_document')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- PAN Card Details -->
+                        <h6 class="text-secondary fw-bold mb-3 border-bottom pb-2">PAN Card</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">PAN Number *</label>
+                                <input type="text" name="pan_number" style="text-transform:uppercase" class="form-control @error('pan_number') is-invalid @enderror" value="{{ old('pan_number') }}" required placeholder="10-digit PAN Number" maxlength="10">
+                                @error('pan_number')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Upload PAN Document * <small>(PDF, JPG, PNG - Max 5MB)</small></label>
+                                <input type="file" name="pan_document" class="form-control @error('pan_document') is-invalid @enderror" required accept=".pdf,.jpg,.jpeg,.png">
+                                @error('pan_document')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

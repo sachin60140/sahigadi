@@ -76,15 +76,20 @@ class RazorpayService
         }
 
         return DB::transaction(function () use ($dealer, $razorpayOrderId, $razorpayPaymentId, $razorpaySignature, $amount, $type, $referenceId) {
-            $walletService = app(WalletService::class);
+            if ($type === 'wallet_recharge') {
+                $walletService = app(WalletService::class);
+                
+                // Subtract the 18% GST back out to compute the actual recharge amount
+                $walletCreditAmount = round($amount / 1.18, 2);
 
-            $walletService->credit(
-                $dealer->id,
-                $amount,
-                'Wallet recharge via Razorpay',
-                $razorpayPaymentId,
-                'payment'
-            );
+                $walletService->credit(
+                    $dealer->id,
+                    $walletCreditAmount,
+                    'Wallet recharge via Razorpay',
+                    $razorpayPaymentId,
+                    'payment'
+                );
+            }
 
             $payment = Payment::updateOrCreate(
                 ['razorpay_order_id' => $razorpayOrderId],

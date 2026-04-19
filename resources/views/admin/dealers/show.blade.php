@@ -47,6 +47,18 @@
                         <td>{{ $dealer->city ?? 'N/A' }}</td>
                     </tr>
                     <tr>
+                        <td class="text-muted">State</td>
+                        <td>{{ $dealer->state ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Pincode</td>
+                        <td>{{ $dealer->pincode ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Full Address</td>
+                        <td>{{ $dealer->address ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
                         <td class="text-muted">Status</td>
                         <td>
                             @if($dealer->status === 'approved')
@@ -74,17 +86,36 @@
                 <table class="table table-borderless">
                     <tr>
                         <td class="text-muted">Document Type</td>
-                        <td><strong>{{ ucfirst(str_replace('_', ' ', $dealer->kyc_document_type ?? 'N/A')) }}</strong></td>
+                        <td><strong>Aadhaar Card</strong></td>
                     </tr>
                     <tr>
-                        <td class="text-muted">Document Number</td>
+                        <td class="text-muted">Aadhaar Number</td>
                         <td><strong>{{ $dealer->kyc_document_number ?? 'N/A' }}</strong></td>
                     </tr>
                     <tr>
-                        <td class="text-muted">Document File</td>
+                        <td class="text-muted">Aadhaar File</td>
                         <td>
                             @if($dealer->kyc_document_path)
                                 <a href="{{ asset('storage/'.$dealer->kyc_document_path) }}" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-file-earmark-text me-1"></i>View Document
+                                </a>
+                            @else
+                                <span class="text-muted">Not uploaded</span>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><hr class="my-2"></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">PAN Number</td>
+                        <td><strong>{{ $dealer->pan_number ?? 'N/A' }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">PAN Document File</td>
+                        <td>
+                            @if($dealer->pan_document_path)
+                                <a href="{{ asset('storage/'.$dealer->pan_document_path) }}" target="_blank" class="btn btn-sm btn-primary">
                                     <i class="bi bi-file-earmark-text me-1"></i>View Document
                                 </a>
                             @else

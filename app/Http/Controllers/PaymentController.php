@@ -22,6 +22,12 @@ class PaymentController extends Controller
     {
         $type = $request->type;
         $amount = $request->amount;
+        
+        if ($type === 'wallet_recharge' && $request->has('recharge_amount')) {
+            $rechargeAmount = max(1000, (float) $request->recharge_amount);
+            $amount = round($rechargeAmount * 1.18, 2);
+        }
+
         $dealer = auth('dealer')->user();
         $balance = $this->walletService->getBalance($dealer->id);
 

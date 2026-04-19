@@ -105,12 +105,16 @@ class DealerController extends Controller
             'password' => 'nullable|min:6',
             'phone' => 'nullable|string|max:20',
             'company_name' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'pincode' => 'nullable|string|max:20',
             'status' => 'required|in:pending,approved,rejected',
             'gst_number' => 'nullable|string|max:15',
-            'kyc_document_type' => 'nullable|in:aadhar,pan,voter_id,driving_license',
             'kyc_document_number' => 'nullable|string|max:20',
             'kyc_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'pan_number' => 'nullable|string|max:20',
+            'pan_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'gst_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
@@ -119,10 +123,14 @@ class DealerController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'company_name' => $request->company_name,
+            'address' => $request->address,
             'city' => $request->city,
+            'state' => $request->state,
+            'pincode' => $request->pincode,
             'gst_number' => $request->gst_number,
-            'kyc_document_type' => $request->kyc_document_type,
+            'kyc_document_type' => 'aadhar',
             'kyc_document_number' => $request->kyc_document_number,
+            'pan_number' => $request->pan_number,
             'status' => $request->status,
         ];
 
@@ -132,6 +140,10 @@ class DealerController extends Controller
 
         if ($request->hasFile('kyc_document')) {
             $data['kyc_document_path'] = $request->file('kyc_document')->store('dealers/kyc', 'public');
+        }
+
+        if ($request->hasFile('pan_document')) {
+            $data['pan_document_path'] = $request->file('pan_document')->store('dealers/pan', 'public');
         }
 
         if ($request->hasFile('gst_document')) {
@@ -178,6 +190,21 @@ class DealerController extends Controller
         ]);
 
         return back()->with('success', 'Dealer rejected');
+    }
+
+    public function toggleStatus(Dealer $dealer)
+    {
+        if ($dealer->status === 'approved') {
+            $dealer->update([
+                'status' => 'rejected',
+                'rejection_reason' => 'Deactivated by administrator.'
+            ]);
+            return back()->with('success', 'Dealer deactivated successfully');
+        } else {
+            $dealer->update(['status' => 'approved']);
+            Wallet::firstOrCreate(['dealer_id' => $dealer->id], ['balance' => 0]);
+            return back()->with('success', 'Dealer activated successfully');
+        }
     }
 
     public function addMoney(Request $request, Dealer $dealer)

@@ -66,6 +66,7 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
 
             Route::get('/wallet', [WalletController::class, 'index'])->name('wallet.index');
             Route::get('/wallet/add', [WalletController::class, 'add'])->name('wallet.add');
+            Route::get('/wallet/transaction/{id}/receipt', [WalletController::class, 'downloadReceipt'])->name('wallet.receipt');
 
             Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
             Route::get('/plans/{plan}', [PlanController::class, 'show'])->name('plans.show');
@@ -113,6 +114,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('dealers', DealerController::class);
         Route::post('/dealers/{dealer}/approve', [DealerController::class, 'approve'])->name('dealers.approve');
         Route::post('/dealers/{dealer}/reject', [DealerController::class, 'reject'])->name('dealers.reject');
+        Route::post('/dealers/{dealer}/toggle-status', [DealerController::class, 'toggleStatus'])->name('dealers.toggle-status');
         Route::post('/dealers/{dealer}/add-money', [DealerController::class, 'addMoney'])->name('dealers.add-money');
         Route::post('/dealers/{dealer}/debit-money', [DealerController::class, 'debitMoney'])->name('dealers.debit-money');
         Route::post('/dealers/{dealer}/assign-plan', [DealerController::class, 'assignPlan'])->name('dealers.assign-plan');
@@ -179,6 +181,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/service-tracking/challan-search/{id}', [ServiceTrackingController::class, 'showChallan'])->name('service-tracking.challan-search.show');
         Route::get('/service-tracking/challan-search/{id}/pdf', [ServiceTrackingController::class, 'downloadChallanPdf'])->name('service-tracking.challan-search.pdf');
         
+        Route::get('/wallet-recharges', [App\Http\Controllers\Admin\WalletRechargeController::class, 'index'])->name('wallet-recharges.index');
+        Route::get('/wallet-recharges/export/excel', [App\Http\Controllers\Admin\WalletRechargeController::class, 'exportExcel'])->name('wallet-recharges.exportExcel');
+        Route::get('/wallet-recharges/export/pdf', [App\Http\Controllers\Admin\WalletRechargeController::class, 'exportPdf'])->name('wallet-recharges.exportPdf');
+        Route::get('/wallet-recharges/{id}/receipt', [App\Http\Controllers\Admin\WalletRechargeController::class, 'downloadReceipt'])->name('wallet-recharges.receipt');
+
         Route::get('/customer-transactions', [App\Http\Controllers\Admin\CustomerTransactionController::class, 'index'])->name('customer-transactions.index');
         Route::get('/customer-transactions/{id}', [App\Http\Controllers\Admin\CustomerTransactionController::class, 'show'])->name('customer-transactions.show');
         Route::post('/customer-transactions/{id}/refund', [App\Http\Controllers\Admin\CustomerTransactionController::class, 'refund'])->name('customer-transactions.refund');

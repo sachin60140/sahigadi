@@ -45,6 +45,18 @@
                         <td><?php echo e($dealer->city ?? 'N/A'); ?></td>
                     </tr>
                     <tr>
+                        <td class="text-muted">State</td>
+                        <td><?php echo e($dealer->state ?? 'N/A'); ?></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Pincode</td>
+                        <td><?php echo e($dealer->pincode ?? 'N/A'); ?></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Full Address</td>
+                        <td><?php echo e($dealer->address ?? 'N/A'); ?></td>
+                    </tr>
+                    <tr>
                         <td class="text-muted">Status</td>
                         <td>
                             <?php if($dealer->status === 'approved'): ?>
@@ -72,17 +84,36 @@
                 <table class="table table-borderless">
                     <tr>
                         <td class="text-muted">Document Type</td>
-                        <td><strong><?php echo e(ucfirst(str_replace('_', ' ', $dealer->kyc_document_type ?? 'N/A'))); ?></strong></td>
+                        <td><strong>Aadhaar Card</strong></td>
                     </tr>
                     <tr>
-                        <td class="text-muted">Document Number</td>
+                        <td class="text-muted">Aadhaar Number</td>
                         <td><strong><?php echo e($dealer->kyc_document_number ?? 'N/A'); ?></strong></td>
                     </tr>
                     <tr>
-                        <td class="text-muted">Document File</td>
+                        <td class="text-muted">Aadhaar File</td>
                         <td>
                             <?php if($dealer->kyc_document_path): ?>
                                 <a href="<?php echo e(asset('storage/'.$dealer->kyc_document_path)); ?>" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-file-earmark-text me-1"></i>View Document
+                                </a>
+                            <?php else: ?>
+                                <span class="text-muted">Not uploaded</span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><hr class="my-2"></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">PAN Number</td>
+                        <td><strong><?php echo e($dealer->pan_number ?? 'N/A'); ?></strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">PAN Document File</td>
+                        <td>
+                            <?php if($dealer->pan_document_path): ?>
+                                <a href="<?php echo e(asset('storage/'.$dealer->pan_document_path)); ?>" target="_blank" class="btn btn-sm btn-primary">
                                     <i class="bi bi-file-earmark-text me-1"></i>View Document
                                 </a>
                             <?php else: ?>
