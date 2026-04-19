@@ -1,0 +1,27 @@
+# SAHIGADI robots.txt - SEO Optimization
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: {{ url('/sitemap.xml') }}
+
+# Disallow admin and dealer areas
+Disallow: /admin/
+Disallow: /dealer/dashboard
+Disallow: /dealer/cars/create
+Disallow: /dealer/wallet
+Disallow: /dealer/plans
+
+# Allow search engines to crawl public pages
+Allow: /cars
+Allow: /car/*
+Allow: /sell-your-car
+Allow: /page/*
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Block common bot traps
+Disallow: /api/
+Disallow: /_debug/

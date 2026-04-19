@@ -1,0 +1,390 @@
+@extends('layouts.app')
+
+@push('json_ld')
+<script type="application/ld+json">
+{!! json_encode($homepageSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+@endpush
+
+@php
+$seoTitle = 'SAHIGADI - Trusted Used Car Marketplace in Patna, Bihar';
+$seoDescription = 'Find the best verified pre-owned cars in Patna, Bihar. SAHIGADI - Your trusted car marketplace with quality assurance, transparent pricing, and hassle-free transactions.';
+$seoKeywords = 'used cars Patna, pre-owned cars Bihar, car marketplace, buy sell cars Patna, verified cars, affordable cars';
+@endphp
+
+@section('title', $seoTitle)
+@section('meta_description', $seoDescription)
+@section('meta_keywords', $seoKeywords)
+
+@section('content')
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <h1 class="text-white mb-4">Find Your Perfect <span>Pre-Owned Car</span></h1>
+                <p class="text-white-50 mb-4 fs-5">Your trusted marketplace for verified used cars in Bihar. Quality assurance, transparent pricing, and hassle-free transactions.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ route('cars.index') }}" class="btn btn-accent btn-lg">
+                        <i class="bi bi-search me-2"></i>Browse Cars
+                    </a>
+                    <a href="{{ route('sell-car.index') }}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-shop me-2"></i>Sell Your Car
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="search-box">
+                    <h5 class="mb-4 fw-bold"><i class="bi bi-search me-2"></i>Find Your Car</h5>
+                    <form action="{{ route('cars.index') }}" method="GET">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" name="keyword" class="form-control" placeholder="Search keyword...">
+                            </div>
+                            <div class="col-md-6">
+                                <select name="city" class="form-select">
+                                    <option value="">Select City</option>
+                                    @foreach($cities as $city)
+                                        <option value="{{ $city }}">{{ $city }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <select name="brand" class="form-select">
+                                    <option value="">Select Brand</option>
+                                    @foreach($brands as $brand)
+                                        <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <select name="fuel_type" class="form-select">
+                                    <option value="">Fuel Type</option>
+                                    <option value="petrol">Petrol</option>
+                                    <option value="diesel">Diesel</option>
+                                    <option value="electric">Electric</option>
+                                    <option value="hybrid">Hybrid</option>
+                                    <option value="cng">CNG</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-accent w-100 py-3">
+                                    <i class="bi bi-search me-2"></i>Search Cars
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if($allFeatured->count() > 0)
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="section-title">Featured Cars</h2>
+                <p class="text-muted">Handpicked premium listings just for you</p>
+            </div>
+            <a href="{{ route('cars.index') }}" class="btn btn-outline-accent">View All <i class="bi bi-arrow-right ms-2"></i></a>
+        </div>
+        <div class="row">
+            @foreach($allFeatured as $item)
+            @php
+                $imageUrl = null;
+                if ($item instanceof \App\Models\CustomerCarListing) {
+                    $images = json_decode($item->images ?? '[]', true);
+                    $imageUrl = count($images) > 0 ? asset('storage/'.$images[0]) : null;
+                } elseif ($item->relationLoaded('images')) {
+                    $imageUrl = $item->image_url;
+                }
+            @endphp
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <div class="position-relative">
+                        @if($imageUrl)
+                            <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $item->title }}">
+                        @else
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-car-front text-secondary" style="font-size: 4rem;"></i>
+                            </div>
+                        @endif
+                        <span class="position-absolute top-0 start-0 badge badge-featured m-2">
+                            <i class="bi bi-star-fill me-1"></i> Featured
+                        </span>
+                        <span class="position-absolute top-0 end-0 badge bg-dark text-white m-2">
+                            {{ $item->year ?? 'N/A' }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold">{{ Str::limit($item->title, 28) }}</h6>
+                        <div class="d-flex flex-wrap gap-2 small text-muted mb-3">
+                            @if($item->km_driven)
+                            <span><i class="bi bi-speedometer2 me-1"></i>{{ number_format($item->km_driven) }} km</span>
+                            @endif
+                            <span><i class="bi bi-gear me-1"></i>{{ ucfirst($item->transmission ?? 'N/A') }}</span>
+                            <span><i class="bi bi-fuelPump me-1"></i>{{ ucfirst($item->fuel_type ?? 'N/A') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price-tag">₹{{ number_format($item->price ?? 0) }}</span>
+                            <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ $item->city ?? 'N/A' }}</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0">
+                        <a href="{{ route('car.detail', $item->slug) }}" class="btn btn-outline-accent btn-sm w-100">
+                            <i class="bi bi-eye me-2"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title mx-auto">Latest Cars</h2>
+            <p class="text-muted">Fresh listings added every day</p>
+        </div>
+        <div class="row">
+            @foreach($allCars as $car)
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <div class="position-relative">
+                        @php
+                            $isCustomerListing = $car instanceof \App\Models\CustomerCarListing;
+                            $imageUrl = null;
+                            if ($isCustomerListing) {
+                                $listingImages = json_decode($car->images ?? '[]', true);
+                                $imageUrl = count($listingImages) > 0 ? asset('storage/'.$listingImages[0]) : null;
+                            } elseif ($car->relationLoaded('images')) {
+                                $imageUrl = $car->image_url;
+                            }
+                        @endphp
+                        @if($imageUrl)
+                            <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $car->title }}">
+                        @else
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-car-front text-secondary" style="font-size: 4rem;"></i>
+                            </div>
+                        @endif
+                        @if($isCustomerListing)
+                        <span class="position-absolute top-0 start-0 badge bg-info m-2">
+                            <i class="bi bi-person me-1"></i>Owner
+                        </span>
+                        @endif
+                        <span class="position-absolute top-0 end-0 badge bg-dark text-white m-2">
+                            {{ $car->year ?? 'N/A' }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold">{{ Str::limit($car->title, 28) }}</h6>
+                        <div class="d-flex flex-wrap gap-2 small text-muted mb-3">
+                            @if($car->km_driven)
+                            <span><i class="bi bi-speedometer2 me-1"></i>{{ number_format($car->km_driven) }} km</span>
+                            @endif
+                            <span><i class="bi bi-gear me-1"></i>{{ ucfirst($car->transmission ?? 'N/A') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price-tag">₹{{ number_format($car->price ?? 0) }}</span>
+                            <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ $car->city ?? 'N/A' }}</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0">
+                        <a href="{{ route('car.detail', $car->slug) }}" class="btn btn-outline-accent btn-sm w-100">
+                            <i class="bi bi-eye me-2"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+
+            @if($allCars->count() == 0)
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-car-front text-secondary" style="font-size: 5rem;"></i>
+                <h4 class="mt-3 text-secondary">No Cars Available</h4>
+                <p class="text-muted">Be the first to list your car!</p>
+                <a href="{{ route('dealer.register') }}" class="btn btn-accent">Register as Dealer</a>
+            </div>
+            @endif
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title mx-auto">Browse by Brand</h2>
+            <p class="text-muted">Find cars from your favorite brands</p>
+        </div>
+        <div class="row g-3">
+            @foreach($brands->take(8) as $brand)
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{{ route('cars.brand', $brand->slug) }}" class="text-decoration-none">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="icon-box mx-auto mb-3">
+                                <i class="bi bi-car-front-fill" style="font-size: 2.5rem; color: var(--accent);"></i>
+                            </div>
+                            <h6 class="fw-bold mb-1 text-dark">{{ $brand->name }}</h6>
+                            <small class="text-muted">{{ $brand->cars_count ?? '' }} Cars</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background: #f8f9fa;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title mx-auto">Our Services</h2>
+            <p class="text-muted">Premium services for your vehicle needs</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box me-4">
+                                <i class="bi bi-car-front" style="font-size: 2.5rem; color: var(--accent);"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">RC Search (Vahan)</h5>
+                                <p class="text-muted mb-0">Get complete vehicle registration details</p>
+                                <a href="{{ route('vehicle-search.index') }}" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="bi bi-arrow-right me-1"></i>Check Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box me-4">
+                                <i class="bi bi-wrench" style="font-size: 2.5rem; color: var(--accent);"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Service History</h5>
+                                <p class="text-muted mb-0">Get complete service records from Mahindra</p>
+                                <a href="{{ route('service-history.index') }}" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="bi bi-arrow-right me-1"></i>Check Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box me-4">
+                                <i class="bi bi-receipt" style="font-size: 2.5rem; color: var(--accent);"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">E-Challan Check</h5>
+                                <p class="text-muted mb-0">Check your traffic challans online</p>
+                                <a href="{{ route('challan-search.index') }}" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="bi bi-arrow-right me-1"></i>Check Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box me-4">
+                                <i class="bi bi-car-front-fill" style="font-size: 2.5rem; color: var(--accent);"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Buy Used Car</h5>
+                                <p class="text-muted mb-0">Find your dream car from thousands of verified listings</p>
+                                <a href="{{ route('cars.index') }}" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="bi bi-arrow-right me-1"></i>Browse Cars
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box me-4">
+                                <i class="bi bi-sell" style="font-size: 2.5rem; color: var(--accent);"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Sell Your Car</h5>
+                                <p class="text-muted mb-0">Sell your car quickly at best price</p>
+                                <a href="{{ route('sell-car.index') }}" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="bi bi-arrow-right me-1"></i>Sell Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box me-4">
+                                <i class="bi bi-shield-check" style="font-size: 2.5rem; color: var(--accent);"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Dealer Verification</h5>
+                                <p class="text-muted mb-0">Verified dealers with authentic listings</p>
+                                <a href="{{ route('verified-dealers') }}" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="bi bi-arrow-right me-1"></i>View Dealers
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="text-white">
+                    <i class="bi bi-shield-check" style="font-size: 3rem;"></i>
+                    <h3 class="mt-3 fw-bold">100% Verified</h3>
+                    <p class="text-white-50 mb-0">All cars are verified by our team</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-white">
+                    <i class="bi bi-currency-rupee" style="font-size: 3rem;"></i>
+                    <h3 class="mt-3 fw-bold">Best Prices</h3>
+                    <p class="text-white-50 mb-0">Competitive and transparent pricing</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-white">
+                    <i class="bi bi-headset" style="font-size: 3rem;"></i>
+                    <h3 class="mt-3 fw-bold">24/7 Support</h3>
+                    <p class="text-white-50 mb-0">We're here to help you anytime</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endsection

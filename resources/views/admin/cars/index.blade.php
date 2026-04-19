@@ -1,0 +1,124 @@
+@extends('layouts.admin')
+
+@section('title', 'Manage Cars - SAHIGADI Admin')
+
+@section('content')
+<div class="top-bar">
+    <div>
+        <h4><i class="bi bi-car-front-fill me-2"></i>Manage Cars</h4>
+        <small class="text-muted">View and manage all car listings</small>
+    </div>
+    <a href="{{ route('admin.cars.create') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>Add New Car
+    </a>
+</div>
+
+<div class="stat-card mb-4">
+    <form action="{{ route('admin.cars.index') }}" method="GET" class="row g-3">
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="all">All Status</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control" placeholder="Search by title..." value="{{ request('search') }}">
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search me-2"></i>Filter</button>
+            <a href="{{ route('admin.cars.index') }}" class="btn btn-outline-secondary">Clear</a>
+        </div>
+    </form>
+</div>
+
+<div class="table-modern">
+    <table class="table table-modern mb-0">
+        <thead>
+            <tr>
+                <th><i class="bi bi-image me-1"></i>Image</th>
+                <th><i class="bi bi-car me-1"></i>Car</th>
+                <th><i class="bi bi-person me-1"></i>Dealer</th>
+                <th><i class="bi bi-currency-rupee me-1"></i>Price</th>
+                <th><i class="bi bi-geo-alt me-1"></i>Location</th>
+                <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                <th><i class="bi bi-star me-1"></i>Featured</th>
+                <th><i class="bi bi-gear me-1"></i>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($cars as $car)
+            <tr>
+                <td>
+                    @if($car->image_url)
+                        <img src="{{ $car->image_url }}" alt="" style="width: 80px; height: 60px; object-fit: cover; border-radius: 8px;">
+                    @else
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="width: 80px; height: 60px; border-radius: 8px;">
+                            <i class="bi bi-car-front text-secondary"></i>
+                        </div>
+                    @endif
+                </td>
+                <td>
+                    <strong>{{ Str::limit($car->title, 25) }}</strong>
+                    <br><small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ $car->city ?? 'N/A' }}</small>
+                </td>
+                <td>{{ Str::limit($car->dealer->name ?? 'N/A', 20) }}</td>
+                <td class="fw-bold">₹{{ number_format($car->price ?? 0) }}</td>
+                <td>
+                    @if($car->latitude && $car->longitude)
+                        <a href="https://www.google.com/maps?q={{ $car->latitude }},{{ $car->longitude }}" target="_blank" class="btn btn-sm btn-outline-success" title="View on Google Maps">
+                            <i class="bi bi-geo-alt"></i>
+                        </a>
+                    @else
+                        <span class="text-muted">-</span>
+                    @endif
+                </td>
+                <td>
+                    @if($car->status === 'approved')
+                        <span class="badge bg-success badge-modern"><i class="bi bi-check-circle me-1"></i>Approved</span>
+                    @elseif($car->status === 'pending')
+                        <span class="badge bg-warning text-dark badge-modern"><i class="bi bi-clock me-1"></i>Pending</span>
+                    @else
+                        <span class="badge bg-danger badge-modern"><i class="bi bi-x-circle me-1"></i>Rejected</span>
+                    @endif
+                </td>
+                <td>
+                    @if($car->isFeatured())
+                        <span class="badge bg-warning text-dark badge-modern"><i class="bi bi-star-fill me-1"></i>Featured</span>
+                    @else
+                        <span class="badge bg-secondary badge-modern"><i class="bi bi-star me-1"></i>No</span>
+                    @endif
+                </td>
+                <td>
+                    <a href="{{ route('admin.cars.show', $car) }}" class="btn btn-sm btn-outline-primary me-1">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    @if($car->status === 'pending')
+                    <form action="{{ route('admin.cars.approve', $car) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-success">
+                            <i class="bi bi-check"></i>
+                        </button>
+                    </form>
+                    @endif
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <i class="bi bi-car-front" style="font-size: 3rem; color: #ccc;"></i>
+                    <h5 class="mt-2 text-muted">No cars found</h5>
+                </td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
+
+@if($cars->hasPages())
+<div class="d-flex justify-content-center mt-4">
+    {{ $cars->withQueryString()->links() }}
+</div>
+@endif
+@endsection
