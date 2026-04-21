@@ -34,8 +34,11 @@
             <tr>
                 <th>Date</th>
                 <th>Receipt No</th>
+                <th>Company Name</th>
                 <th>Dealer Name</th>
+                <th>Contact</th>
                 <th>GST Number</th>
+                <th>Payment Mode</th>
                 <th class="text-right">Base (Rs)</th>
                 <th class="text-right">GST 18% (Rs)</th>
                 <th class="text-right">Total Paid (Rs)</th>
@@ -54,26 +57,30 @@
 
                 $receipt = 'RCPT-' . $txn->created_at->format('Y') . '-' . str_pad($txn->id, 5, '0', STR_PAD_LEFT);
                 $dealer = $txn->wallet->dealer;
+                $paymentMode = $txn->reference_type === 'admin_credit' ? 'Direct Deposit' : 'Razorpay';
             @endphp
             <tr>
                 <td>{{ $txn->created_at->format('d M Y, H:i') }}</td>
                 <td>{{ $receipt }}</td>
-                <td>{{ $dealer->name ?? 'N/A' }}<br><small style="color:#666">{{ $dealer->firm_name ?? '' }}</small></td>
+                <td>{{ $dealer->company_name ?? 'N/A' }}</td>
+                <td>{{ $dealer->name ?? 'N/A' }}</td>
+                <td>{{ $dealer->email ?? '' }}<br><small style="color:#666">{{ $dealer->phone ?? '' }}</small></td>
                 <td>{{ $dealer->gst_number ?? 'N/A' }}</td>
+                <td>{{ $paymentMode }}<br><small style="color:#666">{{ $txn->reference_id ?? '' }}</small></td>
                 <td class="text-right">{{ number_format($base, 2) }}</td>
                 <td class="text-right">{{ number_format($gst, 2) }}</td>
                 <td class="text-right">{{ number_format($total, 2) }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="7" style="text-align:center">No recharges found for the specified period.</td>
+                <td colspan="10" style="text-align:center">No recharges found for the specified period.</td>
             </tr>
             @endforelse
         </tbody>
         @if($transactions->isNotEmpty())
         <tfoot>
             <tr>
-                <td colspan="4" class="text-right font-weight-bold">Grand Total:</td>
+                <td colspan="7" class="text-right font-weight-bold">Grand Total:</td>
                 <td class="text-right font-weight-bold">{{ number_format($totalBase, 2) }}</td>
                 <td class="text-right font-weight-bold">{{ number_format($totalGst, 2) }}</td>
                 <td class="text-right font-weight-bold">{{ number_format($totalPaid, 2) }}</td>

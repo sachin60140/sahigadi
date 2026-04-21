@@ -17,13 +17,28 @@ class DashboardController extends Controller
     {
         $stats = [
             'pending_dealers' => Dealer::where('status', 'pending')->count(),
+            'approved_dealers' => Dealer::where('status', 'approved')->count(),
             'total_dealers' => Dealer::count(),
+            
             'pending_cars' => Car::where('status', 'pending')->count(),
+            'approved_cars' => Car::where('status', 'approved')->count(),
             'total_cars' => Car::count(),
+            
             'pending_customer_listings' => CustomerCarListing::where('status', 'pending')->count(),
-            'total_customer_listings' => CustomerCarListing::count(),
             'approved_customer_listings' => CustomerCarListing::where('status', 'approved')->count(),
+            'total_customer_listings' => CustomerCarListing::count(),
+            
             'total_plans' => Plan::count(),
+            
+            'total_wallet_recharges' => \App\Models\WalletTransaction::where('type', 'credit')->sum('amount'),
+            
+            'total_enquiries' => \App\Models\Enquiry::count(),
+            'contact_enquiries' => \App\Models\ContactEnquiry::where('is_read', false)->count(),
+            
+            'vahan_lookups' => \App\Models\VehicleDetail::count() + \App\Models\CustomerVehicleSearch::count() + \App\Models\AdminVehicleSearch::count(),
+            'mahindra_lookups' => \App\Models\ServiceHistory::count() + \App\Models\CustomerServiceHistory::count() + \App\Models\AdminServiceHistory::count(),
+            'maruti_lookups' => \App\Models\MarutiServiceHistory::count() + \App\Models\CustomerMarutiServiceHistory::count() + \App\Models\AdminMarutiServiceHistory::count(),
+            'challan_lookups' => \App\Models\CustomerChallanSearch::count() + \App\Models\AdminChallanSearch::count(),
         ];
 
         return view('admin.dashboard', compact('stats'));

@@ -25,10 +25,13 @@ class WalletRechargesExport implements FromCollection, WithHeadings, WithMapping
         return [
             'Date',
             'Receipt No',
+            'Company Name',
             'Dealer Name',
-            'Firm Name',
+            'Email',
+            'Phone',
             'GST Number',
-            'Razorpay Ref ID',
+            'Payment Mode',
+            'Reference ID',
             'Base Amount (Rs)',
             'GST Amount (Rs)',
             'Total Paid (Rs)'
@@ -43,13 +46,17 @@ class WalletRechargesExport implements FromCollection, WithHeadings, WithMapping
         
         $receipt = 'RCPT-' . $transaction->created_at->format('Y') . '-' . str_pad($transaction->id, 5, '0', STR_PAD_LEFT);
         $dealer = $transaction->wallet->dealer;
+        $paymentMode = $transaction->reference_type === 'admin_credit' ? 'Direct Deposit' : 'Razorpay';
 
         return [
             $transaction->created_at->format('d M Y, h:i A'),
             $receipt,
+            $dealer->company_name ?? 'N/A',
             $dealer->name ?? 'N/A',
-            $dealer->firm_name ?? 'N/A',
+            $dealer->email ?? 'N/A',
+            $dealer->phone ?? 'N/A',
             $dealer->gst_number ?? 'N/A',
+            $paymentMode,
             $transaction->reference_id ?? 'N/A',
             number_format($base, 2, '.', ''),
             number_format($gst, 2, '.', ''),

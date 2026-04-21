@@ -17,7 +17,8 @@ class WalletRechargeController extends Controller
             ->where('type', 'credit')
             ->where(function($q) {
                 $q->where('remark', 'LIKE', '%recharge%')
-                  ->orWhere('reference_type', 'payment');
+                  ->orWhere('reference_type', 'payment')
+                  ->orWhere('reference_type', 'admin_credit');
             });
 
         if ($request->filled('from_date')) {

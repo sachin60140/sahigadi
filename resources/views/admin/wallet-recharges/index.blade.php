@@ -89,7 +89,13 @@
                             <td class="fw-bold">₹{{ number_format($total, 2) }}</td>
                             <td>
                                 <div class="d-flex flex-column gap-1 align-items-start">
-                                    <small class="user-select-all text-secondary"><i class="bi bi-hash"></i> {{ $txn->reference_id ?? 'N/A' }}</small>
+                                    @if($txn->reference_type === 'admin_credit')
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mb-1"><i class="bi bi-bank me-1"></i>Direct Deposit</span>
+                                        <small class="user-select-all text-secondary" style="font-size:0.7rem;"><i class="bi bi-person-badge"></i> {{ $txn->reference_id ?? 'N/A' }}</small>
+                                    @else
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 mb-1"><i class="bi bi-credit-card me-1"></i>Razorpay</span>
+                                        <small class="user-select-all text-secondary" style="font-size:0.7rem;"><i class="bi bi-hash"></i> {{ $txn->reference_id ?? 'N/A' }}</small>
+                                    @endif
                                     <div class="d-flex align-items-center gap-2 mt-1">
                                         <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill"><i class="bi bi-check-circle-fill me-1"></i>Success</span>
                                         <a href="{{ route('admin.wallet-recharges.receipt', $txn->id) }}" class="btn btn-sm btn-outline-primary" style="padding: 1px 6px; font-size: 0.75rem;" title="Download Receipt">
