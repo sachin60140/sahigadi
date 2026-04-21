@@ -33,9 +33,15 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
 Route::get('/car/{slug}', [CarController::class, 'show'])->name('car.detail');
 Route::post('/car/{slug}/enquiry', [CarController::class, 'enquiry'])->name('car.enquiry');
-Route::get('/cars/{city}', [CarController::class, 'byCity'])->name('cars.city');
-Route::get('/used-{brand}-cars', [CarController::class, 'byBrand'])->name('cars.brand');
-Route::get('/used-{brand}-cars-in-{city}', [CarController::class, 'byBrand'])->name('cars.brand.city');
+Route::get('/used-cars-in-{city}', [CarController::class, 'byCity'])
+    ->name('cars.city');
+Route::get('/used-{brand}-cars', [CarController::class, 'byBrand'])
+    ->name('cars.brand')
+    ->where('brand', '[a-zA-Z0-9\-]+');
+Route::get('/used-{brand}-cars-in-{city}', [CarController::class, 'byBrand'])
+    ->name('cars.brand.city')
+    ->where('brand', '[a-zA-Z0-9\-]+')
+    ->where('city', '[a-zA-Z0-9\-]+');
 Route::get('/catalog/{slug}', [CarController::class, 'dealerCatalog'])->name('dealer.catalog');
 Route::get('/verified-dealers', [CarController::class, 'verifiedDealers'])->name('verified-dealers');
 

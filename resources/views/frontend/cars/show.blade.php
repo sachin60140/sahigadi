@@ -59,7 +59,10 @@ $totalImages = count($allImages);
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-white text-decoration-none">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('cars.index') }}" class="text-white text-decoration-none">Cars</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('cars.index') }}" class="text-white text-decoration-none">Used Cars</a></li>
+                @if($item->city)
+                <li class="breadcrumb-item"><a href="{{ route('cars.city', str_replace(' ', '-', strtolower($item->city))) }}" class="text-white text-decoration-none">{{ $item->city }}</a></li>
+                @endif
                 <li class="breadcrumb-item text-white-50 active" aria-current="page">{{ Str::limit($item->title, 30) }}</li>
             </ol>
         </nav>
@@ -96,8 +99,8 @@ $totalImages = count($allImages);
                     <div class="d-flex flex-wrap gap-2">
                         @foreach($allImages as $index => $image)
                         <img src="{{ $image }}" 
-                             class="img-thumbnail {{ $index === 0 ? 'border-primary' : '' }}" 
-                             style="width: 100px; height: 70px; object-fit: cover; cursor: pointer;" 
+                             class="img-thumbnail {{ $index === 0 ? 'border-primary' : 'border-transparent' }}" 
+                             style="width: 100px; height: 70px; object-fit: cover; cursor: pointer; border-width: 2px;" 
                              alt="Thumbnail {{ $index + 1 }}"
                              onclick="setActiveSlide({{ $index }})">
                         @endforeach
@@ -302,7 +305,7 @@ $totalImages = count($allImages);
 
     @if($relatedCars->count() > 0)
     <section class="mt-5">
-        <h4 class="mb-4"><i class="bi bi-grid me-2"></i>Related Cars</h4>
+        <h4 class="mb-4"><i class="bi bi-grid me-2"></i>Related Used Cars {{ $item->city ? 'in ' . $item->city : '' }}</h4>
         <div class="row">
             @foreach($relatedCars as $relatedCar)
             <div class="col-lg-3 col-md-6 mb-4">
@@ -330,3 +333,34 @@ $totalImages = count($allImages);
     </section>
     @endif
 @endsection
+
+@push('scripts')
+<script>
+    function setActiveSlide(index) {
+        let myCarousel = document.getElementById('carCarousel');
+        let carousel = bootstrap.Carousel.getInstance(myCarousel);
+        if (!carousel) {
+            carousel = new bootstrap.Carousel(myCarousel);
+        }
+        carousel.to(index);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        let carouselElement = document.getElementById('carCarousel');
+        if (carouselElement) {
+            carouselElement.addEventListener('slide.bs.carousel', function (e) {
+                let thumbnails = document.querySelectorAll('.img-thumbnail');
+                thumbnails.forEach((thumb, i) => {
+                    if (i === e.to) {
+                        thumb.classList.add('border-primary');
+                        thumb.classList.remove('border-transparent');
+                    } else {
+                        thumb.classList.remove('border-primary');
+                        thumb.classList.add('border-transparent');
+                    }
+                });
+            });
+        }
+    });
+</script>
+@endpush

@@ -268,8 +268,8 @@ class CarController extends Controller
         $cars = $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc')->paginate(12);
         $brands = Brand::active()->orderBy('name')->get();
 
-        $seoTitle = "Used Cars in {$cityName} - Browse Best Pre-Owned Cars";
-        $seoDescription = "Find the best collection of pre-owned cars in {$cityName}. Browse verified listings with photos, prices, and dealer details.";
+        $seoTitle = "Used Cars in {$cityName} - Best Deals on Second Hand Cars";
+        $seoDescription = "Buy verified used cars in {$cityName}. Best price deals, easy financing, doorstep delivery. Find your perfect second hand vehicle.";
 
         return view('frontend.cars.city', compact('cars', 'brands', 'city', 'cityName', 'seoTitle', 'seoDescription'));
     }
@@ -310,8 +310,13 @@ class CarController extends Controller
 
         $allCars = $cars->concat($customerListings)->sortByDesc('created_at')->values();
 
-        $seoTitle = "Used {$brandName} Cars".($cityName ? " in {$cityName}" : '').' - Pre-Owned Car Marketplace';
-        $seoDescription = "Browse the best collection of pre-owned {$brandName} cars".($cityName ? " in {$cityName}" : '').'. Verified listings with detailed information.';
+        if ($cityName) {
+            $seoTitle = "Used {$brandName} Cars in {$cityName} - Best Deals on Second Hand Cars";
+            $seoDescription = "Buy verified used {$brandName} cars in {$cityName}. Best price deals, easy financing, doorstep delivery.";
+        } else {
+            $seoTitle = "Used {$brandName} Cars - Best Deals on Second Hand Cars";
+            $seoDescription = "Buy verified used {$brandName} cars. Best price deals, easy financing, doorstep delivery.";
+        }
 
         return view('frontend.cars.brand', [
             'allCars' => $allCars,

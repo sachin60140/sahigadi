@@ -104,7 +104,7 @@
                     <div class="card h-100">
                         <div class="position-relative">
                             @if($car->image_url)
-                                <img src="{{ $car->image_url }}" class="card-img-top" alt="{{ $car->title }}">
+                                <img src="{{ $car->image_url }}" class="card-img-top" alt="{{ $car->title }}" loading="lazy">
                             @else
                                 <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                                     <i class="bi bi-car-front text-secondary" style="font-size: 4rem;"></i>
@@ -157,7 +157,7 @@
                                 $images = json_decode($listing->images, true) ?? [];
                             @endphp
                             @if(count($images) > 0)
-                                <img src="{{ asset('storage/' . $images[0]) }}" class="card-img-top" alt="{{ $listing->title }}">
+                                <img src="{{ asset('storage/' . $images[0]) }}" class="card-img-top" alt="{{ $listing->title }}" loading="lazy">
                             @else
                                 <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                                     <i class="bi bi-car-front text-secondary" style="font-size: 4rem;"></i>

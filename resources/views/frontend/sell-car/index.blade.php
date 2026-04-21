@@ -1,13 +1,64 @@
 @extends('layouts.app')
 
-@section('title', 'Sell Your Car - List Your Vehicle | SAHIGADI')
+@section('title', 'Sell Your Used Car Online In India - Best Market Price | SAHIGADI')
+@section('meta_description', 'Looking to sell your car in Bihar, Patna, or anywhere in India? List your second-hand car on SAHIGADI for free valuation, instant payout, and hassle-free RC transfer.')
+@section('meta_keywords', 'sell my car in Bihar, sell second hand car online, used car dealer in Bihar, second hand cars in Patna, used cars in Muzaffarpur, sell used car online')
+@section('canonical', route('sell-car.index'))
 
+@push('json_ld')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "WebPage",
+  "name": "Sell Used Car Online - Instant Valuation | SAHIGADI",
+  "description": "Sell your car quickly for the best market price. Fast inspection, instant payout, and hassle-free RC transfer across Patna, Bihar, and PAN India.",
+  "url": "{{ route('sell-car.index') }}"
+}
+</script>
+@endpush
 @section('content')
 <section class="py-5" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);">
     <div class="container">
         <div class="text-center text-white">
-            <h1 class="fw-bold mb-3">Sell Your Car</h1>
-            <p class="lead text-white-50">List your vehicle and connect with thousands of potential buyers</p>
+            <h1 class="fw-bold mb-3">Sell Your Car Online at the Best Price</h1>
+            <p class="lead text-white-50">Get free valuation, doorstep inspection, and connect with verified buyers</p>
+        </div>
+    </div>
+</section>
+
+<!-- SEO Content Block for Local & National Keywords -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-10 mx-auto">
+               <h2 class="h3 fw-bold text-dark">Ready to "Sell My Car" in Bihar or Across India?</h2>
+               <p class="text-muted lead">
+                   Whether you are looking for a reliable <strong>used car dealer in Bihar</strong> or want to sell <strong>second hand cars in Patna</strong> and <strong>used cars in Muzaffarpur</strong>, SAHIGADI is your top trusted platform. We provide a transparent bridge between individual sellers and verified buyers networks across our PAN-India marketplace.
+               </p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="p-4 bg-light rounded-4 h-100">
+                    <i class="bi bi-cash-coin text-accent mb-3" style="font-size: 3.5rem;"></i>
+                    <h5 class="fw-bold mt-2">Maximum Resale Value</h5>
+                    <p class="text-muted small">Our marketplace ensures your listing reaches thousands of active buyers guaranteeing you the highest competitive market price.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="p-4 bg-light rounded-4 h-100">
+                    <i class="bi bi-shield-check text-accent mb-3" style="font-size: 3.5rem;"></i>
+                    <h5 class="fw-bold mt-2">Hassle-Free RC Transfer</h5>
+                    <p class="text-muted small">Skip the complicated RTO paperwork! Verified dealers in our network handle document transfers securely and legally.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="p-4 bg-light rounded-4 h-100">
+                    <i class="bi bi-lightning-charge text-accent mb-3" style="font-size: 3.5rem;"></i>
+                    <h5 class="fw-bold mt-2">Fast & Instant Payouts</h5>
+                    <p class="text-muted small">Once the car inspection completes and the final deal is approved, get your money deposited to your bank account instantly.</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>

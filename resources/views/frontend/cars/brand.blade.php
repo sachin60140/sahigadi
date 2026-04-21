@@ -41,13 +41,13 @@
                     <div class="card h-100 shadow-sm">
                         <div class="position-relative">
                             @if($item instanceof \App\Models\Car && $item->image_url)
-                                <img src="{{ $item->image_url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ $item->title }}">
+                                <img src="{{ $item->image_url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ $item->title }}" loading="lazy">
                             @elseif($item instanceof \App\Models\CustomerCarListing)
                                 @php
                                     $images = is_string($item->images) ? json_decode($item->images, true) : $item->images;
                                 @endphp
                                 @if($images && count($images) > 0)
-                                    <img src="{{ asset('storage/'.$images[0]) }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ $item->title }}">
+                                    <img src="{{ asset('storage/'.$images[0]) }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ $item->title }}" loading="lazy">
                                 @else
                                     <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 180px;">
                                         <i class="bi bi-car-front text-white" style="font-size: 4rem;"></i>
@@ -80,6 +80,17 @@
                     <p class="text-muted mt-3">No {{ $brandName }} cars found{{ $cityName ? ' in ' . $cityName : '' }}.</p>
                 </div>
                 @endforelse
+            </div>
+
+            <!-- SEO Content Block -->
+            <div class="mt-5 p-4 bg-light rounded shadow-sm border">
+                <h2 class="h4 fw-bold text-dark mb-3">Buy Used {{ $brandName }} Cars{{ $cityName ? ' in ' . $cityName : '' }}</h2>
+                <p class="text-muted">
+                    Searching for reliable <strong>used {{ $brandName }} cars{{ $cityName ? ' in ' . $cityName : '' }}</strong>? Your search ends here. SAHIGADI brings to you an exclusively verified collection of pre-owned {{ $brandName }} vehicles. Known for their build quality, reliable engines, and great resale value, {{ $brandName }} cars are a favorite among buyers. 
+                </p>
+                <p class="text-muted mb-0">
+                    Filter your search by price, model, and year to find the perfect <strong>second hand {{ $brandName }} car{{ $cityName ? ' in ' . $cityName : '' }}</strong>. We make sure every listing passes thorough inspections, ensuring our buyers get nothing but the best. Skip the hassle of unverified sellers and grab the best deals with easy RC transfer and financing support today.
+                </p>
             </div>
         </div>
     </div>

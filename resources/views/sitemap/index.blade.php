@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
@@ -29,6 +30,28 @@
         <priority>0.7</priority>
     </url>
     @endforeach
+
+    <!-- Cities -->
+    @if(isset($cities))
+        @foreach($cities as $city)
+        <url>
+            <loc>{{ route('cars.city', str_replace(' ', '-', strtolower($city))) }}</loc>
+            <changefreq>daily</changefreq>
+            <priority>0.8</priority>
+        </url>
+        @endforeach
+    @endif
+
+    <!-- Brand + City Combinations -->
+    @if(isset($brandCityCombinations))
+        @foreach($brandCityCombinations as $combo)
+        <url>
+            <loc>{{ route('cars.brand.city', [$combo['brand_slug'], $combo['city']]) }}</loc>
+            <changefreq>daily</changefreq>
+            <priority>0.7</priority>
+        </url>
+        @endforeach
+    @endif
 
     <!-- Dealer Cars -->
     @foreach($cars as $car)
