@@ -296,7 +296,8 @@
                 <div class="col-lg-3 col-md-6">
                     <h6 class="text-white fw-bold mb-3">Contact Info</h6>
                     <ul class="list-unstyled text-white-50">
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>Sector 65, Noida, UP</li>
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>Awani Enterprises</li>
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>A-5, Sector 65, Noida, UP</li>
                         <li class="mb-2"><i class="bi bi-envelope me-2"></i>support@sahigadi.com</li>
                         <li class="mb-2"><i class="bi bi-telephone me-2"></i>+91 98188 23408</li>
                     </ul>
