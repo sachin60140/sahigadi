@@ -300,6 +300,9 @@
             <a href="{{ route('admin.enquiries.index') }}" class="nav-link {{ request()->routeIs('admin.enquiries.*') ? 'active' : '' }}">
                 <i class="bi bi-chat-dots-fill"></i> Enquiries
             </a>
+            <a href="{{ route('admin.contact-enquiries.index') }}" class="nav-link {{ request()->routeIs('admin.contact-enquiries.*') ? 'active' : '' }}">
+                <i class="bi bi-envelope-open-fill"></i> Contact Enquiries
+            </a>
 
             <div class="menu-header">Services</div>
             <div class="nav-item has-submenu {{ request()->routeIs('admin.vehicle-searches.*') || request()->routeIs('admin.service-tracking.vehicle-search') ? 'active' : '' }}">

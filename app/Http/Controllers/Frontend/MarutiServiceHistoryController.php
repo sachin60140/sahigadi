@@ -46,7 +46,8 @@ class MarutiServiceHistoryController extends Controller
             'email' => $request->customer_email,
         ];
 
-        $cached = CustomerMarutiServiceHistory::checkCache($vehicleNumber);
+        $forceFresh = $request->has('force_fresh');
+        $cached = $forceFresh ? null : CustomerMarutiServiceHistory::checkCache($vehicleNumber);
         if ($cached) {
             $cached->load('records');
 

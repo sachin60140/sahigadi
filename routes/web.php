@@ -133,6 +133,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('enquiries', AdminEnquiryController::class)->only(['index', 'show']);
         Route::post('/enquiries/{enquiry}/contacted', [AdminEnquiryController::class, 'markContacted'])->name('enquiries.contacted');
 
+        Route::resource('contact-enquiries', App\Http\Controllers\Admin\ContactEnquiryController::class)->only(['index', 'show', 'destroy']);
+        Route::post('/contact-enquiries/{contact_enquiry}/read', [App\Http\Controllers\Admin\ContactEnquiryController::class, 'markAsRead'])->name('contact-enquiries.read');
+
         Route::resource('customer-listings', CustomerCarListingController::class);
         Route::post('/customer-listings/{customer_listing}/approve', [CustomerCarListingController::class, 'approve'])->name('customer-listings.approve');
         Route::post('/customer-listings/{customer_listing}/reject', [CustomerCarListingController::class, 'reject'])->name('customer-listings.reject');
@@ -199,6 +202,8 @@ Route::get('/page/{page}', function ($page) {
 Route::get('/contact', function () {
     return view('frontend.pages.contact');
 })->name('contact');
+
+Route::post('/contact', [\App\Http\Controllers\Frontend\ContactController::class, 'store']);
 
 Route::get('/privacy-policy', function () {
     return view('frontend.pages.privacy-policy');

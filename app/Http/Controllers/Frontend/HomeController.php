@@ -109,8 +109,10 @@ class HomeController extends Controller
 
         $homepageSchema = $this->generateHomepageSchema($allFeatured);
 
+        $plans = \App\Models\Plan::active()->orderBy('price')->get();
+
         return view('frontend.home', array_merge(
-            compact('allFeatured', 'allCars', 'brands', 'cities'),
+            compact('allFeatured', 'allCars', 'brands', 'cities', 'plans'),
             ['homepageSchema' => $homepageSchema]
         ));
     }

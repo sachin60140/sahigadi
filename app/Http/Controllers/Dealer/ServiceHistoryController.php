@@ -81,7 +81,7 @@ class ServiceHistoryController extends Controller
         return view('dealer.service-history.show', compact('serviceHistory'));
     }
 
-    public function exportPdf(ServiceHistory $serviceHistory)
+    public function downloadPdf(ServiceHistory $serviceHistory)
     {
         $dealer = auth('dealer')->user();
 

@@ -191,17 +191,7 @@
                         <li class="nav-item mx-2">
                             <a class="nav-link" href="<?php echo e(route('cars.index')); ?>">Browse Cars</a>
                         </li>
-                        <li class="nav-item dropdown mx-2">
-                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                <i class="bi bi-gear me-1"></i>Services
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="<?php echo e(route('vehicle-search.index')); ?>"><i class="bi bi-card-text me-2"></i>Vahan Details (RC Search)</a></li>
-                                <li><a class="dropdown-item" href="<?php echo e(route('challan-search.index')); ?>"><i class="bi bi-receipt me-2"></i>E-Challan Check</a></li>
-                                <li><a class="dropdown-item" href="<?php echo e(route('service-history.index')); ?>"><i class="bi bi-car-front me-2"></i>Mahindra Service History</a></li>
-                                <li><a class="dropdown-item" href="<?php echo e(route('maruti-service-history.index')); ?>"><i class="bi bi-car-front-fill me-2"></i>Maruti Service History</a></li>
-                            </ul>
-                        </li>
+
                         <li class="nav-item mx-2">
                             <a class="nav-link text-warning fw-semibold" href="<?php echo e(route('sell-car.index')); ?>">
                                 <i class="bi bi-plus-circle me-1"></i>Sell Your Car
@@ -298,7 +288,8 @@
                 <div class="col-lg-3 col-md-6">
                     <h6 class="text-white fw-bold mb-3">Contact Info</h6>
                     <ul class="list-unstyled text-white-50">
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>Sector 65, Noida, UP</li>
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>Awani Enterprises</li>
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>A-5, Sector 65, Noida, UP</li>
                         <li class="mb-2"><i class="bi bi-envelope me-2"></i>support@sahigadi.com</li>
                         <li class="mb-2"><i class="bi bi-telephone me-2"></i>+91 98188 23408</li>
                     </ul>

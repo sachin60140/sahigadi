@@ -45,7 +45,9 @@
                     <tr>
                         <th>Date & Time</th>
                         <th>Receipt No</th>
+                        <th>Company Name</th>
                         <th>Dealer Details</th>
+                        <th>GST Number</th>
                         <th>Recharge (Base)</th>
                         <th>GST (18%)</th>
                         <th>Total Paid</th>
@@ -69,12 +71,17 @@
                                 <span class="badge bg-light text-dark border"><i class="bi bi-file-earmark-text"></i> {{ $receipt }}</span>
                             </td>
                             <td>
+                                <div class="fw-bold text-primary">{{ $txn->wallet->dealer->company_name ?? 'N/A' }}</div>
+                            </td>
+                            <td>
                                 <div class="fw-medium text-dark">{{ $txn->wallet->dealer->name ?? 'Unknown Dealer' }}</div>
-                                <small class="text-muted d-block">{{ $txn->wallet->dealer->firm_name ?? '' }}</small>
+                                <small class="text-muted d-block">{{ $txn->wallet->dealer->phone ?? '' }}</small>
+                            </td>
+                            <td>
                                 @if(!empty($txn->wallet->dealer->gst_number))
-                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 mt-1" style="font-size:0.7rem;">GST: {{ $txn->wallet->dealer->gst_number }}</span>
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">{{ $txn->wallet->dealer->gst_number }}</span>
                                 @else
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 mt-1" style="font-size:0.7rem;">Unregistered</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25">Unregistered</span>
                                 @endif
                             </td>
                             <td class="text-success fw-medium">₹{{ number_format($base, 2) }}</td>
@@ -94,7 +101,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <div class="text-muted">
                                     <i class="bi bi-inbox fs-1 d-block mb-3"></i>
                                     <h5>No wallet recharges found</h5>

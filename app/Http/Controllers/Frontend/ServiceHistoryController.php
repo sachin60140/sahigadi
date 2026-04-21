@@ -46,7 +46,8 @@ class ServiceHistoryController extends Controller
             'email' => $request->customer_email,
         ];
 
-        $cached = CustomerServiceHistory::checkCache($vehicleNumber);
+        $forceFresh = $request->has('force_fresh');
+        $cached = $forceFresh ? null : CustomerServiceHistory::checkCache($vehicleNumber);
         if ($cached) {
             $cached->load('records');
 

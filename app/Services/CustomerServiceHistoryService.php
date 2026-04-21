@@ -132,9 +132,9 @@ class CustomerServiceHistoryService
                 'paid_amt' => $record['paid_amt'] ?? null,
                 'dealer_code' => $record['dealer_code'] ?? null,
                 'dealer_name' => $record['dealer_name'] ?? null,
-                'repair_order_bill_date' => $record['repair_order_bill_date'] ?? null,
+                'repair_order_bill_date' => $this->parseFlexibleDate($record['repair_order_bill_date'] ?? null),
                 'repair_order_bill_no' => $record['repair_order_bill_no'] ?? null,
-                'svc_date' => $record['svc_date'] ?? null,
+                'svc_date' => $this->parseFlexibleDate($record['svc_date'] ?? null),
                 'repair_order_no' => $record['repair_order_no'] ?? null,
                 'register_no' => $record['register_no'] ?? null,
                 'service_assistant_no' => $record['service_assistant_no'] ?? null,
@@ -146,6 +146,18 @@ class CustomerServiceHistoryService
         }
 
         return $serviceHistory;
+    }
+
+    protected function parseFlexibleDate(?string $value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+        try {
+            return \Carbon\Carbon::parse(str_replace('/', '-', $value))->format('Y-m-d');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     public function updatePaymentInfo(CustomerServiceHistory $serviceHistory, string $orderId, string $paymentId, float $amount): void

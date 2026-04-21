@@ -127,9 +127,9 @@ class CustomerMarutiServiceHistoryService
                 'dealer_code' => $record['dealerNo'] ?? null,
                 'dealer_name' => $record['dealerName'] ?? null,
                 'dealer_address' => $record['dealerAddress'] ?? null,
-                'repair_order_bill_date' => $record['dateOfBill'] ?? null,
+                'repair_order_bill_date' => $this->parseFlexibleDate($record['dateOfBill'] ?? null),
                 'repair_order_bill_no' => $record['noOfRO'] ?? null,
-                'svc_date' => $record['dateOfSVC'] ?? null,
+                'svc_date' => $this->parseFlexibleDate($record['dateOfSVC'] ?? null),
                 'repair_order_no' => $record['noOfRO'] ?? null,
                 'register_no' => $record['noOfJobCard'] ?? null,
                 'service_assistant_name' => $record['nameOfSA'] ?? null,
@@ -144,6 +144,18 @@ class CustomerMarutiServiceHistoryService
         }
 
         return $serviceHistory;
+    }
+
+    protected function parseFlexibleDate(?string $value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+        try {
+            return \Carbon\Carbon::parse(str_replace('/', '-', $value))->format('Y-m-d');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     public function updatePaymentInfo(CustomerMarutiServiceHistory $serviceHistory, string $orderId, string $paymentId, float $amount): void

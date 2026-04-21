@@ -191,17 +191,7 @@
                         <li class="nav-item mx-2">
                             <a class="nav-link" href="{{ route('cars.index') }}">Browse Cars</a>
                         </li>
-                        <li class="nav-item dropdown mx-2">
-                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                <i class="bi bi-gear me-1"></i>Services
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('vehicle-search.index') }}"><i class="bi bi-card-text me-2"></i>Vahan Details (RC Search)</a></li>
-                                <li><a class="dropdown-item" href="{{ route('challan-search.index') }}"><i class="bi bi-receipt me-2"></i>E-Challan Check</a></li>
-                                <li><a class="dropdown-item" href="{{ route('service-history.index') }}"><i class="bi bi-car-front me-2"></i>Mahindra Service History</a></li>
-                                <li><a class="dropdown-item" href="{{ route('maruti-service-history.index') }}"><i class="bi bi-car-front-fill me-2"></i>Maruti Service History</a></li>
-                            </ul>
-                        </li>
+
                         <li class="nav-item mx-2">
                             <a class="nav-link text-warning fw-semibold" href="{{ route('sell-car.index') }}">
                                 <i class="bi bi-plus-circle me-1"></i>Sell Your Car

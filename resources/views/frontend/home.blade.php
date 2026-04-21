@@ -248,60 +248,7 @@ $seoKeywords = 'used cars Patna, pre-owned cars Bihar, car marketplace, buy sell
             <p class="text-muted">Premium services for your vehicle needs</p>
         </div>
         <div class="row g-4">
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center">
-                            <div class="icon-box me-4">
-                                <i class="bi bi-car-front" style="font-size: 2.5rem; color: var(--accent);"></i>
-                            </div>
-                            <div>
-                                <h5 class="fw-bold mb-1">RC Search (Vahan)</h5>
-                                <p class="text-muted mb-0">Get complete vehicle registration details</p>
-                                <a href="{{ route('vehicle-search.index') }}" class="btn btn-sm btn-outline-primary mt-2">
-                                    <i class="bi bi-arrow-right me-1"></i>Check Now
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center">
-                            <div class="icon-box me-4">
-                                <i class="bi bi-wrench" style="font-size: 2.5rem; color: var(--accent);"></i>
-                            </div>
-                            <div>
-                                <h5 class="fw-bold mb-1">Service History</h5>
-                                <p class="text-muted mb-0">Get complete service records from Mahindra</p>
-                                <a href="{{ route('service-history.index') }}" class="btn btn-sm btn-outline-primary mt-2">
-                                    <i class="bi bi-arrow-right me-1"></i>Check Now
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center">
-                            <div class="icon-box me-4">
-                                <i class="bi bi-receipt" style="font-size: 2.5rem; color: var(--accent);"></i>
-                            </div>
-                            <div>
-                                <h5 class="fw-bold mb-1">E-Challan Check</h5>
-                                <p class="text-muted mb-0">Check your traffic challans online</p>
-                                <a href="{{ route('challan-search.index') }}" class="btn btn-sm btn-outline-primary mt-2">
-                                    <i class="bi bi-arrow-right me-1"></i>Check Now
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-4">
@@ -346,7 +293,7 @@ $seoKeywords = 'used cars Patna, pre-owned cars Bihar, car marketplace, buy sell
                                 <i class="bi bi-shield-check" style="font-size: 2.5rem; color: var(--accent);"></i>
                             </div>
                             <div>
-                                <h5 class="fw-bold mb-1">Dealer Verification</h5>
+                                <h5 class="fw-bold mb-1">Verified Dealers</h5>
                                 <p class="text-muted mb-0">Verified dealers with authentic listings</p>
                                 <a href="{{ route('verified-dealers') }}" class="btn btn-sm btn-outline-primary mt-2">
                                     <i class="bi bi-arrow-right me-1"></i>View Dealers
@@ -359,6 +306,54 @@ $seoKeywords = 'used cars Patna, pre-owned cars Bihar, car marketplace, buy sell
         </div>
     </div>
 </section>
+
+@if(isset($plans) && $plans->count() > 0)
+<section class="py-5 bg-white">
+    <div class="container border-top pt-5">
+        <div class="text-center mb-5">
+            <h2 class="section-title mx-auto">Dealer Subscription Plans</h2>
+            <p class="text-muted">Grow your dealership with our premium listing plans</p>
+        </div>
+        <div class="row justify-content-center g-4">
+            @foreach($plans as $plan)
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm rounded-4 position-relative hover-shadow transition">
+                    <div class="card-header bg-transparent border-0 text-center pt-5 pb-3">
+                        <h4 class="fw-bold text-dark mb-3">{{ $plan->name }}</h4>
+                        <div class="display-5 fw-bold" style="color: var(--accent);">
+                            ₹{{ number_format($plan->price) }}<span class="fs-6 text-muted fw-normal">/{{ $plan->duration_days }} days</span>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 pb-5">
+                        <p class="text-muted text-center mb-4">{{ $plan->description ?? 'Get access to premium features and list your cars instantly.' }}</p>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span><strong>{{ $plan->listing_limit }}</strong> Car Listings</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span>Dedicated Dealer Page</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span>Verified Dealer Badge</span>
+                            </li>
+                        </ul>
+                        <div class="text-center mt-auto">
+                            <a href="{{ route('dealer.register') }}" class="btn btn-outline-accent btn-lg w-100 rounded-pill fw-semibold">Choose Plan</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        <div class="text-center mt-4">
+            <p class="text-muted small">Need a custom plan? <a href="{{ route('contact') }}" class="text-decoration-none fw-bold" style="color: var(--accent);">Contact Us</a></p>
+        </div>
+    </div>
+</section>
+@endif
 
 <section class="py-5" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);">
     <div class="container">

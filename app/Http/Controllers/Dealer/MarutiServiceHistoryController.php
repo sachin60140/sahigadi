@@ -60,7 +60,7 @@ class MarutiServiceHistoryController extends Controller
         return view('dealer.maruti-service-history.show', compact('marutiServiceHistory'));
     }
 
-    public function exportPdf(MarutiServiceHistory $marutiServiceHistory)
+    public function downloadPdf(MarutiServiceHistory $marutiServiceHistory)
     {
         if ($marutiServiceHistory->dealer_id !== auth('dealer')->id()) {
             abort(403);

@@ -20,8 +20,19 @@
                     </div>
                     <div class="card-body">
                         @if(isset($cached) && $cached)
-                            <div class="alert alert-warning">
-                                <i class="bi bi-clock-history me-2"></i>Retrieved from cache (last 24 hours)
+                            <div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <div><i class="bi bi-clock-history me-2"></i>Retrieved from cache (last 24 hours)</div>
+                                <form action="{{ route('maruti-service-history.search') }}" method="POST" class="m-0">
+                                    @csrf
+                                    <input type="hidden" name="vehicle_number" value="{{ $marutiServiceHistory->vehicle_number }}">
+                                    <input type="hidden" name="customer_name" value="{{ $marutiServiceHistory->customer_name ?? '' }}">
+                                    <input type="hidden" name="customer_phone" value="{{ $marutiServiceHistory->customer_phone ?? '' }}">
+                                    <input type="hidden" name="customer_email" value="{{ $marutiServiceHistory->customer_email ?? '' }}">
+                                    <input type="hidden" name="force_fresh" value="1">
+                                    <button type="submit" class="btn btn-sm btn-warning border border-dark fw-bold">
+                                        <i class="bi bi-arrow-clockwise me-1"></i> Fresh Search
+                                    </button>
+                                </form>
                             </div>
                         @endif
 

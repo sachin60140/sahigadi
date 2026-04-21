@@ -46,7 +46,7 @@ class CustomerServiceHistory extends Model
 
 class CustomerServiceHistoryRecord extends Model
 {
-    protected $table = 'customer_service_history_records';
+    protected $table = 'csh_records';
 
     protected $fillable = [
         'customer_service_history_id',

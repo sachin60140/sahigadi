@@ -46,7 +46,15 @@ class Dealer extends Authenticatable
     {
         static::creating(function ($dealer) {
             if (empty($dealer->slug)) {
-                $dealer->slug = static::generateUniqueSlug($dealer->name);
+                $nameToSlug = !empty($dealer->company_name) ? $dealer->company_name : $dealer->name;
+                $dealer->slug = static::generateUniqueSlug($nameToSlug);
+            }
+        });
+
+        static::updating(function ($dealer) {
+            if ($dealer->isDirty('company_name')) {
+                $nameToSlug = !empty($dealer->company_name) ? $dealer->company_name : $dealer->name;
+                $dealer->slug = static::generateUniqueSlug($nameToSlug);
             }
         });
     }

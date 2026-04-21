@@ -300,6 +300,9 @@
             <a href="<?php echo e(route('admin.enquiries.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.enquiries.*') ? 'active' : ''); ?>">
                 <i class="bi bi-chat-dots-fill"></i> Enquiries
             </a>
+            <a href="<?php echo e(route('admin.contact-enquiries.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.contact-enquiries.*') ? 'active' : ''); ?>">
+                <i class="bi bi-envelope-open-fill"></i> Contact Enquiries
+            </a>
 
             <div class="menu-header">Services</div>
             <div class="nav-item has-submenu <?php echo e(request()->routeIs('admin.vehicle-searches.*') || request()->routeIs('admin.service-tracking.vehicle-search') ? 'active' : ''); ?>">
