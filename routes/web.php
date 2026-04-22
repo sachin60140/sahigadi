@@ -248,3 +248,9 @@ Route::get('/maruti-service-history/{marutiServiceHistory}', [App\Http\Controlle
 Route::get('/maruti-service-history/{marutiServiceHistory}/pdf', [App\Http\Controllers\Frontend\MarutiServiceHistoryController::class, 'downloadPdf'])->name('maruti-service-history.pdf');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Temporary route to run migrations on Hostinger Shared Hosting
+Route::get('/run-migrations', function () {
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return "Migrations executed successfully! Result: " . \Illuminate\Support\Facades\Artisan::output();
+});
