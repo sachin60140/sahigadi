@@ -59,6 +59,10 @@ class AuthController extends Controller
         $panPath = $request->file('pan_document')->store('dealers/pan', 'public');
         $gstPath = $request->hasFile('gst_document') ? $request->file('gst_document')->store('dealers/gst', 'public') : null;
 
+        if (session('dealer_phone_verified') !== $request->phone) {
+            return redirect()->back()->withInput()->with('error', 'Please verify your phone number via OTP before completing registration.');
+        }
+
         $dealer = Dealer::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -81,7 +85,70 @@ class AuthController extends Controller
 
         auth('dealer')->login($dealer);
 
+        session()->forget('dealer_phone_verified');
+
         return redirect()->route('dealer.dashboard')->with('success', 'Registration successful! Your account is pending approval. Please complete your KYC verification.');
+    }
+
+    public function sendOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|regex:/^[0-9]{10}$/',
+        ]);
+
+        $phone = $request->phone;
+        $otp = rand(100000, 999999);
+        
+        session(['dealer_otp_' . $phone => $otp]);
+        session(['dealer_otp_time_' . $phone => now()]);
+
+        $apiUrl = "https://pgapi.sparc.smartping.io/fe/api/v1/send";
+        $text = "Hi! Your verification code is {$otp}. It is valid for 10 minutes. Please keep it confidential. - Sars Infotech Pvt Ltd";
+        
+        $response = \Illuminate\Support\Facades\Http::get($apiUrl, [
+            'username' => 'sarsinfo.trans',
+            'password' => '6E5s8aI_',
+            'unicode' => 'false',
+            'from' => 'INSARS',
+            'text' => $text,
+            'to' => $phone,
+            'dltContentId' => '1707177677498830200',
+            'dltPrincipalEntityId' => '1701166126846262605'
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'OTP sent successfully']);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|regex:/^[0-9]{10}$/',
+            'otp' => 'required|numeric|digits:6',
+        ]);
+
+        $phone = $request->phone;
+        $otp = $request->otp;
+
+        $sessionOtp = session('dealer_otp_' . $phone);
+        $sessionTime = session('dealer_otp_time_' . $phone);
+
+        if (!$sessionOtp || !$sessionTime) {
+            return response()->json(['success' => false, 'message' => 'OTP expired or not sent']);
+        }
+
+        if (now()->diffInMinutes($sessionTime) > 10) {
+            return response()->json(['success' => false, 'message' => 'OTP has expired']);
+        }
+
+        if ((string)$sessionOtp === (string)$otp) {
+            session(['dealer_phone_verified' => $phone]);
+            session()->forget('dealer_otp_' . $phone);
+            session()->forget('dealer_otp_time_' . $phone);
+            
+            return response()->json(['success' => true, 'message' => 'Phone number verified successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Invalid OTP']);
     }
 
     public function logout(Request $request)

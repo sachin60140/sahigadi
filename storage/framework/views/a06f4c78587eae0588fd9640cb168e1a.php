@@ -334,8 +334,12 @@ unset($__errorArgs, $__bag); ?>
                                             document.getElementById('latitude').value = position.coords.latitude;
                                             document.getElementById('longitude').value = position.coords.longitude;
                                             
-                                            // Enable submission silently
-                                            submitBtn.disabled = false;
+                                            // Enable submission only if phone is verified
+                                            if (!document.getElementById('otpSection').classList.contains('d-none') || document.getElementById('phoneHelp').classList.contains('d-none')) {
+                                                submitBtn.disabled = true;
+                                            } else {
+                                                submitBtn.disabled = false;
+                                            }
                                         }, handleLocationError, {
                                             enableHighAccuracy: true,
                                             timeout: 10000,
@@ -469,7 +473,8 @@ unset($__errorArgs, $__bag); ?>
 
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
-                                    <input type="text" name="owner_phone" class="form-control <?php $__errorArgs = ['owner_phone'];
+                                    <div class="input-group">
+                                        <input type="text" id="owner_phone" name="owner_phone" class="form-control <?php $__errorArgs = ['owner_phone'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -477,17 +482,31 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" 
-                                           placeholder="Enter your phone number" value="<?php echo e(old('owner_phone')); ?>" required>
+                                               placeholder="10-digit phone number" value="<?php echo e(old('owner_phone')); ?>" required pattern="[0-9]{10}">
+                                        <button class="btn btn-outline-primary" type="button" id="btnSendOtp">Send OTP</button>
+                                    </div>
+                                    <div id="phoneHelp" class="form-text text-success d-none"><i class="bi bi-check-circle-fill"></i> Phone Number Verified</div>
                                     <?php $__errorArgs = ['owner_phone'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <div class="invalid-feedback d-block"><?php echo e($message); ?></div>
                                     <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
+                                </div>
+                                
+                                <div class="col-md-6 d-none" id="otpSection">
+                                    <label class="form-label fw-semibold">Enter OTP <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="text" id="otp_input" class="form-control" placeholder="6-digit OTP" maxlength="6">
+                                        <button class="btn btn-primary" type="button" id="btnVerifyOtp">Verify</button>
+                                    </div>
+                                    <div class="form-text text-muted mt-1" id="otpTimerText">Resend OTP in <span id="timerCount">30</span>s</div>
+                                    <button class="btn btn-link btn-sm p-0 text-decoration-none d-none mt-1" type="button" id="btnResendOtp">Resend OTP</button>
+                                    <div id="otpMessage" class="small mt-1 text-danger"></div>
                                 </div>
 
                                 <div class="col-12">
@@ -602,6 +621,140 @@ function removeImage(btn, index) {
         countLabel.className = 'text-success';
     }
 }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const phoneInput = document.getElementById('owner_phone');
+        const btnSendOtp = document.getElementById('btnSendOtp');
+        const otpSection = document.getElementById('otpSection');
+        const otpInput = document.getElementById('otp_input');
+        const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+        const btnResendOtp = document.getElementById('btnResendOtp');
+        const otpTimerText = document.getElementById('otpTimerText');
+        const timerCount = document.getElementById('timerCount');
+        const otpMessage = document.getElementById('otpMessage');
+        const submitBtn = document.getElementById('submitBtn');
+        const phoneHelp = document.getElementById('phoneHelp');
+        
+        // Initial state
+        submitBtn.disabled = true; // Disable until OTP verify
+        
+        let timerInterval;
+
+        function startTimer() {
+            let count = 30;
+            btnResendOtp.classList.add('d-none');
+            otpTimerText.classList.remove('d-none');
+            timerCount.textContent = count;
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                count--;
+                timerCount.textContent = count;
+                if(count <= 0) {
+                    clearInterval(timerInterval);
+                    otpTimerText.classList.add('d-none');
+                    btnResendOtp.classList.remove('d-none');
+                }
+            }, 1000);
+        }
+
+        function sendOtpAJAX() {
+            const phone = phoneInput.value.trim();
+            if(!/^[0-9]{10}$/.test(phone)) {
+                alert("Please enter a valid 10-digit phone number.");
+                return;
+            }
+
+            btnSendOtp.disabled = true;
+            btnSendOtp.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+            otpMessage.textContent = '';
+            otpMessage.className = 'small mt-1 text-info';
+            
+            fetch("<?php echo e(route('sell-car.send-otp')); ?>", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                },
+                body: JSON.stringify({ phone: phone })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnSendOtp.innerHTML = 'Send OTP';
+                if(data.success) {
+                    otpSection.classList.remove('d-none');
+                    phoneInput.readOnly = true;
+                    btnSendOtp.classList.add('d-none');
+                    startTimer();
+                    otpMessage.textContent = data.message;
+                    otpMessage.className = 'small mt-1 text-success';
+                } else {
+                    btnSendOtp.disabled = false;
+                    alert(data.message || 'Failed to send OTP.');
+                }
+            })
+            .catch(err => {
+                btnSendOtp.innerHTML = 'Send OTP';
+                btnSendOtp.disabled = false;
+                alert('An error occurred. Please try again.');
+            });
+        }
+
+        btnSendOtp.addEventListener('click', sendOtpAJAX);
+        btnResendOtp.addEventListener('click', sendOtpAJAX);
+
+        btnVerifyOtp.addEventListener('click', function() {
+            const phone = phoneInput.value.trim();
+            const otp = otpInput.value.trim();
+
+            if(!/^[0-9]{6}$/.test(otp)) {
+                otpMessage.textContent = 'Please enter a valid 6-digit OTP.';
+                otpMessage.className = 'small mt-1 text-danger';
+                return;
+            }
+
+            btnVerifyOtp.disabled = true;
+            btnVerifyOtp.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            fetch("<?php echo e(route('sell-car.verify-otp')); ?>", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                },
+                body: JSON.stringify({ phone: phone, otp: otp })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    otpSection.classList.add('d-none');
+                    phoneHelp.classList.remove('d-none');
+                    submitBtn.disabled = document.getElementById('latitude').value == ''; // Recheck location
+                    clearInterval(timerInterval);
+                } else {
+                    btnVerifyOtp.disabled = false;
+                    btnVerifyOtp.innerHTML = 'Verify';
+                    otpMessage.textContent = data.message || 'Invalid OTP';
+                    otpMessage.className = 'small mt-1 text-danger';
+                }
+            })
+            .catch(err => {
+                btnVerifyOtp.disabled = false;
+                btnVerifyOtp.innerHTML = 'Verify';
+                otpMessage.textContent = 'An error occurred during verification.';
+                otpMessage.className = 'small mt-1 text-danger';
+            });
+        });
+        
+        // Also enable submitBtn on map location load if phone is already verified (in case old validation failed but phone was verified)
+        // Though Laravel session will handle this mostly, in pure client-side we keep submitBtn disabled until OTP verify.
+        
+        // Let's modify the map load behavior as well, if location takes long.
+        // The original location script sets submitBtn.disabled = false, we need to ensure it only sets it if phone is also verified.
+        // Since phone isn't verified on page load, we should just disable it.
+    });
 </script>
 <?php $__env->stopSection(); ?>
 

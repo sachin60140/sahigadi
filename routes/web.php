@@ -47,6 +47,8 @@ Route::get('/verified-dealers', [CarController::class, 'verifiedDealers'])->name
 
 Route::get('/sell-your-car', [SellCarController::class, 'index'])->name('sell-car.index');
 Route::post('/sell-your-car', [SellCarController::class, 'store'])->name('sell-car.store');
+Route::post('/sell-your-car/send-otp', [SellCarController::class, 'sendOtp'])->name('sell-car.send-otp');
+Route::post('/sell-your-car/verify-otp', [SellCarController::class, 'verifyOtp'])->name('sell-car.verify-otp');
 
 Route::prefix('dealer')->name('dealer.')->group(function () {
     Route::middleware('guest:dealer')->group(function () {
@@ -54,6 +56,8 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
         Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/send-otp', [AuthController::class, 'sendOtp'])->name('send-otp');
+        Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verify-otp');
     });
 
     Route::middleware('auth:dealer')->group(function () {

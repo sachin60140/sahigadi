@@ -44,6 +44,10 @@ class SellCarController extends Controller
             'longitude.required' => 'Location data is missing. Please ensure location services are enabled.',
         ]);
 
+        if (session('sell_car_phone_verified') !== $request->owner_phone) {
+            return redirect()->back()->withInput()->with('error', 'Please verify your phone number via OTP before submitting the listing.');
+        }
+
         if ($request->hasFile('images')) {
             if (count($request->file('images')) < 5) {
                 return redirect()->back()->withInput()->with('error', 'Please upload at least 5 images.');
@@ -89,6 +93,69 @@ class SellCarController extends Controller
             'status' => 'pending',
         ]);
 
+        session()->forget('sell_car_phone_verified');
+
         return redirect()->back()->with('success', 'Your car listing has been submitted successfully! We will review it and get back to you soon.');
+    }
+
+    public function sendOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|regex:/^[0-9]{10}$/',
+        ]);
+
+        $phone = $request->phone;
+        $otp = rand(100000, 999999);
+        
+        session(['sell_car_otp_' . $phone => $otp]);
+        session(['sell_car_otp_time_' . $phone => now()]);
+
+        $apiUrl = "https://pgapi.sparc.smartping.io/fe/api/v1/send";
+        $text = "Hi! Your verification code is {$otp}. It is valid for 10 minutes. Please keep it confidential. - Sars Infotech Pvt Ltd";
+        
+        $response = \Illuminate\Support\Facades\Http::get($apiUrl, [
+            'username' => 'sarsinfo.trans',
+            'password' => '6E5s8aI_',
+            'unicode' => 'false',
+            'from' => 'INSARS',
+            'text' => $text,
+            'to' => $phone,
+            'dltContentId' => '1707177677498830200',
+            'dltPrincipalEntityId' => '1701166126846262605'
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'OTP sent successfully']);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|regex:/^[0-9]{10}$/',
+            'otp' => 'required|numeric|digits:6',
+        ]);
+
+        $phone = $request->phone;
+        $otp = $request->otp;
+
+        $sessionOtp = session('sell_car_otp_' . $phone);
+        $sessionTime = session('sell_car_otp_time_' . $phone);
+
+        if (!$sessionOtp || !$sessionTime) {
+            return response()->json(['success' => false, 'message' => 'OTP expired or not sent']);
+        }
+
+        if (now()->diffInMinutes($sessionTime) > 10) {
+            return response()->json(['success' => false, 'message' => 'OTP has expired']);
+        }
+
+        if ((string)$sessionOtp === (string)$otp) {
+            session(['sell_car_phone_verified' => $phone]);
+            session()->forget('sell_car_otp_' . $phone);
+            session()->forget('sell_car_otp_time_' . $phone);
+            
+            return response()->json(['success' => true, 'message' => 'Phone number verified successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Invalid OTP']);
     }
 }

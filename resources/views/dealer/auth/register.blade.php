@@ -38,10 +38,25 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Phone Number *</label>
-                                <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone') }}" required placeholder="+91 XXXXXXXXXX">
+                                <div class="input-group">
+                                    <input type="text" id="phone_input" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone') }}" required placeholder="10-digit phone number" pattern="[0-9]{10}">
+                                    <button class="btn btn-outline-primary" type="button" id="btnSendOtp">Send OTP</button>
+                                </div>
+                                <div id="phoneHelp" class="form-text text-success d-none"><i class="bi bi-check-circle-fill"></i> Phone Number Verified</div>
                                 @error('phone')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
+                            </div>
+                            
+                            <div class="col-md-6 d-none" id="otpSection">
+                                <label class="form-label">Enter OTP *</label>
+                                <div class="input-group">
+                                    <input type="text" id="otp_input" class="form-control" placeholder="6-digit OTP" maxlength="6">
+                                    <button class="btn btn-primary" type="button" id="btnVerifyOtp">Verify</button>
+                                </div>
+                                <div class="form-text text-muted mt-1" id="otpTimerText">Resend OTP in <span id="timerCount">30</span>s</div>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none d-none mt-1" type="button" id="btnResendOtp">Resend OTP</button>
+                                <div id="otpMessage" class="small mt-1 text-danger"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Company Name</label>
@@ -162,7 +177,7 @@
                         </div>
 
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-accent btn-lg py-3">
+                            <button type="submit" id="submitBtn" class="btn btn-accent btn-lg py-3" disabled>
                                 <i class="bi bi-check-circle me-2"></i>Register as Dealer
                             </button>
                         </div>
@@ -190,4 +205,130 @@
     color: white;
 }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const phoneInput = document.getElementById('phone_input');
+        const btnSendOtp = document.getElementById('btnSendOtp');
+        const otpSection = document.getElementById('otpSection');
+        const otpInput = document.getElementById('otp_input');
+        const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+        const btnResendOtp = document.getElementById('btnResendOtp');
+        const otpTimerText = document.getElementById('otpTimerText');
+        const timerCount = document.getElementById('timerCount');
+        const otpMessage = document.getElementById('otpMessage');
+        const submitBtn = document.getElementById('submitBtn');
+        const phoneHelp = document.getElementById('phoneHelp');
+        
+        let timerInterval;
+
+        function startTimer() {
+            let count = 30;
+            btnResendOtp.classList.add('d-none');
+            otpTimerText.classList.remove('d-none');
+            timerCount.textContent = count;
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                count--;
+                timerCount.textContent = count;
+                if(count <= 0) {
+                    clearInterval(timerInterval);
+                    otpTimerText.classList.add('d-none');
+                    btnResendOtp.classList.remove('d-none');
+                }
+            }, 1000);
+        }
+
+        function sendOtpAJAX() {
+            const phone = phoneInput.value.trim();
+            if(!/^[0-9]{10}$/.test(phone)) {
+                alert("Please enter a valid 10-digit phone number.");
+                return;
+            }
+
+            btnSendOtp.disabled = true;
+            btnSendOtp.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+            otpMessage.textContent = '';
+            otpMessage.className = 'small mt-1 text-info';
+            
+            fetch("{{ route('dealer.send-otp') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ phone: phone })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnSendOtp.innerHTML = 'Send OTP';
+                if(data.success) {
+                    otpSection.classList.remove('d-none');
+                    phoneInput.readOnly = true;
+                    btnSendOtp.classList.add('d-none');
+                    startTimer();
+                    otpMessage.textContent = data.message;
+                    otpMessage.className = 'small mt-1 text-success';
+                } else {
+                    btnSendOtp.disabled = false;
+                    alert(data.message || 'Failed to send OTP.');
+                }
+            })
+            .catch(err => {
+                btnSendOtp.innerHTML = 'Send OTP';
+                btnSendOtp.disabled = false;
+                alert('An error occurred. Please try again.');
+            });
+        }
+
+        btnSendOtp.addEventListener('click', sendOtpAJAX);
+        btnResendOtp.addEventListener('click', sendOtpAJAX);
+
+        btnVerifyOtp.addEventListener('click', function() {
+            const phone = phoneInput.value.trim();
+            const otp = otpInput.value.trim();
+
+            if(!/^[0-9]{6}$/.test(otp)) {
+                otpMessage.textContent = 'Please enter a valid 6-digit OTP.';
+                otpMessage.className = 'small mt-1 text-danger';
+                return;
+            }
+
+            btnVerifyOtp.disabled = true;
+            btnVerifyOtp.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            fetch("{{ route('dealer.verify-otp') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ phone: phone, otp: otp })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    otpSection.classList.add('d-none');
+                    phoneHelp.classList.remove('d-none');
+                    submitBtn.disabled = false;
+                    clearInterval(timerInterval);
+                } else {
+                    btnVerifyOtp.disabled = false;
+                    btnVerifyOtp.innerHTML = 'Verify';
+                    otpMessage.textContent = data.message || 'Invalid OTP';
+                    otpMessage.className = 'small mt-1 text-danger';
+                }
+            })
+            .catch(err => {
+                btnVerifyOtp.disabled = false;
+                btnVerifyOtp.innerHTML = 'Verify';
+                otpMessage.textContent = 'An error occurred during verification.';
+                otpMessage.className = 'small mt-1 text-danger';
+            });
+        });
+    });
+</script>
 @endpush
