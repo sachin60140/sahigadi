@@ -24,6 +24,11 @@ class WalletController extends Controller
         return view('dealer.wallet.index', compact('balance', 'transactions', 'minRechargeAmount'));
     }
 
+    public function add()
+    {
+        return redirect()->route('dealer.wallet.index')->with('open_recharge_modal', true);
+    }
+
     public function downloadReceipt($id)
     {
         $dealer = auth('dealer')->user();

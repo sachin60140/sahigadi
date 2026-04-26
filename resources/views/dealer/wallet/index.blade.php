@@ -148,6 +148,11 @@
         amountInput.addEventListener('input', updateCalculation);
         // Initial calc
         updateCalculation();
+
+        @if(session('open_recharge_modal'))
+            var rechargeModal = new bootstrap.Modal(document.getElementById('rechargeModal'));
+            rechargeModal.show();
+        @endif
     });
 </script>
 @endpush
