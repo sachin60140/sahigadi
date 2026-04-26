@@ -15,7 +15,7 @@
 
 <div class="card border-0 shadow-sm">
     <div class="card-body p-4">
-        <form action="{{ route('admin.customer-listings.update', $listing) }}" method="POST">
+        <form action="{{ route('admin.customer-listings.update', $listing) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="row g-3">
@@ -104,27 +104,33 @@
             @php
                 $images = json_decode($listing->images, true) ?? [];
             @endphp
-            @if(count($images) > 0)
+            
             <div class="mt-4 border-top pt-4">
                 <h6 class="mb-3">Car Images (Select Featured Image)</h6>
+                <div class="mb-3">
+                    <label class="form-label">Add More Images</label>
+                    <input type="file" name="images[]" class="form-control" multiple accept="image/*">
+                </div>
+                
+                @if(count($images) > 0)
                 <div class="d-flex flex-wrap gap-3">
                     @foreach($images as $index => $image)
                     <div class="position-relative border p-2 rounded {{ $index === 0 ? 'bg-primary-subtle border-primary' : 'bg-light' }}">
                         <a href="{{ asset('storage/' . $image) }}" target="_blank">
                             <img src="{{ asset('storage/' . $image) }}" class="rounded" style="width: 120px; height: 90px; object-fit: cover;">
                         </a>
-                        <div class="mt-2 text-center">
-                            <div class="form-check d-inline-block">
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                            <div class="form-check d-inline-block mb-0">
                                 <input class="form-check-input" type="radio" name="primary_image" id="img{{ $index }}" value="{{ $image }}" {{ $index === 0 ? 'checked' : '' }}>
-                                <label class="form-check-label" for="img{{ $index }}">Featured</label>
+                                <label class="form-check-label small" for="img{{ $index }}">Featured</label>
                             </div>
                         </div>
                     </div>
                     @endforeach
                 </div>
-                <small class="text-muted d-block mt-2">The selected image will be shown as the main thumbnail.</small>
+                <small class="text-muted d-block mt-2">The selected image will be shown as the main thumbnail. Save the listing to apply the new featured image.</small>
+                @endif
             </div>
-            @endif
 
             <div class="mt-4">
                 <button type="submit" class="btn btn-primary">
@@ -132,6 +138,26 @@
                 </button>
             </div>
         </form>
+
+        @if(count($images) > 0)
+        <div class="mt-4 pt-4 border-top">
+            <h6 class="mb-3 text-danger">Delete Images</h6>
+            <div class="d-flex flex-wrap gap-3">
+                @foreach($images as $index => $image)
+                <div class="position-relative border p-2 rounded bg-light">
+                    <img src="{{ asset('storage/' . $image) }}" class="rounded" style="width: 80px; height: 60px; object-fit: cover; opacity: 0.8;">
+                    <form action="{{ route('admin.customer-listings.image.delete', $listing) }}" method="POST" class="mt-2 text-center" onsubmit="return confirm('Are you sure you want to delete this image?')">
+                        @csrf
+                        <input type="hidden" name="image" value="{{ $image }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="bi bi-trash"></i> Delete</button>
+                    </form>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+
     </div>
 </div>
 @endsection

@@ -153,6 +153,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/customer-listings/{customer_listing}/reject', [CustomerCarListingController::class, 'reject'])->name('customer-listings.reject');
         Route::post('/customer-listings/{customer_listing}/featured', [CustomerCarListingController::class, 'makeFeatured'])->name('customer-listings.featured');
         Route::post('/customer-listings/{customer_listing}/remove-featured', [CustomerCarListingController::class, 'removeFeatured'])->name('customer-listings.remove-featured');
+        Route::post('/customer-listings/{customer_listing}/delete-image', [CustomerCarListingController::class, 'deleteImage'])->name('customer-listings.image.delete');
 
         Route::get('/vehicle-searches', [AdminVehicleSearchController::class, 'index'])->name('vehicle-searches.index');
         Route::get('/vehicle-searches/settings', [AdminVehicleSearchController::class, 'settings'])->name('vehicle-searches.settings');

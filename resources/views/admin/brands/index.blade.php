@@ -35,7 +35,7 @@
                                 <span class="badge bg-secondary">Inactive</span>
                             @endif
                         </td>
-                        <td>{{ $brand->cars->count() }}</td>
+                        <td>{{ $brand->cars_count + $brand->customer_listings_count }}</td>
                         <td>
                             <a href="{{ route('admin.brands.edit', $brand) }}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-pencil"></i>

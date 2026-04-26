@@ -89,15 +89,29 @@ class CustomerCarListingController extends Controller
             'owners', 'owner_name', 'owner_phone', 'whatsapp_number', 'status',
         ]);
 
-        if ($request->filled('primary_image')) {
-            $images = json_decode($listing->images, true) ?? [];
-            $primaryImage = $request->primary_image;
-            if (in_array($primaryImage, $images)) {
-                $images = array_values(array_diff($images, [$primaryImage]));
-                array_unshift($images, $primaryImage);
-                $data['images'] = json_encode($images);
+        $imagesArray = json_decode($listing->images, true) ?? [];
+
+        if ($request->hasFile('images')) {
+            $request->validate([
+                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            ]);
+
+            foreach ($request->file('images') as $image) {
+                $filename = \Illuminate\Support\Str::uuid().'.'.$image->getClientOriginalExtension();
+                $path = $image->storeAs('customer-listings', $filename, 'public');
+                $imagesArray[] = $path;
             }
         }
+
+        if ($request->filled('primary_image')) {
+            $primaryImage = $request->primary_image;
+            if (in_array($primaryImage, $imagesArray)) {
+                $imagesArray = array_values(array_diff($imagesArray, [$primaryImage]));
+                array_unshift($imagesArray, $primaryImage);
+            }
+        }
+
+        $data['images'] = json_encode(array_values($imagesArray));
 
         $listing->update($data);
 
@@ -162,5 +176,31 @@ class CustomerCarListingController extends Controller
         $listing->delete();
 
         return redirect()->route('admin.customer-listings.index')->with('success', 'Listing deleted successfully');
+    }
+
+    public function deleteImage($customer_listing, Request $request)
+    {
+        $listing = CustomerCarListing::where('slug', $customer_listing)->firstOrFail();
+        
+        $request->validate([
+            'image' => 'required|string',
+        ]);
+
+        $imagePath = $request->image;
+        $images = json_decode($listing->images, true) ?? [];
+
+        if (in_array($imagePath, $images)) {
+            $images = array_values(array_diff($images, [$imagePath]));
+            $listing->update(['images' => json_encode($images)]);
+            
+            // Optional: delete from storage
+            if (\Storage::disk('public')->exists($imagePath)) {
+                \Storage::disk('public')->delete($imagePath);
+            }
+
+            return back()->with('success', 'Image deleted successfully');
+        }
+
+        return back()->with('error', 'Image not found');
     }
 }

@@ -11,7 +11,7 @@ class BrandController extends Controller
 {
     public function index()
     {
-        $brands = Brand::orderBy('name')->get();
+        $brands = Brand::withCount(['cars', 'customerListings'])->orderBy('name')->get();
 
         return view('admin.brands.index', compact('brands'));
     }
