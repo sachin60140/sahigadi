@@ -19,7 +19,7 @@
                         <small class="text-muted">Maruti Service History Report</small>
                     </div>
 
-                    <form id="payment-form">
+                    <form id="payment-form" action="{{ route('maruti-service-history.callback') }}" method="POST">
                         @csrf
                         <input type="hidden" name="razorpay_order_id" value="{{ $orderId }}">
                         <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
@@ -52,10 +52,9 @@
         "description": "Maruti Service History Report - {{ $vehicleNumber }}",
         "order_id": "{{ $orderId }}",
         "handler": function (response) {
-            window.location.href = "{{ route('maruti-service-history.callback') }}" + 
-                "?razorpay_order_id=" + response.razorpay_order_id + 
-                "&razorpay_payment_id=" + response.razorpay_payment_id + 
-                "&razorpay_signature=" + response.razorpay_signature;
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            document.getElementById('payment-form').submit();
         },
         "theme": {
             "color": "#e94560"

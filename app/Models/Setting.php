@@ -127,4 +127,14 @@ class Setting extends Model
     {
         static::set('razorpay_key_secret', $keySecret, 'string', 'payment', 'Razorpay Key Secret');
     }
+
+    public static function getMinimumWalletRechargeAmount(): float
+    {
+        return (float) static::get('min_wallet_recharge_amount', 100);
+    }
+
+    public static function setMinimumWalletRechargeAmount(float $amount): void
+    {
+        static::set('min_wallet_recharge_amount', $amount, 'number', 'payment', 'Minimum wallet recharge amount via Razorpay');
+    }
 }

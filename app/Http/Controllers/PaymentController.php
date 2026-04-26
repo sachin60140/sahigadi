@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Car as CarModel;
 use App\Models\Plan;
+use App\Models\Setting;
 use App\Services\RazorpayService;
 use App\Services\SubscriptionService;
 use App\Services\WalletService;
@@ -24,7 +25,8 @@ class PaymentController extends Controller
         $amount = $request->amount;
         
         if ($type === 'wallet_recharge' && $request->has('recharge_amount')) {
-            $rechargeAmount = max(1000, (float) $request->recharge_amount);
+            $minRechargeAmount = Setting::getMinimumWalletRechargeAmount();
+            $rechargeAmount = max($minRechargeAmount, (float) $request->recharge_amount);
             $amount = round($rechargeAmount * 1.18, 2);
         }
 

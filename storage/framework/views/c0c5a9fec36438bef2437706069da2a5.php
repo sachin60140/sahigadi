@@ -39,8 +39,9 @@ $totalImages = count($allImages);
 <?php $__env->startSection('og_image', $firstImage); ?>
 <?php $__env->startSection('twitter_title', $seo['og_title']); ?>
 <?php $__env->startSection('twitter_description', $seo['og_description']); ?>
+<?php $__env->startSection('twitter_image', $firstImage); ?>
 
-<?php if (! $__env->hasRenderedOnce('89c71e7d-ea6e-45cd-8432-cd3b755ba774')): $__env->markAsRenderedOnce('89c71e7d-ea6e-45cd-8432-cd3b755ba774'); ?>
+<?php if (! $__env->hasRenderedOnce('b322c49a-5d25-45e0-90a7-014efcfb9afc')): $__env->markAsRenderedOnce('b322c49a-5d25-45e0-90a7-014efcfb9afc'); ?>
 <?php $__env->startSection('json_ld'); ?>
 <script type="application/ld+json">
 <?php echo json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>

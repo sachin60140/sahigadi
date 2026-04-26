@@ -14,6 +14,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title><?php echo $__env->yieldContent('title', 'Admin Dashboard'); ?> - SAHIGADI</title>
+    <meta name="description" content="<?php echo $__env->yieldContent('meta_description', 'Admin Dashboard for SAHIGADI'); ?>">
+    <link rel="canonical" href="<?php echo $__env->yieldContent('canonical', url()->current()); ?>">
+    
+    <!-- OpenGraph / Facebook -->
+    <meta property="og:type" content="<?php echo $__env->yieldContent('og_type', 'website'); ?>">
+    <meta property="og:url" content="<?php echo $__env->yieldContent('og_url', url()->current()); ?>">
+    <meta property="og:title" content="<?php echo $__env->yieldContent('og_title', 'Admin Dashboard - SAHIGADI'); ?>">
+    <meta property="og:description" content="<?php echo $__env->yieldContent('og_description', 'Admin Dashboard for SAHIGADI'); ?>">
+    <meta property="og:image" content="<?php echo $__env->yieldContent('og_image', asset('images/og-image.jpg')); ?>">
+    <meta property="og:site_name" content="SAHIGADI">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<?php echo $__env->yieldContent('twitter_url', url()->current()); ?>">
+    <meta name="twitter:title" content="<?php echo $__env->yieldContent('twitter_title', 'Admin Dashboard - SAHIGADI'); ?>">
+    <meta name="twitter:description" content="<?php echo $__env->yieldContent('twitter_description', 'Admin Dashboard for SAHIGADI'); ?>">
+    <meta name="twitter:image" content="<?php echo $__env->yieldContent('twitter_image', asset('images/og-image.jpg')); ?>">
+    <meta name="twitter:site" content="@Sahigadi">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dealer;
 use App\Http\Controllers\Controller;
 use App\Services\WalletService;
 use App\Models\WalletTransaction;
+use App\Models\Setting;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class WalletController extends Controller
@@ -18,8 +19,9 @@ class WalletController extends Controller
         $dealer = auth('dealer')->user();
         $balance = $this->walletService->getBalance($dealer->id);
         $transactions = $this->walletService->getTransactions($dealer->id);
+        $minRechargeAmount = Setting::getMinimumWalletRechargeAmount();
 
-        return view('dealer.wallet.index', compact('balance', 'transactions'));
+        return view('dealer.wallet.index', compact('balance', 'transactions', 'minRechargeAmount'));
     }
 
     public function downloadReceipt($id)

@@ -41,6 +41,7 @@ $totalImages = count($allImages);
 @section('og_image', $firstImage)
 @section('twitter_title', $seo['og_title'])
 @section('twitter_description', $seo['og_description'])
+@section('twitter_image', $firstImage)
 
 @once
 @section('json_ld')

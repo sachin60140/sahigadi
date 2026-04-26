@@ -1,8 +1,6 @@
-@extends('layouts.dealer')
+<?php $__env->startSection('title', 'Wallet'); ?>
 
-@section('title', 'Wallet')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>My Wallet</h2>
     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#rechargeModal">
@@ -15,7 +13,7 @@
         <div class="card bg-success text-white">
             <div class="card-body">
                 <h5 class="card-title">Available Balance</h5>
-                <h2>₹{{ number_format($balance, 2) }}</h2>
+                <h2>₹<?php echo e(number_format($balance, 2)); ?></h2>
             </div>
         </div>
     </div>
@@ -26,7 +24,7 @@
         <h5 class="mb-0">Transaction History</h5>
     </div>
     <div class="card-body">
-        @if($transactions->count() > 0)
+        <?php if($transactions->count() > 0): ?>
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
@@ -39,38 +37,40 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($transactions as $transaction)
+                    <?php $__currentLoopData = $transactions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $transaction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
-                        <td>{{ $transaction->created_at->format('d M Y, h:i A') }}</td>
+                        <td><?php echo e($transaction->created_at->format('d M Y, h:i A')); ?></td>
                         <td>
-                            @if($transaction->type === 'credit')
+                            <?php if($transaction->type === 'credit'): ?>
                                 <span class="badge bg-success">Credit</span>
-                            @else
+                            <?php else: ?>
                                 <span class="badge bg-danger">Debit</span>
-                            @endif
+                            <?php endif; ?>
                         </td>
-                        <td class="{{ $transaction->type === 'credit' ? 'text-success' : 'text-danger' }}">
-                            {{ $transaction->type === 'credit' ? '+' : '-' }}₹{{ number_format($transaction->amount, 2) }}
+                        <td class="<?php echo e($transaction->type === 'credit' ? 'text-success' : 'text-danger'); ?>">
+                            <?php echo e($transaction->type === 'credit' ? '+' : '-'); ?>₹<?php echo e(number_format($transaction->amount, 2)); ?>
+
                         </td>
-                        <td>{{ $transaction->remark ?? '-' }}</td>
+                        <td><?php echo e($transaction->remark ?? '-'); ?></td>
                         <td>
-                            <small>{{ $transaction->reference_id ?? '-' }}</small>
-                            @if(str_contains(strtolower($transaction->remark), 'recharge via razorpay') && $transaction->type === 'credit')
+                            <small><?php echo e($transaction->reference_id ?? '-'); ?></small>
+                            <?php if(str_contains(strtolower($transaction->remark), 'recharge via razorpay') && $transaction->type === 'credit'): ?>
                                 <br>
-                                <a href="{{ route('dealer.wallet.receipt', $transaction->id) }}" class="btn btn-sm btn-outline-primary mt-1" style="font-size: 0.75rem; padding: 2px 6px;">
+                                <a href="<?php echo e(route('dealer.wallet.receipt', $transaction->id)); ?>" class="btn btn-sm btn-outline-primary mt-1" style="font-size: 0.75rem; padding: 2px 6px;">
                                     <i class="bi bi-download"></i> Receipt
                                 </a>
-                            @endif
+                            <?php endif; ?>
                         </td>
                     </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
-        {{ $transactions->links() }}
-        @else
+        <?php echo e($transactions->links()); ?>
+
+        <?php else: ?>
         <p class="text-muted text-center mb-0">No transactions yet.</p>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
@@ -78,7 +78,7 @@
 <div class="modal fade" id="rechargeModal" tabindex="-1" aria-labelledby="rechargeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('dealer.payments.checkout') }}" method="GET" id="rechargeForm">
+            <form action="<?php echo e(route('dealer.payments.checkout')); ?>" method="GET" id="rechargeForm">
                 <input type="hidden" name="type" value="wallet_recharge">
                 <div class="modal-header">
                     <h5 class="modal-title" id="rechargeModalLabel">Recharge Wallet</h5>
@@ -87,23 +87,23 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="recharge_amount" class="form-label">Recharge Amount (₹)</label>
-                        <input type="number" class="form-control" id="recharge_amount" name="recharge_amount" min="{{ $minRechargeAmount }}" value="{{ $minRechargeAmount }}" required>
-                        <div class="form-text">Minimum recharge amount is ₹{{ $minRechargeAmount }}.</div>
+                        <input type="number" class="form-control" id="recharge_amount" name="recharge_amount" min="<?php echo e($minRechargeAmount); ?>" value="<?php echo e($minRechargeAmount); ?>" required>
+                        <div class="form-text">Minimum recharge amount is ₹<?php echo e($minRechargeAmount); ?>.</div>
                     </div>
                     <div class="card bg-light border-0">
                         <div class="card-body py-2">
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-secondary">Base Amount:</span>
-                                <span id="displayBase" class="fw-medium">₹{{ number_format($minRechargeAmount, 2) }}</span>
+                                <span id="displayBase" class="fw-medium">₹<?php echo e(number_format($minRechargeAmount, 2)); ?></span>
                             </div>
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-secondary">GST (18%):</span>
-                                <span id="displayGst" class="fw-medium text-danger">+ ₹{{ number_format($minRechargeAmount * 0.18, 2) }}</span>
+                                <span id="displayGst" class="fw-medium text-danger">+ ₹<?php echo e(number_format($minRechargeAmount * 0.18, 2)); ?></span>
                             </div>
                             <hr class="my-2">
                             <div class="d-flex justify-content-between">
                                 <span class="fw-bold">Total Payable:</span>
-                                <span id="displayTotal" class="fw-bold text-success fs-5">₹{{ number_format($minRechargeAmount * 1.18, 2) }}</span>
+                                <span id="displayTotal" class="fw-bold text-success fs-5">₹<?php echo e(number_format($minRechargeAmount * 1.18, 2)); ?></span>
                             </div>
                         </div>
                     </div>
@@ -117,9 +117,9 @@
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const amountInput = document.getElementById('recharge_amount');
@@ -130,7 +130,7 @@
 
         function updateCalculation() {
             let amount = parseFloat(amountInput.value) || 0;
-            let minRechargeAmount = {{ $minRechargeAmount }};
+            let minRechargeAmount = <?php echo e($minRechargeAmount); ?>;
             if (amount < minRechargeAmount) {
                 proceedBtn.disabled = true;
             } else {
@@ -150,4 +150,6 @@
         updateCalculation();
     });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.dealer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\sahigadi-ai\resources\views/dealer/wallet/index.blade.php ENDPATH**/ ?>

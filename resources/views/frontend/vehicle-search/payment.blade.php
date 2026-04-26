@@ -19,7 +19,7 @@
                         <small class="text-muted">RC Search Report</small>
                     </div>
 
-                    <form id="payment-form">
+                    <form id="payment-form" action="{{ route('vehicle-search.callback') }}" method="POST">
                         @csrf
                         <input type="hidden" name="razorpay_order_id" value="{{ $orderId }}">
                         <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
@@ -54,11 +54,7 @@
         "handler": function (response) {
             document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
             document.getElementById('razorpay_signature').value = response.razorpay_signature;
-            
-            window.location.href = "{{ route('vehicle-search.callback') }}" + 
-                "?razorpay_order_id=" + response.razorpay_order_id + 
-                "&razorpay_payment_id=" + response.razorpay_payment_id + 
-                "&razorpay_signature=" + response.razorpay_signature;
+            document.getElementById('payment-form').submit();
         },
         "theme": {
             "color": "#e94560"

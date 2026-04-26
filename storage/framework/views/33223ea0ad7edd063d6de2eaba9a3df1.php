@@ -12,25 +12,25 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dealer Dashboard')</title>
-    <meta name="description" content="@yield('meta_description', 'Dealer Dashboard for SAHIGADI')">
-    <link rel="canonical" href="@yield('canonical', url()->current())">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title><?php echo $__env->yieldContent('title', 'Dealer Dashboard'); ?></title>
+    <meta name="description" content="<?php echo $__env->yieldContent('meta_description', 'Dealer Dashboard for SAHIGADI'); ?>">
+    <link rel="canonical" href="<?php echo $__env->yieldContent('canonical', url()->current()); ?>">
     
     <!-- OpenGraph / Facebook -->
-    <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:url" content="@yield('og_url', url()->current())">
-    <meta property="og:title" content="@yield('og_title', 'Dealer Dashboard - SAHIGADI')">
-    <meta property="og:description" content="@yield('og_description', 'Dealer Dashboard for SAHIGADI')">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
+    <meta property="og:type" content="<?php echo $__env->yieldContent('og_type', 'website'); ?>">
+    <meta property="og:url" content="<?php echo $__env->yieldContent('og_url', url()->current()); ?>">
+    <meta property="og:title" content="<?php echo $__env->yieldContent('og_title', 'Dealer Dashboard - SAHIGADI'); ?>">
+    <meta property="og:description" content="<?php echo $__env->yieldContent('og_description', 'Dealer Dashboard for SAHIGADI'); ?>">
+    <meta property="og:image" content="<?php echo $__env->yieldContent('og_image', asset('images/og-image.jpg')); ?>">
     <meta property="og:site_name" content="SAHIGADI">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="@yield('twitter_url', url()->current())">
-    <meta name="twitter:title" content="@yield('twitter_title', 'Dealer Dashboard - SAHIGADI')">
-    <meta name="twitter:description" content="@yield('twitter_description', 'Dealer Dashboard for SAHIGADI')">
-    <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.jpg'))">
+    <meta name="twitter:url" content="<?php echo $__env->yieldContent('twitter_url', url()->current()); ?>">
+    <meta name="twitter:title" content="<?php echo $__env->yieldContent('twitter_title', 'Dealer Dashboard - SAHIGADI'); ?>">
+    <meta name="twitter:description" content="<?php echo $__env->yieldContent('twitter_description', 'Dealer Dashboard for SAHIGADI'); ?>">
+    <meta name="twitter:image" content="<?php echo $__env->yieldContent('twitter_image', asset('images/og-image.jpg')); ?>">
     <meta name="twitter:site" content="@Sahigadi">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -77,7 +77,7 @@
             padding: 30px;
         }
     </style>
-    @stack('styles')
+    <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 <body>
     <div class="container-fluid p-0">
@@ -109,73 +109,77 @@
                         <small class="text-secondary mt-1 fw-medium text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">Dealer Portal</small>
                     </div>
                     <nav class="nav flex-column sidebar-nav w-100">
-                    <a href="{{ route('dealer.dashboard') }}" class="{{ request()->routeIs('dealer.dashboard') ? 'active' : '' }}">
+                    <a href="<?php echo e(route('dealer.dashboard')); ?>" class="<?php echo e(request()->routeIs('dealer.dashboard') ? 'active' : ''); ?>">
                         <i class="bi bi-grid-1x2"></i> Dashboard
                     </a>
-                    <a href="{{ route('dealer.cars.index') }}" class="{{ request()->routeIs('dealer.cars.*') ? 'active' : '' }}">
+                    <a href="<?php echo e(route('dealer.cars.index')); ?>" class="<?php echo e(request()->routeIs('dealer.cars.*') ? 'active' : ''); ?>">
                         <i class="bi bi-car-front"></i> My Inventory
                     </a>
-                    <a href="{{ route('dealer.enquiries.index') }}" class="{{ request()->routeIs('dealer.enquiries.*') ? 'active' : '' }}">
+                    <a href="<?php echo e(route('dealer.enquiries.index')); ?>" class="<?php echo e(request()->routeIs('dealer.enquiries.*') ? 'active' : ''); ?>">
                         <i class="bi bi-chat-left-dots"></i> Enquiries
-                        @php
+                        <?php
                             $newEnquiries = auth('dealer')->user()->enquiries()->where('status', 'new')->count();
-                        @endphp
-                        @if($newEnquiries > 0)
-                            <span class="badge bg-danger rounded-pill">{{ $newEnquiries }}</span>
-                        @endif
+                        ?>
+                        <?php if($newEnquiries > 0): ?>
+                            <span class="badge bg-danger rounded-pill"><?php echo e($newEnquiries); ?></span>
+                        <?php endif; ?>
                     </a>
-                    <a href="{{ route('dealer.wallet.index') }}" class="{{ request()->routeIs('dealer.wallet.*') ? 'active' : '' }}">
+                    <a href="<?php echo e(route('dealer.wallet.index')); ?>" class="<?php echo e(request()->routeIs('dealer.wallet.*') ? 'active' : ''); ?>">
                         <i class="bi bi-wallet2"></i> Wallet Info
                     </a>
-                    <a href="{{ route('dealer.plans.index') }}" class="{{ request()->routeIs('dealer.plans.*') ? 'active' : '' }}">
+                    <a href="<?php echo e(route('dealer.plans.index')); ?>" class="<?php echo e(request()->routeIs('dealer.plans.*') ? 'active' : ''); ?>">
                         <i class="bi bi-rocket-takeoff"></i> Active Plans
                     </a>
                     <div class="sidebar-divider"></div>
                     <div class="px-4 mb-2 mt-1"><small class="text-secondary fw-bold text-uppercase" style="font-size:0.7rem;">Utility Services</small></div>
-                    <a href="{{ route('dealer.vehicle-search.index') }}" class="{{ request()->routeIs('dealer.vehicle-search.*') ? 'active' : '' }}">
+                    <a href="<?php echo e(route('dealer.vehicle-search.index')); ?>" class="<?php echo e(request()->routeIs('dealer.vehicle-search.*') ? 'active' : ''); ?>">
                         <i class="bi bi-card-text"></i> Vahan RC Check
                     </a>
-                    <a href="{{ route('dealer.challan-search.index') }}" class="{{ request()->routeIs('dealer.challan-search.*') ? 'active' : '' }}">
+                    <a href="<?php echo e(route('dealer.challan-search.index')); ?>" class="<?php echo e(request()->routeIs('dealer.challan-search.*') ? 'active' : ''); ?>">
                         <i class="bi bi-receipt-cutoff"></i> E-Challans
                     </a>
-                    <a href="{{ route('dealer.service-history.index') }}" class="{{ request()->routeIs('dealer.service-history.*') ? 'active' : '' }}">
+                    <a href="<?php echo e(route('dealer.service-history.index')); ?>" class="<?php echo e(request()->routeIs('dealer.service-history.*') ? 'active' : ''); ?>">
                         <i class="bi bi-tools"></i> Mahindra History
                     </a>
-                    <a href="{{ route('dealer.maruti-service-history.index') }}" class="{{ request()->routeIs('dealer.maruti-service-history.*') ? 'active' : '' }}">
+                    <a href="<?php echo e(route('dealer.maruti-service-history.index')); ?>" class="<?php echo e(request()->routeIs('dealer.maruti-service-history.*') ? 'active' : ''); ?>">
                         <i class="bi bi-wrench-adjustable-circle"></i> Maruti History
                     </a>
                     <div class="sidebar-divider"></div>
-                    <a href="{{ route('dealer.logout') }}" class="text-danger hover-danger">
+                    <a href="<?php echo e(route('dealer.logout')); ?>" class="text-danger hover-danger">
                         <i class="bi bi-box-arrow-right"></i> Sign Out
                     </a>
                 </nav>
                 </div> <!-- End offcanvas-body -->
             </div>
             <div class="col-md-10 content-area">
-                @if(session('success'))
+                <?php if(session('success')): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
+                        <?php echo e(session('success')); ?>
+
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
-                @endif
-                @if(session('error'))
+                <?php endif; ?>
+                <?php if(session('error')): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
+                        <?php echo e(session('error')); ?>
+
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
-                @endif
-                @if(session('warning'))
+                <?php endif; ?>
+                <?php if(session('warning')): ?>
                     <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        {{ session('warning') }}
+                        <?php echo e(session('warning')); ?>
+
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
-                @endif
-                @yield('content')
+                <?php endif; ?>
+                <?php echo $__env->yieldContent('content'); ?>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    @stack('scripts')
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 </html>
+<?php /**PATH C:\xampp\htdocs\sahigadi-ai\resources\views/layouts/dealer.blade.php ENDPATH**/ ?>

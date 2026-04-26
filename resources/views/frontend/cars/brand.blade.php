@@ -1,8 +1,13 @@
 @extends('layouts.app')
 
 @section('title', $seoTitle)
-
 @section('meta_description', $seoDescription)
+@section('og_type', 'website')
+@section('og_url', url()->current())
+@section('og_title', $seoTitle)
+@section('og_description', $seoDescription)
+@section('twitter_title', $seoTitle)
+@section('twitter_description', $seoDescription)
 
 @section('content')
 <div class="container py-4">

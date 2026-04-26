@@ -16,10 +16,23 @@
     <title>@yield('title', 'SAHIGADI - Trusted Used Car Marketplace in Patna, Bihar')</title>
     <meta name="description" content="@yield('meta_description', 'Find the best verified pre-owned cars in Patna, Bihar.')">
     <link rel="canonical" href="@yield('canonical', url()->current())">
+    
+    <!-- OpenGraph / Facebook -->
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:url" content="@yield('og_url', url()->current())">
     <meta property="og:title" content="@yield('og_title', 'SAHIGADI - Used Car Marketplace')">
     <meta property="og:description" content="@yield('og_description', 'Find verified pre-owned cars in Patna, Bihar')">
     <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
+    <meta property="og:site_name" content="SAHIGADI">
+    
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="@yield('twitter_url', url()->current())">
+    <meta name="twitter:title" content="@yield('twitter_title', 'SAHIGADI - Used Car Marketplace')">
+    <meta name="twitter:description" content="@yield('twitter_description', 'Find verified pre-owned cars in Patna, Bihar')">
+    <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.jpg'))">
+    <meta name="twitter:site" content="@Sahigadi">
+    
     <meta name="geo.region" content="IN-BR">
     <meta name="geo.placename" content="Patna">
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.ico') }}">

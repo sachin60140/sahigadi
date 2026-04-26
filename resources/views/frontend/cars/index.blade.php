@@ -6,6 +6,13 @@
 @section('meta_keywords', 'browse used cars, pre-owned cars, car marketplace, filter cars, used cars Patna, used cars Bihar')
 @section('canonical', route('cars.index'))
 
+@section('og_type', 'website')
+@section('og_url', route('cars.index'))
+@section('og_title', 'Browse Used Cars - Pre-Owned Cars Marketplace in Bihar | SAHIGADI')
+@section('og_description', 'Browse thousands of verified pre-owned cars in Patna and Bihar. Filter by brand, price, km driven, fuel type.')
+@section('twitter_title', 'Browse Used Cars - SAHIGADI')
+@section('twitter_description', 'Browse thousands of verified pre-owned cars in Patna and Bihar.')
+
 @section('content')
 <section class="py-4" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);">
     <div class="container">

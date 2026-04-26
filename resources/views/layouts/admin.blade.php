@@ -14,6 +14,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Dashboard') - SAHIGADI</title>
+    <meta name="description" content="@yield('meta_description', 'Admin Dashboard for SAHIGADI')">
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+    
+    <!-- OpenGraph / Facebook -->
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:url" content="@yield('og_url', url()->current())">
+    <meta property="og:title" content="@yield('og_title', 'Admin Dashboard - SAHIGADI')">
+    <meta property="og:description" content="@yield('og_description', 'Admin Dashboard for SAHIGADI')">
+    <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
+    <meta property="og:site_name" content="SAHIGADI">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="@yield('twitter_url', url()->current())">
+    <meta name="twitter:title" content="@yield('twitter_title', 'Admin Dashboard - SAHIGADI')">
+    <meta name="twitter:description" content="@yield('twitter_description', 'Admin Dashboard for SAHIGADI')">
+    <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.jpg'))">
+    <meta name="twitter:site" content="@Sahigadi">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
