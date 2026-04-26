@@ -64,10 +64,20 @@ class SellCarController extends Controller
 
         $imagePaths = [];
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
+            $files = $request->file('images');
+            $primaryIndex = (int) $request->input('primary_image_index', 0);
+            
+            foreach ($files as $index => $image) {
                 $filename = Str::uuid().'.'.$image->getClientOriginalExtension();
                 $path = $image->storeAs('customer-listings', $filename, 'public');
                 $imagePaths[] = $path;
+            }
+
+            if ($primaryIndex > 0 && isset($imagePaths[$primaryIndex])) {
+                $primaryImg = $imagePaths[$primaryIndex];
+                unset($imagePaths[$primaryIndex]);
+                array_unshift($imagePaths, $primaryImg);
+                $imagePaths = array_values($imagePaths);
             }
         }
 

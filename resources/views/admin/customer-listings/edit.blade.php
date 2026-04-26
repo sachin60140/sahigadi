@@ -68,6 +68,18 @@
                     <input type="text" name="city" class="form-control" value="{{ $listing->city }}">
                 </div>
                 <div class="col-md-6">
+                    <label class="form-label">KM Driven</label>
+                    <input type="number" name="km_driven" class="form-control" value="{{ $listing->km_driven }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Registration Number</label>
+                    <input type="text" name="registration_number" class="form-control" value="{{ $listing->registration_number }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Number of Owners</label>
+                    <input type="number" name="owners" class="form-control" value="{{ $listing->owners }}">
+                </div>
+                <div class="col-md-6">
                     <label class="form-label">Owner Phone <span class="text-danger">*</span></label>
                     <input type="text" name="owner_phone" class="form-control" value="{{ $listing->owner_phone }}" required>
                 </div>
@@ -88,6 +100,32 @@
                     </select>
                 </div>
             </div>
+
+            @php
+                $images = json_decode($listing->images, true) ?? [];
+            @endphp
+            @if(count($images) > 0)
+            <div class="mt-4 border-top pt-4">
+                <h6 class="mb-3">Car Images (Select Featured Image)</h6>
+                <div class="d-flex flex-wrap gap-3">
+                    @foreach($images as $index => $image)
+                    <div class="position-relative border p-2 rounded {{ $index === 0 ? 'bg-primary-subtle border-primary' : 'bg-light' }}">
+                        <a href="{{ asset('storage/' . $image) }}" target="_blank">
+                            <img src="{{ asset('storage/' . $image) }}" class="rounded" style="width: 120px; height: 90px; object-fit: cover;">
+                        </a>
+                        <div class="mt-2 text-center">
+                            <div class="form-check d-inline-block">
+                                <input class="form-check-input" type="radio" name="primary_image" id="img{{ $index }}" value="{{ $image }}" {{ $index === 0 ? 'checked' : '' }}>
+                                <label class="form-check-label" for="img{{ $index }}">Featured</label>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                <small class="text-muted d-block mt-2">The selected image will be shown as the main thumbnail.</small>
+            </div>
+            @endif
+
             <div class="mt-4">
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-check-circle me-2"></i>Update Listing

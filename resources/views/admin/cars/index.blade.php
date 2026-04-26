@@ -26,15 +26,15 @@
         <div class="col-md-6">
             <input type="text" name="search" class="form-control" placeholder="Search by title..." value="{{ request('search') }}">
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 d-flex gap-2">
             <button type="submit" class="btn btn-primary"><i class="bi bi-search me-2"></i>Filter</button>
-            <a href="{{ route('admin.cars.index') }}" class="btn btn-outline-secondary">Clear</a>
+            <a href="{{ route('admin.cars.index') }}" class="btn btn-outline-secondary text-center">Clear</a>
         </div>
     </form>
 </div>
 
 <div class="table-modern">
-    <table class="table table-modern mb-0">
+    <table class="table mb-0">
         <thead>
             <tr>
                 <th><i class="bi bi-image me-1"></i>Image</th>
@@ -91,17 +91,27 @@
                     @endif
                 </td>
                 <td>
-                    <a href="{{ route('admin.cars.show', $car) }}" class="btn btn-sm btn-outline-primary me-1">
+                    <a href="{{ route('admin.cars.show', $car) }}" class="btn btn-sm btn-outline-primary me-1" title="View">
                         <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{{ route('admin.cars.edit', $car) }}" class="btn btn-sm btn-outline-secondary me-1" title="Edit">
+                        <i class="bi bi-pencil"></i>
                     </a>
                     @if($car->status === 'pending')
                     <form action="{{ route('admin.cars.approve', $car) }}" method="POST" class="d-inline">
                         @csrf
-                        <button type="submit" class="btn btn-sm btn-success">
+                        <button type="submit" class="btn btn-sm btn-success me-1" title="Approve">
                             <i class="bi bi-check"></i>
                         </button>
                     </form>
                     @endif
+                    <form action="{{ route('admin.cars.destroy', $car) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this car?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                 </td>
             </tr>
             @empty

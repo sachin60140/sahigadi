@@ -156,4 +156,85 @@ class CarController extends Controller
 
         return back()->with('success', 'Featured status removed');
     }
+
+    public function edit(Car $car)
+    {
+        $car->load(['images']);
+        $brands = Brand::active()->orderBy('name')->get();
+        $dealers = Dealer::orderBy('name')->get();
+        $fuelTypes = ['petrol' => 'Petrol', 'diesel' => 'Diesel', 'electric' => 'Electric', 'hybrid' => 'Hybrid', 'cng' => 'CNG'];
+        $transmissions = ['manual' => 'Manual', 'automatic' => 'Automatic'];
+
+        return view('admin.cars.edit', compact('car', 'brands', 'dealers', 'fuelTypes', 'transmissions'));
+    }
+
+    public function update(Request $request, Car $car)
+    {
+        $request->validate([
+            'dealer_id' => 'required|exists:dealers,id',
+            'title' => 'required|string|max:255',
+            'brand_id' => 'nullable|exists:brands,id',
+            'model' => 'nullable|string|max:100',
+            'year' => 'nullable|integer|min:1900|max:'.date('Y'),
+            'fuel_type' => 'nullable|in:petrol,diesel,electric,hybrid,cng',
+            'transmission' => 'nullable|in:manual,automatic',
+            'km_driven' => 'nullable|integer|min:0',
+            'price' => 'nullable|numeric|min:0',
+            'description' => 'nullable|string',
+            'city' => 'nullable|string|max:100',
+            'registration_number' => 'nullable|string|max:20',
+            'owners' => 'nullable|integer|min:1|max:10',
+            'status' => 'required|in:pending,approved,rejected',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $car->update($request->only([
+            'dealer_id', 'title', 'brand_id', 'model', 'year', 'fuel_type', 'transmission',
+            'km_driven', 'price', 'description', 'city', 'latitude', 'longitude', 'registration_number', 'owners', 'status',
+        ]));
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $filename = Str::uuid().'.'.$image->getClientOriginalExtension();
+                $path = 'cars/'.$car->id.'/'.$filename;
+
+                \Storage::disk('public')->putFileAs('cars/'.$car->id, $image, $filename);
+
+                CarImage::create([
+                    'car_id' => $car->id,
+                    'image_path' => $path,
+                    'is_primary' => false,
+                    'sort_order' => $car->images()->count() + $index,
+                ]);
+            }
+        }
+
+        return back()->with('success', 'Car updated successfully!');
+    }
+
+    public function destroy(Car $car)
+    {
+        $car->delete();
+        return redirect()->route('admin.cars.index')->with('success', 'Car deleted successfully');
+    }
+
+    public function deleteImage(Car $car, CarImage $carImage)
+    {
+        if ($carImage->is_primary && $carImage->car->images()->count() > 1) {
+            $nextImage = $carImage->car->images()->where('id', '!=', $carImage->id)->first();
+            $nextImage->update(['is_primary' => true]);
+        }
+
+        $carImage->delete();
+
+        return back()->with('success', 'Image deleted successfully');
+    }
+
+    public function setPrimaryImage(Car $car, CarImage $carImage)
+    {
+        $carImage->car->images()->update(['is_primary' => false]);
+        $carImage->update(['is_primary' => true]);
+
+        return back()->with('success', 'Primary image set successfully');
+    }
 }

@@ -131,11 +131,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/dealers/{dealer}/verify-gst', [DealerController::class, 'verifyGst'])->name('dealers.verify-gst');
         Route::post('/dealers/{dealer}/unverify-gst', [DealerController::class, 'unverifyGst'])->name('dealers.unverify-gst');
 
-        Route::resource('cars', AdminCarController::class)->only(['index', 'create', 'store', 'show']);
+        Route::resource('cars', AdminCarController::class);
         Route::post('/cars/{car}/approve', [AdminCarController::class, 'approve'])->name('cars.approve');
         Route::post('/cars/{car}/reject', [AdminCarController::class, 'reject'])->name('cars.reject');
         Route::post('/cars/{car}/featured', [AdminCarController::class, 'featured'])->name('cars.featured');
         Route::post('/cars/{car}/remove-featured', [AdminCarController::class, 'removeFeatured'])->name('cars.remove-featured');
+        Route::delete('/cars/{car}/image/{carImage}', [AdminCarController::class, 'deleteImage'])->name('cars.image.delete');
+        Route::post('/cars/{car}/image/{carImage}/primary', [AdminCarController::class, 'setPrimaryImage'])->name('cars.image.primary');
 
         Route::resource('plans', AdminPlanController::class);
         Route::resource('brands', BrandController::class);

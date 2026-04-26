@@ -114,7 +114,15 @@ class CarController extends Controller
             ->get();
 
         $brands = Brand::active()->orderBy('name')->get();
-        $cities = Car::approved()->active()->whereNotNull('city')->distinct()->pluck('city');
+        
+        $dealerCities = Car::approved()->active()->whereNotNull('city')->distinct()->pluck('city');
+        $customerCities = CustomerCarListing::approved()->active()->whereNotNull('city')->distinct()->pluck('city');
+        $cities = $dealerCities->concat($customerCities)
+            ->map(fn($c) => trim($c))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
 
         return view('frontend.cars.index', compact('cars', 'customerListings', 'brands', 'cities'));
     }

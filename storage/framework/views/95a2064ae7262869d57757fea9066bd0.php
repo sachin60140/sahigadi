@@ -200,6 +200,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         .top-bar h4 {
             margin: 0;
@@ -251,8 +253,12 @@
         .table-modern {
             background: white;
             border-radius: 15px;
-            overflow: hidden;
+            overflow-x: auto;
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            -webkit-overflow-scrolling: touch;
+        }
+        .table-modern table {
+            min-width: 800px;
         }
         .table-modern thead {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
@@ -287,6 +293,17 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            backdrop-filter: blur(3px);
+        }
         @media (max-width: 991px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -294,17 +311,23 @@
             .sidebar.show {
                 transform: translateX(0);
             }
+            .sidebar.show ~ .mobile-overlay {
+                display: block;
+            }
             .main-content {
                 margin-left: 0;
+                padding: 70px 15px 25px 15px;
             }
         }
     </style>
     <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 <body>
-    <button class="btn btn-primary d-lg-none position-fixed" style="z-index:1001; top: 10px; left: 10px;" onclick="document.querySelector('.sidebar').classList.toggle('show')">
-        <i class="bi bi-list"></i>
+    <button class="btn btn-primary d-lg-none position-fixed shadow" style="z-index:1001; top: 15px; left: 15px; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;" onclick="document.querySelector('.sidebar').classList.toggle('show')">
+        <i class="bi bi-list fs-5"></i>
     </button>
+
+    <div class="mobile-overlay" onclick="document.querySelector('.sidebar').classList.remove('show')"></div>
 
     <aside class="sidebar">
         <div class="sidebar-brand">

@@ -122,8 +122,11 @@
                     @endif
                 </td>
                 <td>
-                    <a href="{{ url('admin/customer-listings/' . $listing->slug) }}" class="btn btn-sm btn-outline-primary me-1">
+                    <a href="{{ url('admin/customer-listings/' . $listing->slug) }}" class="btn btn-sm btn-outline-primary me-1" title="View">
                         <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{{ route('admin.customer-listings.edit', $listing->slug) }}" class="btn btn-sm btn-outline-secondary me-1" title="Edit">
+                        <i class="bi bi-pencil"></i>
                     </a>
                     @if($listing->status === 'pending')
                         <form action="{{ url('admin/customer-listings/' . $listing->slug . '/approve') }}" method="POST" class="d-inline">

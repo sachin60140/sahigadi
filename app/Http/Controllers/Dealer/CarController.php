@@ -95,6 +95,7 @@ class CarController extends Controller
         $this->subscriptionService->incrementListingCount($dealer);
 
         if ($request->hasFile('images')) {
+            $primaryIndex = (int) $request->input('primary_image_index', 0);
             foreach ($request->file('images') as $index => $image) {
                 $filename = Str::uuid().'.'.$image->getClientOriginalExtension();
                 $path = 'cars/'.$car->id.'/'.$filename;
@@ -104,7 +105,7 @@ class CarController extends Controller
                 CarImage::create([
                     'car_id' => $car->id,
                     'image_path' => $path,
-                    'is_primary' => $index === 0,
+                    'is_primary' => $index === $primaryIndex,
                     'sort_order' => $index,
                 ]);
             }

@@ -42,42 +42,70 @@ class HomeController extends Controller
             ->active()
             ->whereNotIn('slug', $featuredSlugs);
 
-        if ($request->has('keyword')) {
+        if ($request->has('keyword') && $request->keyword) {
             $query2->where('title', 'like', '%'.$request->keyword.'%');
         }
 
-        if ($request->has('city')) {
+        if ($request->has('city') && $request->city) {
             $query2->where('city', $request->city);
         }
 
-        if ($request->has('brand')) {
+        if ($request->has('brand') && $request->brand) {
             $query2->where('brand_id', $request->brand);
         }
 
-        if ($request->has('fuel_type')) {
+        if ($request->has('fuel_type') && $request->fuel_type) {
             $query2->where('fuel_type', $request->fuel_type);
         }
 
-        if ($request->has('min_price')) {
+        if ($request->has('min_price') && $request->min_price) {
             $query2->where('price', '>=', $request->min_price);
         }
 
-        if ($request->has('max_price')) {
+        if ($request->has('max_price') && $request->max_price) {
             $query2->where('price', '<=', $request->max_price);
         }
 
-        if ($request->has('transmission')) {
+        if ($request->has('transmission') && $request->transmission) {
             $query2->where('transmission', $request->transmission);
         }
 
         $cars = $query2->orderBy('created_at', 'desc')->get();
 
-        $customerListings = CustomerCarListing::with('brand')
+        $query3 = CustomerCarListing::with('brand')
             ->approved()
             ->active()
-            ->whereNotIn('slug', $featuredSlugs)
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->whereNotIn('slug', $featuredSlugs);
+
+        if ($request->has('keyword') && $request->keyword) {
+            $query3->where('title', 'like', '%'.$request->keyword.'%');
+        }
+
+        if ($request->has('city') && $request->city) {
+            $query3->where('city', $request->city);
+        }
+
+        if ($request->has('brand') && $request->brand) {
+            $query3->where('brand_id', $request->brand);
+        }
+
+        if ($request->has('fuel_type') && $request->fuel_type) {
+            $query3->where('fuel_type', $request->fuel_type);
+        }
+
+        if ($request->has('min_price') && $request->min_price) {
+            $query3->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->has('max_price') && $request->max_price) {
+            $query3->where('price', '<=', $request->max_price);
+        }
+
+        if ($request->has('transmission') && $request->transmission) {
+            $query3->where('transmission', $request->transmission);
+        }
+
+        $customerListings = $query3->orderBy('created_at', 'desc')->get();
 
         $allCars = $cars->concat($customerListings)->sortByDesc('created_at')->values();
 
@@ -105,7 +133,14 @@ class HomeController extends Controller
             })
             ->sortBy('name')
             ->values();
-        $cities = Car::approved()->active()->whereNotNull('city')->distinct()->pluck('city');
+        $dealerCities = Car::approved()->active()->whereNotNull('city')->distinct()->pluck('city');
+        $customerCities = CustomerCarListing::approved()->active()->whereNotNull('city')->distinct()->pluck('city');
+        $cities = $dealerCities->concat($customerCities)
+            ->map(fn($c) => trim($c))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
 
         $homepageSchema = $this->generateHomepageSchema($allFeatured);
 

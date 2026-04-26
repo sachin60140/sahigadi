@@ -11,9 +11,11 @@
         <h4><i class="bi bi-car-front-fill me-2"></i>{{ Str::limit($listing->title, 40) }}</h4>
         <small class="text-muted">
             Listed on {{ $listing->created_at ? $listing->created_at->format('d M Y, h:i A') : 'N/A' }}
-        </small>
     </div>
     <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ route('admin.customer-listings.edit', $listing->slug) }}" class="btn btn-outline-primary">
+            <i class="bi bi-pencil me-2"></i>Edit
+        </a>
         @if($listing->status === 'pending')
             <form action="{{ url('admin/customer-listings/' . $listing->slug . '/approve') }}" method="POST">
                 @csrf

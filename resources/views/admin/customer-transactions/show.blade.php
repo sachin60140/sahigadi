@@ -114,16 +114,18 @@
                 @if($transaction->vehicle_data)
                     <div class="row mt-3">
                         <div class="col-md-12">
-                            <table class="table table-bordered">
-                                <tbody>
-                                    @foreach($transaction->vehicle_data as $key => $value)
-                                    <tr>
-                                        <td class="bg-light" style="width: 30%;"><strong>{{ ucwords(str_replace('_', ' ', $key)) }}</strong></td>
-                                        <td>{{ $value ?? 'N/A' }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        @foreach($transaction->vehicle_data as $key => $value)
+                                        <tr>
+                                            <td class="bg-light" style="width: 30%;"><strong>{{ ucwords(str_replace('_', ' ', $key)) }}</strong></td>
+                                            <td>{{ $value ?? 'N/A' }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 @else

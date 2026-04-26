@@ -37,36 +37,47 @@ $seoKeywords = 'used cars Patna, pre-owned cars Bihar, car marketplace, buy sell
                     <h5 class="mb-4 fw-bold"><i class="bi bi-search me-2"></i>Find Your Car</h5>
                     <form action="{{ route('cars.index') }}" method="GET">
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <input type="text" name="keyword" class="form-control" placeholder="Search keyword...">
-                            </div>
-                            <div class="col-md-6">
-                                <select name="city" class="form-select">
-                                    <option value="">Select City</option>
-                                    @foreach($cities as $city)
-                                        <option value="{{ $city }}">{{ $city }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <select name="brand" class="form-select">
-                                    <option value="">Select Brand</option>
-                                    @foreach($brands as $brand)
-                                        <option value="{{ $brand->id }}">{{ $brand->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <select name="fuel_type" class="form-select">
-                                    <option value="">Fuel Type</option>
-                                    <option value="petrol">Petrol</option>
-                                    <option value="diesel">Diesel</option>
-                                    <option value="electric">Electric</option>
-                                    <option value="hybrid">Hybrid</option>
-                                    <option value="cng">CNG</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
+                              <div class="col-md-6">
+                                  <input type="text" name="keyword" class="form-control" placeholder="Search keyword..." value="{{ request('keyword') }}">
+                              </div>
+                              <div class="col-md-6">
+                                  <select name="city" class="form-select">
+                                      <option value="">Select City</option>
+                                      @foreach($cities as $city)
+                                          <option value="{{ $city }}" {{ request('city') == $city ? 'selected' : '' }}>{{ $city }}</option>
+                                      @endforeach
+                                  </select>
+                              </div>
+                              <div class="col-md-4">
+                                  <select name="brand" class="form-select">
+                                      <option value="">All Brands</option>
+                                      @foreach($brands as $brand)
+                                          <option value="{{ $brand->id }}" {{ request('brand') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                                      @endforeach
+                                  </select>
+                              </div>
+                              <div class="col-md-4">
+                                  <select name="fuel_type" class="form-select">
+                                      <option value="">Fuel Type</option>
+                                      <option value="petrol" {{ request('fuel_type') == 'petrol' ? 'selected' : '' }}>Petrol</option>
+                                      <option value="diesel" {{ request('fuel_type') == 'diesel' ? 'selected' : '' }}>Diesel</option>
+                                      <option value="electric" {{ request('fuel_type') == 'electric' ? 'selected' : '' }}>Electric</option>
+                                      <option value="cng" {{ request('fuel_type') == 'cng' ? 'selected' : '' }}>CNG</option>
+                                  </select>
+                              </div>
+                              <div class="col-md-4">
+                                  <select name="transmission" class="form-select">
+                                      <option value="">Transmission</option>
+                                      <option value="manual" {{ request('transmission') == 'manual' ? 'selected' : '' }}>Manual</option>
+                                      <option value="automatic" {{ request('transmission') == 'automatic' ? 'selected' : '' }}>Automatic</option>
+                                  </select>
+                              </div>
+                              <div class="col-md-6">
+                                  <input type="number" name="min_price" class="form-control" placeholder="Min Price (₹)" value="{{ request('min_price') }}">
+                              </div>
+                              <div class="col-md-6">
+                                  <input type="number" name="max_price" class="form-control" placeholder="Max Price (₹)" value="{{ request('max_price') }}">
+                              </div>          <div class="col-12">
                                 <button type="submit" class="btn btn-accent w-100 py-3">
                                     <i class="bi bi-search me-2"></i>Search Cars
                                 </button>

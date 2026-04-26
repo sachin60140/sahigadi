@@ -36,36 +36,47 @@ $seoKeywords = 'used cars Patna, pre-owned cars Bihar, car marketplace, buy sell
                     <h5 class="mb-4 fw-bold"><i class="bi bi-search me-2"></i>Find Your Car</h5>
                     <form action="<?php echo e(route('cars.index')); ?>" method="GET">
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <input type="text" name="keyword" class="form-control" placeholder="Search keyword...">
-                            </div>
-                            <div class="col-md-6">
-                                <select name="city" class="form-select">
-                                    <option value="">Select City</option>
-                                    <?php $__currentLoopData = $cities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $city): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($city); ?>"><?php echo e($city); ?></option>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <select name="brand" class="form-select">
-                                    <option value="">Select Brand</option>
-                                    <?php $__currentLoopData = $brands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $brand): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($brand->id); ?>"><?php echo e($brand->name); ?></option>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <select name="fuel_type" class="form-select">
-                                    <option value="">Fuel Type</option>
-                                    <option value="petrol">Petrol</option>
-                                    <option value="diesel">Diesel</option>
-                                    <option value="electric">Electric</option>
-                                    <option value="hybrid">Hybrid</option>
-                                    <option value="cng">CNG</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
+                              <div class="col-md-6">
+                                  <input type="text" name="keyword" class="form-control" placeholder="Search keyword..." value="<?php echo e(request('keyword')); ?>">
+                              </div>
+                              <div class="col-md-6">
+                                  <select name="city" class="form-select">
+                                      <option value="">Select City</option>
+                                      <?php $__currentLoopData = $cities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $city): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                          <option value="<?php echo e($city); ?>" <?php echo e(request('city') == $city ? 'selected' : ''); ?>><?php echo e($city); ?></option>
+                                      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                  </select>
+                              </div>
+                              <div class="col-md-4">
+                                  <select name="brand" class="form-select">
+                                      <option value="">All Brands</option>
+                                      <?php $__currentLoopData = $brands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $brand): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                          <option value="<?php echo e($brand->id); ?>" <?php echo e(request('brand') == $brand->id ? 'selected' : ''); ?>><?php echo e($brand->name); ?></option>
+                                      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                  </select>
+                              </div>
+                              <div class="col-md-4">
+                                  <select name="fuel_type" class="form-select">
+                                      <option value="">Fuel Type</option>
+                                      <option value="petrol" <?php echo e(request('fuel_type') == 'petrol' ? 'selected' : ''); ?>>Petrol</option>
+                                      <option value="diesel" <?php echo e(request('fuel_type') == 'diesel' ? 'selected' : ''); ?>>Diesel</option>
+                                      <option value="electric" <?php echo e(request('fuel_type') == 'electric' ? 'selected' : ''); ?>>Electric</option>
+                                      <option value="cng" <?php echo e(request('fuel_type') == 'cng' ? 'selected' : ''); ?>>CNG</option>
+                                  </select>
+                              </div>
+                              <div class="col-md-4">
+                                  <select name="transmission" class="form-select">
+                                      <option value="">Transmission</option>
+                                      <option value="manual" <?php echo e(request('transmission') == 'manual' ? 'selected' : ''); ?>>Manual</option>
+                                      <option value="automatic" <?php echo e(request('transmission') == 'automatic' ? 'selected' : ''); ?>>Automatic</option>
+                                  </select>
+                              </div>
+                              <div class="col-md-6">
+                                  <input type="number" name="min_price" class="form-control" placeholder="Min Price (₹)" value="<?php echo e(request('min_price')); ?>">
+                              </div>
+                              <div class="col-md-6">
+                                  <input type="number" name="max_price" class="form-control" placeholder="Max Price (₹)" value="<?php echo e(request('max_price')); ?>">
+                              </div>          <div class="col-12">
                                 <button type="submit" class="btn btn-accent w-100 py-3">
                                     <i class="bi bi-search me-2"></i>Search Cars
                                 </button>

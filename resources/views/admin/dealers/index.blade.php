@@ -26,15 +26,15 @@
         <div class="col-md-6">
             <input type="text" name="search" class="form-control" placeholder="Search by name, email, phone..." value="{{ request('search') }}">
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary"><i class="bi bi-search me-2"></i>Filter</button>
-            <a href="{{ route('admin.dealers.index') }}" class="btn btn-outline-secondary">Clear</a>
+            <a href="{{ route('admin.dealers.index') }}" class="btn btn-outline-secondary text-center">Clear</a>
         </div>
     </form>
 </div>
 
 <div class="table-modern">
-    <table class="table table-modern mb-0">
+    <table class="table mb-0">
         <thead>
             <tr>
                 <th><i class="bi bi-person me-1"></i>Name</th>
@@ -77,15 +77,15 @@
                         @csrf
                         @if($dealer->status === 'approved')
                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to completely deactivate this dealer?')" title="Deactivate">
-                                <i class="bi bi-power"></i> Deactivate
+                                <i class="bi bi-power"></i>
                             </button>
                         @elseif($dealer->status === 'rejected')
                             <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to reactivate this dealer?')" title="Activate">
-                                <i class="bi bi-person-check-fill"></i> Activate
+                                <i class="bi bi-person-check-fill"></i>
                             </button>
                         @elseif($dealer->status === 'pending')
                             <button type="submit" class="btn btn-sm btn-success" title="Approve Dealer">
-                                <i class="bi bi-check-circle"></i> Approve
+                                <i class="bi bi-check-circle"></i>
                             </button>
                         @endif
                     </form>

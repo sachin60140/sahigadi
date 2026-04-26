@@ -25,56 +25,58 @@
                 <h5 class="mb-0">Basic Information</h5>
             </div>
             <div class="card-body">
-                <table class="table table-borderless">
-                    <tr>
-                        <td class="text-muted">Name</td>
-                        <td>{{ $dealer->name }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Email</td>
-                        <td>{{ $dealer->email }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Phone</td>
-                        <td>{{ $dealer->phone }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Company</td>
-                        <td>{{ $dealer->company_name ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">City</td>
-                        <td>{{ $dealer->city ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">State</td>
-                        <td>{{ $dealer->state ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Pincode</td>
-                        <td>{{ $dealer->pincode ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Full Address</td>
-                        <td>{{ $dealer->address ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Status</td>
-                        <td>
-                            @if($dealer->status === 'approved')
-                                <span class="badge bg-success badge-modern">Approved</span>
-                            @elseif($dealer->status === 'pending')
-                                <span class="badge bg-warning badge-modern">Pending</span>
-                            @else
-                                <span class="badge bg-danger badge-modern">Rejected</span>
-                            @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Wallet Balance</td>
-                        <td class="text-success fw-bold">₹{{ number_format($dealer->wallet->balance ?? 0, 2) }}</td>
-                    </tr>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <td class="text-muted">Name</td>
+                            <td>{{ $dealer->name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Email</td>
+                            <td>{{ $dealer->email }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Phone</td>
+                            <td>{{ $dealer->phone }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Company</td>
+                            <td>{{ $dealer->company_name ?? 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">City</td>
+                            <td>{{ $dealer->city ?? 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">State</td>
+                            <td>{{ $dealer->state ?? 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Pincode</td>
+                            <td>{{ $dealer->pincode ?? 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Full Address</td>
+                            <td>{{ $dealer->address ?? 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Status</td>
+                            <td>
+                                @if($dealer->status === 'approved')
+                                    <span class="badge bg-success badge-modern">Approved</span>
+                                @elseif($dealer->status === 'pending')
+                                    <span class="badge bg-warning badge-modern">Pending</span>
+                                @else
+                                    <span class="badge bg-danger badge-modern">Rejected</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Wallet Balance</td>
+                            <td class="text-success fw-bold">₹{{ number_format($dealer->wallet->balance ?? 0, 2) }}</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -83,47 +85,49 @@
                 <h5 class="mb-0">KYC Documents</h5>
             </div>
             <div class="card-body">
-                <table class="table table-borderless">
-                    <tr>
-                        <td class="text-muted">Document Type</td>
-                        <td><strong>Aadhaar Card</strong></td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Aadhaar Number</td>
-                        <td><strong>{{ $dealer->kyc_document_number ?? 'N/A' }}</strong></td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Aadhaar File</td>
-                        <td>
-                            @if($dealer->kyc_document_path)
-                                <a href="{{ asset('storage/'.$dealer->kyc_document_path) }}" target="_blank" class="btn btn-sm btn-primary">
-                                    <i class="bi bi-file-earmark-text me-1"></i>View Document
-                                </a>
-                            @else
-                                <span class="text-muted">Not uploaded</span>
-                            @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><hr class="my-2"></td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">PAN Number</td>
-                        <td><strong>{{ $dealer->pan_number ?? 'N/A' }}</strong></td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">PAN Document File</td>
-                        <td>
-                            @if($dealer->pan_document_path)
-                                <a href="{{ asset('storage/'.$dealer->pan_document_path) }}" target="_blank" class="btn btn-sm btn-primary">
-                                    <i class="bi bi-file-earmark-text me-1"></i>View Document
-                                </a>
-                            @else
-                                <span class="text-muted">Not uploaded</span>
-                            @endif
-                        </td>
-                    </tr>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <td class="text-muted">Document Type</td>
+                            <td><strong>Aadhaar Card</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Aadhaar Number</td>
+                            <td><strong>{{ $dealer->kyc_document_number ?? 'N/A' }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Aadhaar File</td>
+                            <td>
+                                @if($dealer->kyc_document_path)
+                                    <a href="{{ asset('storage/'.$dealer->kyc_document_path) }}" target="_blank" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-file-earmark-text me-1"></i>View Document
+                                    </a>
+                                @else
+                                    <span class="text-muted">Not uploaded</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><hr class="my-2"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">PAN Number</td>
+                            <td><strong>{{ $dealer->pan_number ?? 'N/A' }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">PAN Document File</td>
+                            <td>
+                                @if($dealer->pan_document_path)
+                                    <a href="{{ asset('storage/'.$dealer->pan_document_path) }}" target="_blank" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-file-earmark-text me-1"></i>View Document
+                                    </a>
+                                @else
+                                    <span class="text-muted">Not uploaded</span>
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -141,41 +145,43 @@
                 @endif
             </div>
             <div class="card-body">
-                <table class="table table-borderless">
-                    <tr>
-                        <td class="text-muted">GST Number</td>
-                        <td>
-                            <strong>{{ $dealer->gst_number }}</strong>
-                            @if($dealer->gst_verified)
-                                <span class="badge bg-success ms-2"><i class="bi bi-check-circle me-1"></i>Verified</span>
-                            @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Verification Date</td>
-                        <td>{{ $dealer->gst_verified_at ? $dealer->gst_verified_at->format('d M Y') : 'Not verified' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Document File</td>
-                        <td>
-                            @if($dealer->gst_document_path)
-                                <a href="{{ asset('storage/'.$dealer->gst_document_path) }}" target="_blank" class="btn btn-sm btn-primary">
-                                    <i class="bi bi-file-earmark-text me-1"></i>View GST
-                                </a>
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <td class="text-muted">GST Number</td>
+                            <td>
+                                <strong>{{ $dealer->gst_number }}</strong>
                                 @if($dealer->gst_verified)
-                                    <form action="{{ route('admin.dealers.unverify-gst', $dealer) }}" method="POST" class="d-inline ms-2">
-                                        @csrf
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Remove GST verification?')">
-                                            <i class="bi bi-x-circle me-1"></i>Unverify
-                                        </button>
-                                    </form>
+                                    <span class="badge bg-success ms-2"><i class="bi bi-check-circle me-1"></i>Verified</span>
                                 @endif
-                            @else
-                                <span class="text-muted">Not uploaded</span>
-                            @endif
-                        </td>
-                    </tr>
-                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Verification Date</td>
+                            <td>{{ $dealer->gst_verified_at ? $dealer->gst_verified_at->format('d M Y') : 'Not verified' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Document File</td>
+                            <td>
+                                @if($dealer->gst_document_path)
+                                    <a href="{{ asset('storage/'.$dealer->gst_document_path) }}" target="_blank" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-file-earmark-text me-1"></i>View GST
+                                    </a>
+                                    @if($dealer->gst_verified)
+                                        <form action="{{ route('admin.dealers.unverify-gst', $dealer) }}" method="POST" class="d-inline ms-2">
+                                            @csrf
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Remove GST verification?')">
+                                                <i class="bi bi-x-circle me-1"></i>Unverify
+                                            </button>
+                                        </form>
+                                    @endif
+                                @else
+                                    <span class="text-muted">Not uploaded</span>
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
         @endif

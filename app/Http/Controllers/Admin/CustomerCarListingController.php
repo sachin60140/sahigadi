@@ -83,11 +83,23 @@ class CustomerCarListingController extends Controller
             'owner_phone' => 'required|string|max:20',
         ]);
 
-        $listing->update($request->only([
+        $data = $request->only([
             'title', 'brand_id', 'model', 'year', 'fuel_type', 'transmission',
             'km_driven', 'price', 'city', 'registration_number',
             'owners', 'owner_name', 'owner_phone', 'whatsapp_number', 'status',
-        ]));
+        ]);
+
+        if ($request->filled('primary_image')) {
+            $images = json_decode($listing->images, true) ?? [];
+            $primaryImage = $request->primary_image;
+            if (in_array($primaryImage, $images)) {
+                $images = array_values(array_diff($images, [$primaryImage]));
+                array_unshift($images, $primaryImage);
+                $data['images'] = json_encode($images);
+            }
+        }
+
+        $listing->update($data);
 
         return redirect()->route('admin.customer-listings.index')->with('success', 'Listing updated successfully');
     }

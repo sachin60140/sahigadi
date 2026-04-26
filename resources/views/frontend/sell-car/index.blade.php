@@ -253,7 +253,9 @@
                                                 <i class="bi bi-plus-circle me-1"></i>Select Images
                                             </label>
                                             <input type="file" name="images[]" id="car_images" class="d-none" multiple accept="image/*" onchange="previewImages(this)" required>
+                                            <input type="hidden" name="primary_image_index" id="primaryImageIndex" value="0">
                                             <small class="text-muted d-block mt-2">Supported formats: JPG, PNG, JPEG, GIF (Max 2MB each)</small>
+                                            <small class="text-muted d-block">Select a thumbnail above to set it as the featured primary image.</small>
                                             @error('images')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
@@ -361,14 +363,19 @@ function previewImages(input) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const col = document.createElement('div');
-                    col.className = 'col-4 col-md-3 col-lg-2 mb-2';
+                    col.className = 'col-4 col-md-3 col-lg-2 mb-2 preview-item-col';
                     col.innerHTML = `
-                        <div class="position-relative">
-                            <img src="${e.target.result}" class="img-thumbnail" style="height: 100px; width: 100%; object-fit: cover;">
-                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" onclick="removeImage(this, ${index})">
+                        <div class="position-relative border p-1 rounded ${index === 0 ? 'bg-primary-subtle border-primary' : ''}" id="preview_col_${index}">
+                            <img src="${e.target.result}" class="img-thumbnail border-0 bg-transparent p-0" style="height: 100px; width: 100%; object-fit: cover;">
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="removeImage(this, ${index})" style="padding: 0.1rem 0.3rem;">
                                 <i class="bi bi-x"></i>
                             </button>
-                            <small class="d-block text-center mt-1 text-muted">${file.name.substring(0, 10)}...</small>
+                            <div class="mt-1 text-center">
+                                <div class="form-check d-inline-block" style="min-height: auto;">
+                                    <input class="form-check-input" type="radio" name="preview_primary" id="feature_${index}" value="${index}" ${index === 0 ? 'checked' : ''} onchange="setFeatured(${index})">
+                                    <label class="form-check-label small" style="font-size: 0.75rem;" for="feature_${index}">Featured</label>
+                                </div>
+                            </div>
                         </div>
                     `;
                     container.appendChild(col);
@@ -402,6 +409,14 @@ function removeImage(btn, index) {
     } else {
         countLabel.className = 'text-success';
     }
+}
+
+function setFeatured(index) {
+    document.getElementById('primaryImageIndex').value = index;
+    document.querySelectorAll('.preview-item-col > div').forEach(el => {
+        el.classList.remove('border-primary', 'bg-primary-subtle');
+    });
+    document.getElementById(`preview_col_${index}`).classList.add('border-primary', 'bg-primary-subtle');
 }
 </script>
 

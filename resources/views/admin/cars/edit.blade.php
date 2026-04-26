@@ -1,21 +1,52 @@
-@extends('layouts.dealer')
+@extends('layouts.admin')
 
-@section('title', 'Add Car')
+@section('title', 'Edit Car')
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Add New Car</h2>
+    <h2>Edit Car</h2>
+    <span class="badge bg-{{ $car->status === 'approved' ? 'success' : ($car->status === 'pending' ? 'warning' : 'danger') }}">
+        {{ ucfirst($car->status) }}
+    </span>
 </div>
 
 <div class="card">
     <div class="card-body">
-        <form action="{{ route('dealer.cars.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.cars.update', $car) }}" method="POST" enctype="multipart/form-data">
             @csrf
+            @method('PUT')
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
+                        <label class="form-label">Dealer *</label>
+                        <select name="dealer_id" class="form-select @error('dealer_id') is-invalid @enderror" required>
+                            <option value="">Select Dealer</option>
+                            @foreach($dealers as $dealer)
+                            <option value="{{ $dealer->id }}" {{ old('dealer_id', $car->dealer_id) == $dealer->id ? 'selected' : '' }}>{{ $dealer->name }} ({{ $dealer->email }})</option>
+                            @endforeach
+                        </select>
+                        @error('dealer_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Status *</label>
+                        <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                            <option value="pending" {{ old('status', $car->status) == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="approved" {{ old('status', $car->status) == 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="rejected" {{ old('status', $car->status) == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                        </select>
+                        @error('status')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
                         <label class="form-label">Title *</label>
-                        <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" required>
+                        <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $car->title) }}" required>
                         @error('title')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -27,7 +58,7 @@
                         <select name="brand_id" class="form-select @error('brand_id') is-invalid @enderror">
                             <option value="">Select Brand</option>
                             @foreach($brands as $brand)
-                            <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                            <option value="{{ $brand->id }}" {{ old('brand_id', $car->brand_id) == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
                             @endforeach
                         </select>
                         @error('brand_id')
@@ -38,7 +69,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Model</label>
-                        <input type="text" name="model" class="form-control @error('model') is-invalid @enderror" value="{{ old('model') }}">
+                        <input type="text" name="model" class="form-control @error('model') is-invalid @enderror" value="{{ old('model', $car->model) }}">
                         @error('model')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -47,7 +78,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Year</label>
-                        <input type="number" name="year" class="form-control @error('year') is-invalid @enderror" value="{{ old('year') }}" min="1900" max="{{ date('Y') }}">
+                        <input type="number" name="year" class="form-control @error('year') is-invalid @enderror" value="{{ old('year', $car->year) }}" min="1900" max="{{ date('Y') }}">
                         @error('year')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -59,7 +90,7 @@
                         <select name="fuel_type" class="form-select @error('fuel_type') is-invalid @enderror">
                             <option value="">Select</option>
                             @foreach($fuelTypes as $key => $label)
-                            <option value="{{ $key }}" {{ old('fuel_type') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                            <option value="{{ $key }}" {{ old('fuel_type', $car->fuel_type) == $key ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                         @error('fuel_type')
@@ -73,7 +104,7 @@
                         <select name="transmission" class="form-select @error('transmission') is-invalid @enderror">
                             <option value="">Select</option>
                             @foreach($transmissions as $key => $label)
-                            <option value="{{ $key }}" {{ old('transmission') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                            <option value="{{ $key }}" {{ old('transmission', $car->transmission) == $key ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                         @error('transmission')
@@ -84,7 +115,7 @@
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label class="form-label">Kilometers Driven</label>
-                        <input type="number" name="km_driven" class="form-control @error('km_driven') is-invalid @enderror" value="{{ old('km_driven') }}">
+                        <input type="number" name="km_driven" class="form-control @error('km_driven') is-invalid @enderror" value="{{ old('km_driven', $car->km_driven) }}">
                         @error('km_driven')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -93,7 +124,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Price (₹) *</label>
-                        <input type="number" name="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price') }}" min="0" required>
+                        <input type="number" name="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $car->price) }}" min="0" required>
                         @error('price')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -102,14 +133,15 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">City</label>
-                        <input type="text" name="city" class="form-control @error('city') is-invalid @enderror" value="{{ old('city') }}">
+                        <input type="text" name="city" class="form-control @error('city') is-invalid @enderror" value="{{ old('city', $car->city) }}">
                         @error('city')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
-                                <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}">
-                                <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude') }}">
+                                <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude', $car->latitude) }}">
+                                <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude', $car->longitude) }}">
+                                @if(!$car->latitude)
                                 <script>
                                 document.addEventListener('DOMContentLoaded', function() {
                                     if (navigator.geolocation) {
@@ -122,10 +154,11 @@
                                     }
                                 });
                                 </script>
+                                @endif
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Registration Number</label>
-                        <input type="text" name="registration_number" class="form-control @error('registration_number') is-invalid @enderror" value="{{ old('registration_number') }}">
+                        <input type="text" name="registration_number" class="form-control @error('registration_number') is-invalid @enderror" value="{{ old('registration_number', $car->registration_number) }}">
                         @error('registration_number')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -136,7 +169,7 @@
                         <label class="form-label">No. of Owners</label>
                         <select name="owners" class="form-select @error('owners') is-invalid @enderror">
                             @for($i = 1; $i <= 5; $i++)
-                            <option value="{{ $i }}" {{ old('owners', 1) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                            <option value="{{ $i }}" {{ old('owners', $car->owners) == $i ? 'selected' : '' }}>{{ $i }}</option>
                             @endfor
                         </select>
                         @error('owners')
@@ -147,7 +180,7 @@
                 <div class="col-12">
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="4">{{ old('description') }}</textarea>
+                        <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="4">{{ old('description', $car->description) }}</textarea>
                         @error('description')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -155,71 +188,45 @@
                 </div>
                 <div class="col-12">
                     <div class="mb-3">
-                        <label class="form-label">Images (Max 10)</label>
-                        <input type="file" name="images[]" id="imageInput" class="form-control @error('images.*') is-invalid @enderror" multiple accept="image/*">
+                        <label class="form-label">Add More Images</label>
+                        <input type="file" name="images[]" class="form-control @error('images.*') is-invalid @enderror" multiple accept="image/*">
                         @error('images.*')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <input type="hidden" name="primary_image_index" id="primaryImageIndex" value="0">
-                        <div id="imagePreview" class="d-flex flex-wrap gap-3 mt-3"></div>
-                        <small class="text-muted d-block mt-2">Select an image thumbnail above to set it as the featured primary image.</small>
                     </div>
                 </div>
             </div>
             <hr>
-            <button type="submit" class="btn btn-primary">Submit for Review</button>
-            <a href="{{ route('dealer.cars.index') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Update Car Details</button>
+            <a href="{{ route('admin.cars.index') }}" class="btn btn-secondary">Cancel</a>
         </form>
+
+        @if($car->images->count() > 0)
+        <div class="mt-5">
+            <h5 class="form-label border-bottom pb-2">Manage Current Images</h5>
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                @foreach($car->images as $image)
+                <div class="position-relative border p-2 rounded bg-light">
+                    <img src="{{ $image->url }}" alt="" class="rounded" style="width: 120px; height: 90px; object-fit: cover;">
+                    @if($image->is_primary)
+                    <span class="position-absolute top-0 start-0 badge bg-success m-2 shadow-sm" style="font-size: 0.65rem;">Primary</span>
+                    @endif
+                    <div class="mt-2 d-flex gap-1 justify-content-center">
+                        <form action="{{ route('admin.cars.image.primary', [$car, $image]) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-primary" {{ $image->is_primary ? 'disabled' : '' }}>Primary</button>
+                        </form>
+                        <form action="{{ route('admin.cars.image.delete', [$car, $image]) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this image?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const imageInput = document.getElementById('imageInput');
-    const imagePreview = document.getElementById('imagePreview');
-    const primaryImageIndexInput = document.getElementById('primaryImageIndex');
-
-    if (imageInput && imagePreview) {
-        imageInput.addEventListener('change', function() {
-            imagePreview.innerHTML = '';
-            primaryImageIndexInput.value = 0; 
-            const files = Array.from(this.files);
-            
-            files.forEach((file, index) => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const div = document.createElement('div');
-                        div.className = `position-relative border p-2 rounded ${index === 0 ? 'bg-primary-subtle border-primary' : 'bg-light'} preview-item`;
-                        div.innerHTML = `
-                            <img src="${e.target.result}" class="rounded" style="width: 120px; height: 90px; object-fit: cover;">
-                            <div class="mt-2 text-center">
-                                <div class="form-check d-inline-block">
-                                    <input class="form-check-input" type="radio" name="preview_primary" id="preview_img_${index}" value="${index}" ${index === 0 ? 'checked' : ''}>
-                                    <label class="form-check-label" for="preview_img_${index}">Featured</label>
-                                </div>
-                            </div>
-                        `;
-                        imagePreview.appendChild(div);
-
-                        const radio = div.querySelector('input[type="radio"]');
-                        radio.addEventListener('change', function() {
-                            primaryImageIndexInput.value = this.value;
-                            document.querySelectorAll('.preview-item').forEach(el => {
-                                el.classList.remove('bg-primary-subtle', 'border-primary');
-                                el.classList.add('bg-light');
-                            });
-                            div.classList.remove('bg-light');
-                            div.classList.add('bg-primary-subtle', 'border-primary');
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        });
-    }
-});
-</script>
-@endpush
