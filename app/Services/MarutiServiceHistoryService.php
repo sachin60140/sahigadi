@@ -22,7 +22,7 @@ class MarutiServiceHistoryService
 
     public function __construct()
     {
-        $this->apiUrl = 'https://api.invincibleocean.com/invincible/maruti-service-history';
+        $this->apiUrl = 'https://api.invincibleocean.com/invincible/vehicleMarutiServiceHistory';
         $this->secretKey = config('services.service_history_api.secret_key', 'ONsoB7pAonpp1FYJ0Bf6sHFuGLYGEbytHxURPsEmK64gt3HR8yDtxwDafwMuCaonL');
         $this->clientId = config('services.service_history_api.client_id', '8f16f6344cbdcc74620cfdf7c87554f2:045cb470d3ae8da988c7e0982917e1ea');
         $this->chargePerSearch = Setting::getDealerMarutiServiceHistoryCharge();
