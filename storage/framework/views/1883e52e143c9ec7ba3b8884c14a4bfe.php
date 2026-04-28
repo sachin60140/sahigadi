@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Wallet Recharge Receipt - {{ $transaction->id }} - SAHIGADI</title>
+    <title>Wallet Recharge Receipt - <?php echo e($transaction->id); ?> - SAHIGADI</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #333; }
         .header { border-bottom: 2px solid #1a1a2e; padding-bottom: 20px; margin-bottom: 30px; display: table; width: 100%; }
@@ -30,9 +30,9 @@
     </style>
 </head>
 <body>
-    @php
+    <?php
     date_default_timezone_set('Asia/Kolkata');
-    @endphp
+    ?>
     
     <div class="header">
         <div class="company-info">
@@ -50,9 +50,10 @@
         <div class="receipt-info">
             <h1>MONEY RECEIPT</h1>
             <p>
-                <strong>Receipt No:</strong> RCPT-{{ date('Y') }}-{{ str_pad($transaction->id, 5, '0', STR_PAD_LEFT) }}<br>
-                <strong>Date:</strong> {{ $date }}<br>
-                <strong>Txn Ref:</strong> {{ $transaction->reference_id ?? 'N/A' }}
+                <strong>Receipt No:</strong> RCPT-<?php echo e(date('Y')); ?>-<?php echo e(str_pad($transaction->id, 5, '0', STR_PAD_LEFT)); ?><br>
+                <strong>Date:</strong> <?php echo e($date); ?><br>
+                <strong>Txn Ref:</strong> <?php echo e($transaction->reference_id ?? 'N/A'); ?>
+
             </p>
         </div>
     </div>
@@ -61,15 +62,16 @@
     <div class="section">
         <div class="section-title">Billed To</div>
         <p>
-            <strong>Dealer Name:</strong> {{ $dealer->name ?? 'N/A' }}<br>
-            <strong>Firm Name:</strong> {{ $dealer->company_name ?? $dealer->firm_name ?? 'N/A' }}<br>
-            <strong>Address:</strong> {{ $dealer->address ?? 'N/A' }}<br>
-            <strong>City:</strong> {{ $dealer->city ?? 'N/A' }}<br>
-            <strong>State:</strong> {{ $dealer->state ?? 'N/A' }}<br>
-            <strong>Pincode:</strong> {{ $dealer->pincode ?? 'N/A' }}<br>
-            <strong>Phone:</strong> {{ $dealer->phone }}<br>
-             <strong>Email:</strong> {{ $dealer->email }}<br>
-            <strong>GST Number:</strong> {{ $dealer->gst_number ?? 'N/A' }}
+            <strong>Dealer Name:</strong> <?php echo e($dealer->name ?? 'N/A'); ?><br>
+            <strong>Firm Name:</strong> <?php echo e($dealer->company_name ?? $dealer->firm_name ?? 'N/A'); ?><br>
+            <strong>Address:</strong> <?php echo e($dealer->address ?? 'N/A'); ?><br>
+            <strong>City:</strong> <?php echo e($dealer->city ?? 'N/A'); ?><br>
+            <strong>State:</strong> <?php echo e($dealer->state ?? 'N/A'); ?><br>
+            <strong>Pincode:</strong> <?php echo e($dealer->pincode ?? 'N/A'); ?><br>
+            <strong>Phone:</strong> <?php echo e($dealer->phone); ?><br>
+             <strong>Email:</strong> <?php echo e($dealer->email); ?><br>
+            <strong>GST Number:</strong> <?php echo e($dealer->gst_number ?? 'N/A'); ?>
+
         </p>
     </div>
 
@@ -85,9 +87,9 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ $transaction->reference_id ?? 'N/A' }}</td>
+                    <td><?php echo e($transaction->reference_id ?? 'N/A'); ?></td>
                     <td>Dealer Wallet Recharge</td>
-                    <td style="text-align: right;">{{ number_format($baseAmount, 2) }}</td>
+                    <td style="text-align: right;"><?php echo e(number_format($baseAmount, 2)); ?></td>
                 </tr>
             </tbody>
         </table>
@@ -95,15 +97,15 @@
         <table class="totals-table">
             <tr>
                 <td style="text-align: right;">Base Amount:</td>
-                <td style="text-align: right;">Rs. {{ number_format($baseAmount, 2) }}</td>
+                <td style="text-align: right;">Rs. <?php echo e(number_format($baseAmount, 2)); ?></td>
             </tr>
             <tr>
                 <td style="text-align: right;">GST (18%):</td>
-                <td style="text-align: right;">Rs. {{ number_format($gstAmount, 2) }}</td>
+                <td style="text-align: right;">Rs. <?php echo e(number_format($gstAmount, 2)); ?></td>
             </tr>
             <tr class="total-row">
                 <td style="text-align: right;">Total Paid:</td>
-                <td style="text-align: right;">Rs. {{ number_format($totalAmount, 2) }}</td>
+                <td style="text-align: right;">Rs. <?php echo e(number_format($totalAmount, 2)); ?></td>
             </tr>
         </table>
     </div>
@@ -111,7 +113,8 @@
     <div class="footer">
         <p>This is a computer-generated receipt and does not require a physical signature.</p>
         <p>Thank you for your business with SAHIGADI!</p>
-        <p>Generated on: {{ date('d M Y, h:i A') }}</p>
+        <p>Generated on: <?php echo e(date('d M Y, h:i A')); ?></p>
     </div>
 </body>
 </html>
+<?php /**PATH C:\xampp\htdocs\sahigadi-ai\resources\views/dealer/wallet/receipt-pdf.blade.php ENDPATH**/ ?>

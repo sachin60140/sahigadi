@@ -19,6 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.access' => AdminAccess::class,
             'auth' => Authenticate::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'dealer/payments/phonepe/callback',
+            'dealer/payments/phonepe/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

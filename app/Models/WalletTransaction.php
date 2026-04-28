@@ -31,4 +31,10 @@ class WalletTransaction extends Model
     {
         return $this->belongsTo(Wallet::class);
     }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'razorpay_payment_id', 'reference_id')
+            ->orWhere('phonepe_transaction_id', $this->reference_id);
+    }
 }

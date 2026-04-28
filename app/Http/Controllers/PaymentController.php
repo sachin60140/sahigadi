@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Services\RazorpayService;
 use App\Services\SubscriptionService;
 use App\Services\WalletService;
+use App\Services\PhonePeService;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -15,6 +16,7 @@ class PaymentController extends Controller
 {
     public function __construct(
         protected RazorpayService $razorpayService,
+        protected PhonePeService $phonepeService,
         protected WalletService $walletService,
         protected SubscriptionService $subscriptionService
     ) {}
@@ -39,12 +41,21 @@ class PaymentController extends Controller
             }
         }
 
-        $receipt = $type.'_'.time();
+        $isRazorpayActive = Setting::isRazorpayActive();
+        $isPhonePeActive = Setting::isPhonePeActive();
 
-        $orderData = $this->razorpayService->createOrder($amount, $receipt, [
-            'dealer_id' => $dealer->id,
-            'type' => $type,
-        ]);
+        if (!$isRazorpayActive && !$isPhonePeActive) {
+            return redirect()->back()->with('error', 'No payment gateway available.');
+        }
+
+        $orderData = null;
+        if ($isRazorpayActive) {
+            $receipt = $type.'_'.time();
+            $orderData = $this->razorpayService->createOrder($amount, $receipt, [
+                'dealer_id' => $dealer->id,
+                'type' => $type,
+            ]);
+        }
 
         $typeLabel = match ($type) {
             'wallet_recharge' => 'Wallet Recharge',
@@ -62,6 +73,8 @@ class PaymentController extends Controller
             'planId' => $request->plan_id,
             'carId' => $request->car_id,
             'days' => $request->days,
+            'isRazorpayActive' => $isRazorpayActive,
+            'isPhonePeActive' => $isPhonePeActive,
         ]);
     }
 
@@ -143,5 +156,96 @@ class PaymentController extends Controller
     public function failed(Request $request)
     {
         return redirect()->route('dealer.wallet.index')->with('error', 'Payment failed. Please try again.');
+    }
+
+    public function phonepeInitiate(Request $request)
+    {
+        try {
+            $dealer = auth('dealer')->user();
+            $type = $request->type;
+            $amount = $request->amount;
+            $transactionId = 'PP_' . time() . '_' . $dealer->id;
+
+            // Store temporary info in session for callback
+            session()->put('phonepe_payment_info', [
+                'transaction_id' => $transactionId,
+                'type' => $type,
+                'amount' => $amount,
+                'plan_id' => $request->plan_id,
+                'car_id' => $request->car_id,
+                'days' => $request->days,
+            ]);
+
+            $response = $this->phonepeService->createPayment($amount, $transactionId, ['dealer_id' => $dealer->id]);
+
+            if ($response['success']) {
+                return redirect()->away($response['redirect_url']);
+            }
+
+            return redirect()->route('dealer.wallet.index')->with('error', 'PhonePe payment initiation failed.');
+        } catch (Exception $e) {
+            return redirect()->route('dealer.wallet.index')->with('error', $e->getMessage());
+        }
+    }
+
+    public function phonepeCallback(Request $request)
+    {
+        try {
+            $dealer = auth('dealer')->user();
+            $paymentInfo = session()->get('phonepe_payment_info');
+
+            if (!$paymentInfo) {
+                throw new Exception('Payment information lost in session.');
+            }
+
+            $transactionId = $paymentInfo['transaction_id'];
+
+            $this->phonepeService->processPayment(
+                $dealer,
+                $transactionId,
+                $paymentInfo['amount'],
+                $paymentInfo['type']
+            );
+
+                if ($paymentInfo['type'] === 'plan_purchase' && $paymentInfo['plan_id']) {
+                    $plan = Plan::find($paymentInfo['plan_id']);
+                    if ($plan) {
+                        $this->subscriptionService->purchasePlan($dealer, $plan);
+                    }
+                }
+
+                if ($paymentInfo['type'] === 'featured_listing' && $paymentInfo['car_id']) {
+                    $car = CarModel::find($paymentInfo['car_id']);
+                    if ($car) {
+                        $days = $paymentInfo['days'] ?? 7;
+                        $car->update([
+                            'is_featured' => true,
+                            'featured_expires_at' => now()->addDays($days),
+                        ]);
+                    }
+                }
+
+            session()->forget('phonepe_payment_info');
+            return redirect()->route('dealer.wallet.index')->with('success', 'PhonePe Payment successful! Amount credited.');
+        } catch (Exception $e) {
+            return redirect()->route('dealer.wallet.index')->with('error', $e->getMessage());
+        }
+    }
+
+    public function phonepeWebhook(Request $request)
+    {
+        $payload = $request->getContent();
+        $signature = $request->header('X-VERIFY');
+
+        if (!$this->phonepeService->isValidWebhookSignature($payload, $signature)) {
+            return response()->json(['error' => 'Invalid signature'], 400);
+        }
+
+        $data = json_decode(base64_decode($request->input('response')), true);
+        
+        // Log the webhook (Best practice)
+        \Illuminate\Support\Facades\Log::info('PhonePe Webhook', ['data' => $data]);
+
+        return response()->json(['success' => true]);
     }
 }

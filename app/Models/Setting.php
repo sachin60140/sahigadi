@@ -137,4 +137,74 @@ class Setting extends Model
     {
         static::set('min_wallet_recharge_amount', $amount, 'number', 'payment', 'Minimum wallet recharge amount via Razorpay');
     }
+
+    public static function getPhonePeMerchantId(): ?string
+    {
+        return static::get('phonepe_merchant_id', config('services.phonepe.merchant_id'));
+    }
+
+    public static function setPhonePeMerchantId(string $merchantId): void
+    {
+        static::set('phonepe_merchant_id', $merchantId, 'string', 'payment', 'PhonePe Merchant ID');
+    }
+
+    public static function getPhonePeSaltKey(): ?string
+    {
+        return static::get('phonepe_salt_key', config('services.phonepe.salt_key'));
+    }
+
+    public static function setPhonePeSaltKey(string $saltKey): void
+    {
+        static::set('phonepe_salt_key', $saltKey, 'string', 'payment', 'PhonePe Salt Key');
+    }
+
+    public static function getPhonePeSaltIndex(): string
+    {
+        return static::get('phonepe_salt_index', config('services.phonepe.salt_index', '1'));
+    }
+
+    public static function setPhonePeSaltIndex(string $saltIndex): void
+    {
+        static::set('phonepe_salt_index', $saltIndex, 'string', 'payment', 'PhonePe Salt Index');
+    }
+
+    public static function getPhonePeEnvironment(): string
+    {
+        return static::get('phonepe_env', config('services.phonepe.env', 'UAT'));
+    }
+
+    public static function setPhonePeEnvironment(string $env): void
+    {
+        static::set('phonepe_env', $env, 'string', 'payment', 'PhonePe Environment (UAT or PRODUCTION)');
+    }
+
+    public static function getPhonePeCheckoutUrl(): ?string
+    {
+        return static::get('phonepe_checkout_url');
+    }
+
+    public static function setPhonePeCheckoutUrl(?string $url): void
+    {
+        static::set('phonepe_checkout_url', $url, 'string', 'payment', 'PhonePe Custom Checkout API URL');
+    }
+
+    public static function isRazorpayActive(): bool
+    {
+        return (bool) static::get('is_razorpay_active', true);
+    }
+
+    public static function setIsRazorpayActive(bool $isActive): void
+    {
+        static::set('is_razorpay_active', $isActive ? '1' : '0', 'boolean', 'payment', 'Is Razorpay Active');
+    }
+
+    public static function isPhonePeActive(): bool
+    {
+        return (bool) static::get('is_phonepe_active', false);
+    }
+
+    public static function setIsPhonePeActive(bool $isActive): void
+    {
+        static::set('is_phonepe_active', $isActive ? '1' : '0', 'boolean', 'payment', 'Is PhonePe Active');
+    }
 }

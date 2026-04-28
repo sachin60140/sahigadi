@@ -106,7 +106,13 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
         Route::get('/payments/checkout', [PaymentController::class, 'checkout'])->name('payments.checkout');
         Route::post('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
         Route::get('/payments/failed', [PaymentController::class, 'failed'])->name('payments.failed');
+
+        Route::post('/payments/phonepe/initiate', [PaymentController::class, 'phonepeInitiate'])->name('payments.phonepe.initiate');
+        Route::match(['GET', 'POST'], '/payments/phonepe/callback', [PaymentController::class, 'phonepeCallback'])->name('payments.phonepe.callback');
     });
+    
+    // Webhook should be outside auth middleware
+    Route::post('/payments/phonepe/webhook', [PaymentController::class, 'phonepeWebhook'])->name('payments.phonepe.webhook');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {

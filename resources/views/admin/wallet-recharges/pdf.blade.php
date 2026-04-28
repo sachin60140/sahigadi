@@ -38,7 +38,7 @@
                 <th>Dealer Name</th>
                 <th>Contact</th>
                 <th>GST Number</th>
-                <th>Payment Mode</th>
+                <th>Payment Gateway Type</th>
                 <th class="text-right">Base (Rs)</th>
                 <th class="text-right">GST 18% (Rs)</th>
                 <th class="text-right">Total Paid (Rs)</th>
@@ -57,7 +57,11 @@
 
                 $receipt = 'RCPT-' . $txn->created_at->format('Y') . '-' . str_pad($txn->id, 5, '0', STR_PAD_LEFT);
                 $dealer = $txn->wallet->dealer;
-                $paymentMode = $txn->reference_type === 'admin_credit' ? 'Direct Deposit' : 'Razorpay';
+                if ($txn->reference_type === 'admin_credit') {
+                    $paymentMode = 'Direct Deposit';
+                } else {
+                    $paymentMode = str_starts_with($txn->reference_id, 'PP_') ? 'PhonePe' : 'Razorpay';
+                }
             @endphp
             <tr>
                 <td>{{ $txn->created_at->format('d M Y, H:i') }}</td>

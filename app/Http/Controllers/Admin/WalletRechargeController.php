@@ -29,6 +29,23 @@ class WalletRechargeController extends Controller
             $query->whereDate('created_at', '<=', $request->to_date);
         }
 
+        if ($request->filled('payment_gateway')) {
+            $gateway = $request->payment_gateway;
+            if ($gateway === 'direct_deposit') {
+                $query->where('reference_type', 'admin_credit');
+            } else {
+                $query->whereExists(function($q) use ($gateway) {
+                    $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                      ->from('payments')
+                      ->where('payment_gateway', $gateway)
+                      ->where(function($q2) {
+                          $q2->whereColumn('payments.razorpay_payment_id', 'wallet_transactions.reference_id')
+                             ->orWhereColumn('payments.phonepe_transaction_id', 'wallet_transactions.reference_id');
+                      });
+                });
+            }
+        }
+
         return $query;
     }
 
