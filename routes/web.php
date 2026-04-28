@@ -27,6 +27,18 @@ use App\Http\Controllers\Frontend\SellCarController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
+
+// TEMPORARY MIGRATE ROUTE
+Route::get('/run-live-migration', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        Artisan::call('optimize:clear');
+        return "Migration and cache clear completed successfully! <br><br> " . nl2br(Artisan::output());
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
