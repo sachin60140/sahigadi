@@ -3,13 +3,21 @@
 @section('title', 'Customer Car Listings - SAHIGADI Admin')
 
 @section('content')
-<div class="top-bar">
+<div class="top-bar d-flex justify-content-between align-items-center">
     <div>
         <h4><i class="bi bi-person-badge me-2"></i>Customer Car Listings</h4>
         <small class="text-muted">Manage individual seller listings</small>
         @if($pendingCount > 0)
             <span class="badge bg-warning text-dark ms-2">{{ $pendingCount }} pending</span>
         @endif
+    </div>
+    <div>
+        <a href="{{ route('admin.customer-listings.exportExcel') }}" class="btn btn-sm btn-success me-2">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+        </a>
+        <a href="{{ route('admin.customer-listings.exportPdf') }}" class="btn btn-sm btn-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+        </a>
     </div>
 </div>
 
@@ -23,10 +31,13 @@
                 <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
             </select>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-2">
+            <input type="date" name="date" class="form-control" value="{{ request('date') }}" title="Filter by Date">
+        </div>
+        <div class="col-md-5">
             <input type="text" name="search" class="form-control" placeholder="Search by title, model, phone, email..." value="{{ request('search') }}">
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <button type="submit" class="btn btn-primary"><i class="bi bi-search me-2"></i>Filter</button>
             <a href="{{ route('admin.customer-listings.index') }}" class="btn btn-outline-secondary">Clear</a>
         </div>
@@ -58,9 +69,15 @@
                         @endif
                         {{ $listing->year ?? 'N/A' }}
                     </small>
+                    @if($listing->registration_number)
+                    <br>
+                    <span class="badge bg-light text-dark border mt-1"><i class="bi bi-card-text me-1"></i>{{ $listing->registration_number }}</span>
+                    @endif
                 </td>
                 <td>
                     {{ $listing->owner_name ?? 'N/A' }}
+                    <br>
+                    <small class="text-muted"><i class="bi bi-telephone"></i> {{ $listing->owner_phone }}</small>
                 </td>
                 <td class="fw-bold">₹{{ number_format($listing->price ?? 0) }}</td>
                 <td>

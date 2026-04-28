@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class CustomerCarListingController extends Controller
 {
-    public function index(Request $request)
+    private function buildFilterQuery(Request $request)
     {
         $query = CustomerCarListing::with('brand');
 
@@ -26,14 +26,39 @@ class CustomerCarListingController extends Controller
             });
         }
 
+        if ($request->has('date') && $request->date) {
+            $query->whereDate('created_at', $request->date);
+        }
+
         if ($request->has('city') && $request->city) {
             $query->where('city', $request->city);
         }
 
-        $listings = $query->orderBy('created_at', 'desc')->paginate(20);
+        return $query->orderByRaw("CASE WHEN status = 'pending' THEN 1 WHEN status = 'approved' THEN 2 ELSE 3 END")
+                     ->orderBy('created_at', 'desc');
+    }
+
+    public function index(Request $request)
+    {
+        $query = $this->buildFilterQuery($request);
+        $listings = $query->paginate(20);
         $pendingCount = CustomerCarListing::pending()->count();
 
         return view('admin.customer-listings.index', compact('listings', 'pendingCount'));
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $query = CustomerCarListing::with('brand')->orderBy('created_at', 'desc');
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\CustomerListingsExport($query), 'customer-listings.xlsx');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $query = CustomerCarListing::with('brand')->orderBy('created_at', 'desc');
+        $listings = $query->get();
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.customer-listings.pdf', compact('listings'))->setPaper('a4', 'landscape');
+        return $pdf->download('customer-listings.pdf');
     }
 
     public function create()

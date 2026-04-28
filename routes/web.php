@@ -148,6 +148,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('contact-enquiries', App\Http\Controllers\Admin\ContactEnquiryController::class)->only(['index', 'show', 'destroy']);
         Route::post('/contact-enquiries/{contact_enquiry}/read', [App\Http\Controllers\Admin\ContactEnquiryController::class, 'markAsRead'])->name('contact-enquiries.read');
 
+        Route::get('/customer-listings/export/excel', [CustomerCarListingController::class, 'exportExcel'])->name('customer-listings.exportExcel');
+        Route::get('/customer-listings/export/pdf', [CustomerCarListingController::class, 'exportPdf'])->name('customer-listings.exportPdf');
         Route::resource('customer-listings', CustomerCarListingController::class);
         Route::post('/customer-listings/{customer_listing}/approve', [CustomerCarListingController::class, 'approve'])->name('customer-listings.approve');
         Route::post('/customer-listings/{customer_listing}/reject', [CustomerCarListingController::class, 'reject'])->name('customer-listings.reject');
