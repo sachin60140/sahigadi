@@ -22,7 +22,7 @@
     <meta property="og:url" content="@yield('og_url', url()->current())">
     <meta property="og:title" content="@yield('og_title', 'Dealer Dashboard - SAHIGADI')">
     <meta property="og:description" content="@yield('og_description', 'Dealer Dashboard for SAHIGADI')">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
+    <meta property="og:image" content="@yield('og_image', asset('images/og-image.png'))">
     <meta property="og:site_name" content="SAHIGADI">
     
     <!-- Twitter -->
@@ -30,7 +30,7 @@
     <meta name="twitter:url" content="@yield('twitter_url', url()->current())">
     <meta name="twitter:title" content="@yield('twitter_title', 'Dealer Dashboard - SAHIGADI')">
     <meta name="twitter:description" content="@yield('twitter_description', 'Dealer Dashboard for SAHIGADI')">
-    <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.jpg'))">
+    <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.png'))">
     <meta name="twitter:site" content="@Sahigadi">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

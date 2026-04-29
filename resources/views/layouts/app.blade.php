@@ -22,7 +22,7 @@
     <meta property="og:url" content="@yield('og_url', url()->current())">
     <meta property="og:title" content="@yield('og_title', 'SAHIGADI - Used Car Marketplace')">
     <meta property="og:description" content="@yield('og_description', 'Find verified pre-owned cars in Patna, Bihar')">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
+    <meta property="og:image" content="@yield('og_image', asset('images/og-image.png'))">
     <meta property="og:site_name" content="SAHIGADI">
     
     <!-- Twitter -->
@@ -30,7 +30,7 @@
     <meta name="twitter:url" content="@yield('twitter_url', url()->current())">
     <meta name="twitter:title" content="@yield('twitter_title', 'SAHIGADI - Used Car Marketplace')">
     <meta name="twitter:description" content="@yield('twitter_description', 'Find verified pre-owned cars in Patna, Bihar')">
-    <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.jpg'))">
+    <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.png'))">
     <meta name="twitter:site" content="@Sahigadi">
     
     <meta name="geo.region" content="IN-BR">
