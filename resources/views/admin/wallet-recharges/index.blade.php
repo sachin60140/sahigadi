@@ -123,19 +123,17 @@
                                                 $paymentMode = 'PhonePe';
                                                 $icon = 'bi-phone';
                                                 $colorClass = 'success';
-                                                $orderId = $txn->reference_id; // For PhonePe, our reference is the merchant Order ID
-                                                $txnId = $paymentRecord && $paymentRecord->reference_id ? $paymentRecord->reference_id : 'Pending Sync';
+                                                $txnId = $txn->reference_id; // PhonePe calls this Transaction ID
+                                                $orderId = $paymentRecord && $paymentRecord->reference_id ? $paymentRecord->reference_id : 'Processing / Bank Ref Pending'; // UTR / Provider Ref
                                             }
                                         @endphp
                                         <span class="badge bg-{{ $colorClass }} bg-opacity-10 text-{{ $colorClass }} border border-{{ $colorClass }} border-opacity-25 mb-1"><i class="bi {{ $icon }} me-1"></i>{{ $paymentMode }}</span>
                                         
                                         <div class="mt-1 w-100">
+                                            <small class="user-select-all text-secondary d-block mb-1 text-break" style="font-size:0.75rem;"><strong class="text-dark">Txn:</strong> {{ $txnId }}</small>
                                             @if($orderId)
-                                                <small class="user-select-all text-secondary d-block mb-1 text-break" style="font-size:0.75rem;"><strong class="text-dark">Ord:</strong> {{ $orderId }}</small>
-                                            @else
-                                                <small class="user-select-all text-secondary d-block mb-1 text-break" style="font-size:0.75rem;"><strong class="text-dark">Ord:</strong> N/A</small>
+                                                <small class="user-select-all text-secondary d-block text-break" style="font-size:0.75rem;"><strong class="text-dark">{{ str_starts_with($txn->reference_id, 'PP_') ? 'UTR/Bank' : 'Ord' }}:</strong> {{ $orderId }}</small>
                                             @endif
-                                            <small class="user-select-all text-secondary d-block text-break" style="font-size:0.75rem;"><strong class="text-dark">Txn:</strong> {{ $txnId }}</small>
                                         </div>
                                     @endif
                                 </div>
