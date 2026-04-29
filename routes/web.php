@@ -137,10 +137,10 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
         Route::post('/payments/phonepe/initiate', [PaymentController::class, 'phonepeInitiate'])->name('payments.phonepe.initiate');
         Route::match(['GET', 'POST'], '/payments/phonepe/callback', [PaymentController::class, 'phonepeCallback'])->name('payments.phonepe.callback');
     });
-    
-    // Webhook should be outside auth middleware
-    Route::post('/payments/phonepe/webhook', [PaymentController::class, 'phonepeWebhook'])->name('payments.phonepe.webhook');
 });
+
+// Webhook should be globally accessible (not under /dealer/)
+Route::post('/payments/phonepe/webhook', [PaymentController::class, 'phonepeWebhook'])->name('payments.phonepe.webhook');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest:admin')->group(function () {

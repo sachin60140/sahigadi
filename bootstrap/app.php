@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'dealer/payments/phonepe/callback',
             'dealer/payments/phonepe/webhook',
+            'payments/phonepe/webhook',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

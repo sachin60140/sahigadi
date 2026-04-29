@@ -237,14 +237,78 @@ class PaymentController extends Controller
         $expectedUser = env('PHONEPE_WEBHOOK_USER', 'sahigadiwebhook');
         $expectedPass = env('PHONEPE_WEBHOOK_PASS', 'Sahigadi12345');
 
-        if ($request->getUser() !== $expectedUser || $request->getPassword() !== $expectedPass) {
+        $authHeader = $request->header('Authorization');
+        $expectedSha256 = hash('sha256', $expectedUser . ':' . $expectedPass);
+        
+        $isBasicAuth = ($request->getUser() === $expectedUser && $request->getPassword() === $expectedPass);
+        $isSha256 = (str_replace(' ', '', $authHeader) === 'SHA256(' . $expectedSha256 . ')' || $authHeader === $expectedSha256);
+
+        if (!$isBasicAuth && !$isSha256) {
+            \Illuminate\Support\Facades\Log::warning('PhonePe Webhook Auth Failed', ['header' => $authHeader]);
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $data = json_decode(base64_decode($request->input('response')), true);
-        
-        // Log the webhook (Best practice)
-        \Illuminate\Support\Facades\Log::info('PhonePe Webhook', ['data' => $data]);
+        // V2 payload is raw JSON
+        $data = $request->all();
+        \Illuminate\Support\Facades\Log::info('PhonePe Webhook Received', ['data' => $data]);
+
+        if (isset($data['event']) && $data['event'] === 'checkout.order.completed') {
+            $payload = $data['payload'] ?? [];
+            $transactionId = $payload['merchantOrderId'] ?? null;
+            $state = $payload['state'] ?? null;
+
+            if ($transactionId && $state === 'COMPLETED') {
+                if (str_starts_with($transactionId, 'PP_LNK_')) {
+                    $parts = explode('_', $transactionId);
+                    $linkId = end($parts);
+                    $paymentLink = \App\Models\PaymentLink::find($linkId);
+                    
+                    if ($paymentLink && $paymentLink->status === 'pending') {
+                        $dealer = $paymentLink->dealer;
+                        if ($dealer) {
+                            try {
+                                $payment = $this->phonepeService->processPayment(
+                                    $dealer,
+                                    $transactionId,
+                                    (float) (($payload['amount'] ?? 0) / 100),
+                                    'custom_payment_link'
+                                );
+                                
+                                \Illuminate\Support\Facades\DB::transaction(function() use ($paymentLink, $payment) {
+                                    // Re-check status inside transaction
+                                    $freshLink = \App\Models\PaymentLink::where('id', $paymentLink->id)->lockForUpdate()->first();
+                                    if ($freshLink && $freshLink->status === 'pending') {
+                                        $freshLink->update([
+                                            'status' => 'paid',
+                                            'transaction_id' => $payment->id
+                                        ]);
+                                    }
+                                });
+                            } catch (\Exception $e) {
+                                \Illuminate\Support\Facades\Log::error('PhonePe Webhook Link Process Error', ['error' => $e->getMessage()]);
+                            }
+                        }
+                    }
+                } else {
+                    $parts = explode('_', $transactionId);
+                    $dealerId = end($parts);
+                    $dealer = \App\Models\Dealer::find($dealerId);
+                    
+                    if ($dealer) {
+                        try {
+                            $this->phonepeService->processPayment(
+                                $dealer, 
+                                $transactionId, 
+                                (float) (($payload['amount'] ?? 0) / 100), 
+                                'wallet_recharge'
+                            );
+                        } catch (\Exception $e) {
+                            \Illuminate\Support\Facades\Log::error('PhonePe Webhook Process Error', ['error' => $e->getMessage()]);
+                        }
+                    }
+                }
+            }
+        }
 
         return response()->json(['success' => true]);
     }
