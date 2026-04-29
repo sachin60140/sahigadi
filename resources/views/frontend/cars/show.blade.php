@@ -28,6 +28,8 @@
 @php
 $item = $car ?? $customerListing;
 $totalImages = count($allImages);
+$actualPhone = $isCustomerListing ? $item->owner_phone : ($car->dealer->phone ?? '');
+$maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actualPhone, -3) : '';
 @endphp
 
 @section('title', $seo['seo_title'])
@@ -237,25 +239,34 @@ $totalImages = count($allImages);
                             </div>
                         </div>
                         @if($item->owner_phone)
-                        <p class="mb-2"><i class="bi bi-telephone me-2" style="color: #e94560;"></i>{{ $item->owner_phone }}</p>
+                        <div id="contact-info-container-customer">
+                            <p class="mb-2"><i class="bi bi-telephone me-2" style="color: #e94560;"></i><span id="display-phone-customer" class="fw-bold fs-5">{{ $maskedPhone }}</span></p>
+                            <button class="btn btn-outline-danger w-100 py-2 mb-3 fw-bold" data-bs-toggle="modal" data-bs-target="#contactUnlockModal">
+                                <i class="bi bi-unlock me-2"></i>View Contact Number
+                            </button>
+                        </div>
                         @endif
                         @if($item->whatsapp_number)
-                        <p class="mb-2"><i class="bi bi-whatsapp me-2 text-success"></i>{{ $item->whatsapp_number }}</p>
+                        <div id="whatsapp-info-container" class="d-none">
+                            <p class="mb-2"><i class="bi bi-whatsapp me-2 text-success"></i><span id="display-whatsapp">{{ $item->whatsapp_number }}</span></p>
+                        </div>
                         @endif
                         @if($item->city)
                         <p class="mb-0"><i class="bi bi-geo-alt me-2" style="color: #e94560;"></i>{{ $item->city }}</p>
                         @endif
                     </div>
-                    @if($item->owner_phone)
-                    <a href="tel:{{ $item->owner_phone }}" class="btn w-100 py-3 mb-3" style="background: #e94560; color: white;">
-                        <i class="bi bi-telephone me-2"></i>Call Owner
-                    </a>
-                    @endif
-                    @if($item->whatsapp_number)
-                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $item->whatsapp_number) }}" target="_blank" class="btn btn-success w-100 py-3">
-                        <i class="bi bi-whatsapp me-2"></i>WhatsApp
-                    </a>
-                    @endif
+                    <div id="action-buttons-container-customer" class="d-none">
+                        @if($item->owner_phone)
+                        <a href="#" id="call-btn-customer" class="btn w-100 py-3 mb-3" style="background: #e94560; color: white;">
+                            <i class="bi bi-telephone me-2"></i>Call Owner
+                        </a>
+                        @endif
+                        @if($item->whatsapp_number)
+                        <a href="#" id="whatsapp-btn-customer" target="_blank" class="btn btn-success w-100 py-3">
+                            <i class="bi bi-whatsapp me-2"></i>WhatsApp
+                        </a>
+                        @endif
+                    </div>
                 </div>
             </div>
             @else
@@ -278,18 +289,25 @@ $totalImages = count($allImages);
                             </div>
                         </div>
                         @if($car->dealer->phone)
-                        <p class="mb-2"><i class="bi bi-telephone me-2" style="color: #e94560;"></i>{{ $car->dealer->phone }}</p>
+                        <div id="contact-info-container-dealer">
+                            <p class="mb-2"><i class="bi bi-telephone me-2" style="color: #e94560;"></i><span id="display-phone-dealer" class="fw-bold fs-5">{{ $maskedPhone }}</span></p>
+                            <button class="btn btn-outline-danger w-100 py-2 mb-3 fw-bold" data-bs-toggle="modal" data-bs-target="#contactUnlockModal">
+                                <i class="bi bi-unlock me-2"></i>View Contact Number
+                            </button>
+                        </div>
                         @endif
                         @if($car->dealer->city)
                         <p class="mb-0"><i class="bi bi-geo-alt me-2" style="color: #e94560;"></i>{{ $car->dealer->city }}</p>
                         @endif
                     </div>
-                    <button class="btn w-100 py-3 mb-3" style="background: #e94560; color: white;" data-bs-toggle="modal" data-bs-target="#enquiryModal">
-                        <i class="bi bi-chat-dots me-2"></i>Send Enquiry
-                    </button>
-                    <a href="tel:{{ $car->dealer->phone }}" class="btn btn-outline-secondary w-100 py-3">
-                        <i class="bi bi-telephone me-2"></i>Call Dealer
-                    </a>
+                    <div id="action-buttons-container-dealer" class="d-none">
+                        <button class="btn w-100 py-3 mb-3" style="background: #e94560; color: white;" data-bs-toggle="modal" data-bs-target="#enquiryModal">
+                            <i class="bi bi-chat-dots me-2"></i>Send Enquiry
+                        </button>
+                        <a href="#" id="call-btn-dealer" class="btn btn-outline-secondary w-100 py-3">
+                            <i class="bi bi-telephone me-2"></i>Call Dealer
+                        </a>
+                    </div>
                 </div>
             </div>
             @endif
@@ -333,6 +351,56 @@ $totalImages = count($allImages);
         </div>
     </section>
     @endif
+
+    <!-- Contact Unlock Modal -->
+    <div class="modal fade" id="contactUnlockModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark"><i class="bi bi-shield-lock me-2 text-warning"></i>Unlock Contact Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4">Please verify your mobile number to view the seller's contact details.</p>
+                    
+                    <div id="unlockStep1">
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Your Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="unlockName" placeholder="Enter your full name">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Your Mobile Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">+91</span>
+                                <input type="text" class="form-control" id="unlockPhone" placeholder="10-digit mobile number" maxlength="10">
+                            </div>
+                        </div>
+                        <button type="button" id="btnSendOtp" class="btn w-100 py-2 fw-bold" style="background: #e94560; color: white;">
+                            Send OTP <span id="spinnerSendOtp" class="spinner-border spinner-border-sm d-none ms-2"></span>
+                        </button>
+                    </div>
+
+                    <div id="unlockStep2" class="d-none">
+                        <div class="alert alert-success bg-success bg-opacity-10 border-0 mb-4">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i> OTP sent to <span id="displayUnlockPhone" class="fw-bold"></span>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Enter 6-Digit OTP <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-lg text-center fw-bold letter-spacing-1" id="unlockOtp" placeholder="------" maxlength="6">
+                            <div class="form-text mt-2 text-end">
+                                <a href="#" id="btnResendOtp" class="text-decoration-none" style="color: #e94560;">Resend OTP</a>
+                            </div>
+                        </div>
+                        <button type="button" id="btnVerifyOtp" class="btn w-100 py-2 fw-bold" style="background: #1a1a2e; color: white;">
+                            Verify & Unlock <span id="spinnerVerifyOtp" class="spinner-border spinner-border-sm d-none ms-2"></span>
+                        </button>
+                    </div>
+
+                    <div id="unlockError" class="alert alert-danger mt-3 d-none border-0"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -362,6 +430,126 @@ $totalImages = count($allImages);
                 });
             });
         }
+
+        // OTP Verification Logic
+        const btnSendOtp = document.getElementById('btnSendOtp');
+        const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+        const btnResendOtp = document.getElementById('btnResendOtp');
+        const unlockStep1 = document.getElementById('unlockStep1');
+        const unlockStep2 = document.getElementById('unlockStep2');
+        const unlockError = document.getElementById('unlockError');
+        
+        const carId = '{{ $item->id }}';
+        const isCustomerListing = {{ $isCustomerListing ? 'true' : 'false' }};
+
+        function showError(msg) {
+            unlockError.textContent = msg;
+            unlockError.classList.remove('d-none');
+        }
+
+        function hideError() {
+            unlockError.classList.add('d-none');
+        }
+
+        btnSendOtp.addEventListener('click', function() {
+            const name = document.getElementById('unlockName').value.trim();
+            const phone = document.getElementById('unlockPhone').value.trim();
+            
+            if (!name) return showError('Please enter your name.');
+            if (!/^[0-9]{10}$/.test(phone)) return showError('Please enter a valid 10-digit mobile number.');
+            
+            hideError();
+            btnSendOtp.disabled = true;
+            document.getElementById('spinnerSendOtp').classList.remove('d-none');
+
+            fetch('{{ route('api.enquiry.send-otp') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ phone: phone, car_id: carId, is_customer_listing: isCustomerListing })
+            })
+            .then(r => r.json())
+            .then(data => {
+                btnSendOtp.disabled = false;
+                document.getElementById('spinnerSendOtp').classList.add('d-none');
+                
+                if(data.success) {
+                    document.getElementById('displayUnlockPhone').textContent = '+91 ' + phone;
+                    unlockStep1.classList.add('d-none');
+                    unlockStep2.classList.remove('d-none');
+                } else {
+                    showError(data.message || 'Failed to send OTP.');
+                }
+            })
+            .catch(e => {
+                btnSendOtp.disabled = false;
+                document.getElementById('spinnerSendOtp').classList.add('d-none');
+                showError('Network error occurred.');
+            });
+        });
+
+        btnResendOtp.addEventListener('click', function(e) {
+            e.preventDefault();
+            unlockStep2.classList.add('d-none');
+            unlockStep1.classList.remove('d-none');
+            btnSendOtp.click();
+        });
+
+        btnVerifyOtp.addEventListener('click', function() {
+            const name = document.getElementById('unlockName').value.trim();
+            const phone = document.getElementById('unlockPhone').value.trim();
+            const otp = document.getElementById('unlockOtp').value.trim();
+            
+            if (!/^[0-9]{6}$/.test(otp)) return showError('Please enter a valid 6-digit OTP.');
+            
+            hideError();
+            btnVerifyOtp.disabled = true;
+            document.getElementById('spinnerVerifyOtp').classList.remove('d-none');
+
+            fetch('{{ route('api.enquiry.verify-otp') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ name: name, phone: phone, otp: otp, car_id: carId, is_customer_listing: isCustomerListing })
+            })
+            .then(r => r.json())
+            .then(data => {
+                btnVerifyOtp.disabled = false;
+                document.getElementById('spinnerVerifyOtp').classList.add('d-none');
+                
+                if(data.success) {
+                    // Update UI
+                    let modal = bootstrap.Modal.getInstance(document.getElementById('contactUnlockModal'));
+                    modal.hide();
+                    
+                    // Reveal contact
+                    if (isCustomerListing) {
+                        document.getElementById('display-phone-customer').textContent = data.contact_number;
+                        document.getElementById('contact-info-container-customer').querySelector('button').classList.add('d-none');
+                        document.getElementById('action-buttons-container-customer').classList.remove('d-none');
+                        document.getElementById('call-btn-customer').href = 'tel:' + data.contact_number;
+                        let waInfo = document.getElementById('whatsapp-info-container');
+                        if (waInfo) waInfo.classList.remove('d-none');
+                    } else {
+                        document.getElementById('display-phone-dealer').textContent = data.contact_number;
+                        document.getElementById('contact-info-container-dealer').querySelector('button').classList.add('d-none');
+                        document.getElementById('action-buttons-container-dealer').classList.remove('d-none');
+                        document.getElementById('call-btn-dealer').href = 'tel:' + data.contact_number;
+                    }
+                } else {
+                    showError(data.message || 'Invalid OTP.');
+                }
+            })
+            .catch(e => {
+                btnVerifyOtp.disabled = false;
+                document.getElementById('spinnerVerifyOtp').classList.add('d-none');
+                showError('Network error occurred.');
+            });
+        });
     });
 </script>
 @endpush

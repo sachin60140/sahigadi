@@ -18,11 +18,22 @@ class Enquiry extends Model
         'customer_phone',
         'message',
         'status',
+        'ip_address',
     ];
 
     public function car(): BelongsTo
     {
         return $this->belongsTo(Car::class);
+    }
+
+    public function customerCar(): BelongsTo
+    {
+        return $this->belongsTo(CustomerCarListing::class, 'car_id');
+    }
+
+    public function getActualCarAttribute()
+    {
+        return $this->dealer_id ? $this->car : $this->customerCar;
     }
 
     public function dealer(): BelongsTo
@@ -32,9 +43,9 @@ class Enquiry extends Model
 
     public function getWhatsAppUrlAttribute(): string
     {
-        $phone = $this->car->dealer->phone ?? '';
-        $message = "Hi, I'm interested in your car: ".$this->car->title."\n";
-        $message .= 'Reference: '.route('car.detail', $this->car->slug);
+        $phone = $this->actual_car->dealer->phone ?? ($this->actual_car->owner_phone ?? '');
+        $message = "Hi, I'm interested in your car: ".($this->actual_car->title ?? 'Unknown')."\n";
+        $message .= 'Reference: '.route('car.detail', $this->actual_car->slug ?? '');
 
         return 'https://wa.me/'.preg_replace('/[^0-9]/', '', $phone).'?text='.urlencode($message);
     }

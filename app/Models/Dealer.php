@@ -17,6 +17,7 @@ class Dealer extends Authenticatable
         'name',
         'email',
         'slug',
+        'profile_image',
         'phone',
         'password',
         'company_name',

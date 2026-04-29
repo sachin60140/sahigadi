@@ -52,15 +52,11 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
-                        <th>Date & Time</th>
-                        <th>Receipt No</th>
-                        <th>Company Name</th>
-                        <th>Dealer Details</th>
-                        <th>GST Number</th>
-                        <th>Recharge (Base)</th>
-                        <th>GST (18%)</th>
-                        <th>Total Paid</th>
-                        <th>Gateway / Status</th>
+                        <th>Transaction Details</th>
+                        <th>Dealer Info</th>
+                        <th style="min-width: 150px;">Amount Details</th>
+                        <th>Payment & Gateway</th>
+                        <th class="text-end">Status & Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -73,61 +69,89 @@
                         @endphp
                         <tr>
                             <td>
-                                <div class="fw-medium">{{ $txn->created_at->format('d M Y') }}</div>
-                                <small class="text-muted">{{ $txn->created_at->format('h:i A') }}</small>
+                                <div class="fw-medium text-dark">{{ $txn->created_at->format('d M Y') }}</div>
+                                <small class="text-muted d-block mb-1">{{ $txn->created_at->format('h:i A') }}</small>
+                                <span class="badge bg-light text-dark border mt-1"><i class="bi bi-file-earmark-text"></i> {{ $receipt }}</span>
                             </td>
                             <td>
-                                <span class="badge bg-light text-dark border"><i class="bi bi-file-earmark-text"></i> {{ $receipt }}</span>
-                            </td>
-                            <td>
-                                <div class="fw-bold text-primary">{{ $txn->wallet->dealer->company_name ?? 'N/A' }}</div>
-                            </td>
-                            <td>
-                                <div class="fw-medium text-dark">{{ $txn->wallet->dealer->name ?? 'Unknown Dealer' }}</div>
-                                <small class="text-muted d-block">{{ $txn->wallet->dealer->phone ?? '' }}</small>
-                            </td>
-                            <td>
+                                <div class="fw-bold text-primary mb-1">{{ $txn->wallet->dealer->company_name ?? 'N/A' }}</div>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <span class="fw-medium text-dark" style="font-size: 0.85rem;">{{ $txn->wallet->dealer->name ?? 'Unknown Dealer' }}</span>
+                                    <small class="text-muted"><i class="bi bi-telephone-fill" style="font-size: 0.7rem;"></i> {{ $txn->wallet->dealer->phone ?? '' }}</small>
+                                </div>
                                 @if(!empty($txn->wallet->dealer->gst_number))
-                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">{{ $txn->wallet->dealer->gst_number }}</span>
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25" style="font-size: 0.7rem;">GST: {{ $txn->wallet->dealer->gst_number }}</span>
                                 @else
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25">Unregistered</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25" style="font-size: 0.7rem;">Unregistered</span>
                                 @endif
                             </td>
-                            <td class="text-success fw-medium">₹{{ number_format($base, 2) }}</td>
-                            <td class="text-danger">₹{{ number_format($gst, 2) }}</td>
-                            <td class="fw-bold">₹{{ number_format($total, 2) }}</td>
                             <td>
-                                <div class="d-flex flex-column gap-1 align-items-start">
+                                <div class="d-flex flex-column gap-1">
+                                    <div class="d-flex justify-content-between" style="font-size: 0.85rem;">
+                                        <span class="text-muted">Base:</span>
+                                        <span class="text-success fw-medium">₹{{ number_format($base, 2) }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between" style="font-size: 0.85rem;">
+                                        <span class="text-muted">GST (18%):</span>
+                                        <span class="text-danger">₹{{ number_format($gst, 2) }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between pt-1 mt-1 border-top" style="font-size: 0.9rem;">
+                                        <span class="fw-bold text-dark">Total:</span>
+                                        <span class="fw-bold text-dark">₹{{ number_format($total, 2) }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column align-items-start">
                                     @if($txn->reference_type === 'admin_credit')
                                         <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mb-1"><i class="bi bi-bank me-1"></i>Direct Deposit</span>
-                                        <small class="user-select-all text-secondary" style="font-size:0.7rem;"><i class="bi bi-person-badge"></i> {{ $txn->reference_id ?? 'N/A' }}</small>
+                                        <small class="user-select-all text-secondary d-block mt-1" style="font-size:0.75rem;" title="Reference ID"><strong class="text-dark">Ref:</strong> {{ $txn->reference_id ?? 'N/A' }}</small>
                                     @else
                                         @php
                                             $paymentMode = 'Razorpay';
                                             $icon = 'bi-credit-card';
                                             $colorClass = 'info';
                                             
+                                            $paymentRecord = \App\Models\Payment::where('razorpay_payment_id', $txn->reference_id)
+                                                ->orWhere('phonepe_transaction_id', $txn->reference_id)
+                                                ->first();
+                                                
+                                            $orderId = $paymentRecord && $paymentRecord->razorpay_order_id ? $paymentRecord->razorpay_order_id : null;
+                                            $txnId = $txn->reference_id ?? 'N/A';
+                                            
                                             if (str_starts_with($txn->reference_id, 'PP_')) {
                                                 $paymentMode = 'PhonePe';
                                                 $icon = 'bi-phone';
                                                 $colorClass = 'success';
+                                                $orderId = $txn->reference_id; // For PhonePe, our reference is the merchant Order ID
+                                                $txnId = $paymentRecord && $paymentRecord->reference_id ? $paymentRecord->reference_id : 'Pending Sync';
                                             }
                                         @endphp
                                         <span class="badge bg-{{ $colorClass }} bg-opacity-10 text-{{ $colorClass }} border border-{{ $colorClass }} border-opacity-25 mb-1"><i class="bi {{ $icon }} me-1"></i>{{ $paymentMode }}</span>
-                                        <small class="user-select-all text-secondary" style="font-size:0.7rem;"><i class="bi bi-hash"></i> {{ $txn->reference_id ?? 'N/A' }}</small>
+                                        
+                                        <div class="mt-1 w-100">
+                                            @if($orderId)
+                                                <small class="user-select-all text-secondary d-block mb-1 text-break" style="font-size:0.75rem;"><strong class="text-dark">Ord:</strong> {{ $orderId }}</small>
+                                            @else
+                                                <small class="user-select-all text-secondary d-block mb-1 text-break" style="font-size:0.75rem;"><strong class="text-dark">Ord:</strong> N/A</small>
+                                            @endif
+                                            <small class="user-select-all text-secondary d-block text-break" style="font-size:0.75rem;"><strong class="text-dark">Txn:</strong> {{ $txnId }}</small>
+                                        </div>
                                     @endif
-                                    <div class="d-flex align-items-center gap-2 mt-1">
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill"><i class="bi bi-check-circle-fill me-1"></i>Success</span>
-                                        <a href="{{ route('admin.wallet-recharges.receipt', $txn->id) }}" class="btn btn-sm btn-outline-primary" style="padding: 1px 6px; font-size: 0.75rem;" title="Download Receipt">
-                                            <i class="bi bi-download"></i>
-                                        </a>
-                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex flex-column align-items-end gap-2">
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3"><i class="bi bi-check-circle-fill me-1"></i>Success</span>
+                                    <a href="{{ route('admin.wallet-recharges.receipt', $txn->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;" title="Download Receipt">
+                                        <i class="bi bi-download me-1"></i> Receipt
+                                    </a>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center py-5">
+                            <td colspan="5" class="text-center py-5">
                                 <div class="text-muted">
                                     <i class="bi bi-inbox fs-1 d-block mb-3"></i>
                                     <h5>No wallet recharges found</h5>

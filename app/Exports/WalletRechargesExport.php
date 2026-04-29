@@ -31,7 +31,8 @@ class WalletRechargesExport implements FromCollection, WithHeadings, WithMapping
             'Phone',
             'GST Number',
             'Payment Gateway Type',
-            'Reference ID',
+            'Order ID',
+            'Transaction ID',
             'Base Amount (Rs)',
             'GST Amount (Rs)',
             'Total Paid (Rs)'
@@ -48,8 +49,14 @@ class WalletRechargesExport implements FromCollection, WithHeadings, WithMapping
         $dealer = $transaction->wallet->dealer;
         if ($transaction->reference_type === 'admin_credit') {
             $paymentMode = 'Direct Deposit';
+            $orderId = 'N/A';
         } else {
             $paymentMode = str_starts_with($transaction->reference_id, 'PP_') ? 'PhonePe' : 'Razorpay';
+            $paymentRecord = \App\Models\Payment::where('razorpay_payment_id', $transaction->reference_id)
+                ->orWhere('phonepe_transaction_id', $transaction->reference_id)
+                ->first();
+            $orderId = $paymentRecord && $paymentRecord->razorpay_order_id ? $paymentRecord->razorpay_order_id : ($paymentMode === 'PhonePe' ? $transaction->reference_id : 'N/A');
+            $txnId = $paymentMode === 'PhonePe' ? ($paymentRecord && $paymentRecord->reference_id ? $paymentRecord->reference_id : 'Pending Sync') : ($transaction->reference_id ?? 'N/A');
         }
 
         return [
@@ -61,7 +68,8 @@ class WalletRechargesExport implements FromCollection, WithHeadings, WithMapping
             $dealer->phone ?? 'N/A',
             $dealer->gst_number ?? 'N/A',
             $paymentMode,
-            $transaction->reference_id ?? 'N/A',
+            $orderId,
+            $txnId,
             number_format($base, 2, '.', ''),
             number_format($gst, 2, '.', ''),
             number_format($total, 2, '.', '')

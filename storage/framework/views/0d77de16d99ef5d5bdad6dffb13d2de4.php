@@ -33,8 +33,11 @@ endif;
 unset($__errorArgs, $__bag); ?>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control <?php $__errorArgs = ['password'];
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-label mb-0">Password</label>
+                                <a href="<?php echo e(route('dealer.forgot-password')); ?>" class="text-decoration-none small">Forgot Password?</a>
+                            </div>
+                            <input type="password" name="password" class="form-control mt-1 <?php $__errorArgs = ['password'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }

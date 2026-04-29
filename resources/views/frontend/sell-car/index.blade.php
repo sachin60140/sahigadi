@@ -282,6 +282,15 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Email Address (Optional)</label>
+                                    <input type="email" name="owner_email" class="form-control @error('owner_email') is-invalid @enderror" 
+                                           placeholder="For notifications" value="{{ old('owner_email') }}">
+                                    @error('owner_email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>

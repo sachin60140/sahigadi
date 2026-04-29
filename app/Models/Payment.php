@@ -12,9 +12,11 @@ class Payment extends Model
 
     protected $fillable = [
         'dealer_id',
+        'payment_gateway',
         'razorpay_order_id',
         'razorpay_payment_id',
         'razorpay_signature',
+        'phonepe_transaction_id',
         'amount',
         'currency',
         'status',

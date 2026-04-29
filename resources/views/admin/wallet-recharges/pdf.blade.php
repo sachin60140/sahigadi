@@ -38,7 +38,7 @@
                 <th>Dealer Name</th>
                 <th>Contact</th>
                 <th>GST Number</th>
-                <th>Payment Gateway Type</th>
+                <th>Payment Details</th>
                 <th class="text-right">Base (Rs)</th>
                 <th class="text-right">GST 18% (Rs)</th>
                 <th class="text-right">Total Paid (Rs)</th>
@@ -59,8 +59,14 @@
                 $dealer = $txn->wallet->dealer;
                 if ($txn->reference_type === 'admin_credit') {
                     $paymentMode = 'Direct Deposit';
+                    $orderId = null;
                 } else {
                     $paymentMode = str_starts_with($txn->reference_id, 'PP_') ? 'PhonePe' : 'Razorpay';
+                    $paymentRecord = \App\Models\Payment::where('razorpay_payment_id', $txn->reference_id)
+                        ->orWhere('phonepe_transaction_id', $txn->reference_id)
+                        ->first();
+                    $orderId = $paymentRecord && $paymentRecord->razorpay_order_id ? $paymentRecord->razorpay_order_id : ($paymentMode === 'PhonePe' ? $txn->reference_id : null);
+                    $txnId = $paymentMode === 'PhonePe' ? ($paymentRecord && $paymentRecord->reference_id ? $paymentRecord->reference_id : 'Pending Sync') : ($txn->reference_id ?? 'N/A');
                 }
             @endphp
             <tr>
@@ -70,7 +76,15 @@
                 <td>{{ $dealer->name ?? 'N/A' }}</td>
                 <td>{{ $dealer->email ?? '' }}<br><small style="color:#666">{{ $dealer->phone ?? '' }}</small></td>
                 <td>{{ $dealer->gst_number ?? 'N/A' }}</td>
-                <td>{{ $paymentMode }}<br><small style="color:#666">{{ $txn->reference_id ?? '' }}</small></td>
+                <td>
+                    {{ $paymentMode }}<br>
+                    @if($orderId)
+                        <small style="color:#666">Ord: {{ $orderId }}</small><br>
+                    @else
+                        <small style="color:#666">Ord: N/A</small><br>
+                    @endif
+                    <small style="color:#666">Txn: {{ $txnId }}</small>
+                </td>
                 <td class="text-right">{{ number_format($base, 2) }}</td>
                 <td class="text-right">{{ number_format($gst, 2) }}</td>
                 <td class="text-right">{{ number_format($total, 2) }}</td>

@@ -412,6 +412,9 @@
             <a href="{{ route('admin.wallet-recharges.index') }}" class="nav-link {{ request()->routeIs('admin.wallet-recharges.*') ? 'active' : '' }}">
                 <i class="bi bi-cash-stack"></i> Wallet Recharges
             </a>
+            <a href="{{ route('admin.payment-links.index') }}" class="nav-link {{ request()->routeIs('admin.payment-links.*') ? 'active' : '' }}">
+                <i class="bi bi-link-45deg"></i> Payment Links
+            </a>
 
             <div class="menu-header">Customer Finance</div>
             <a href="{{ route('admin.customer-transactions.index') }}" class="nav-link {{ request()->routeIs('admin.customer-transactions.*') ? 'active' : '' }}">

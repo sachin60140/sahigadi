@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - CarMarket</title>
+    <title>Admin Login - SAHIGADI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
@@ -51,7 +51,7 @@
                     <div class="login-header">
                         <i class="bi bi-shield-check" style="font-size: 3rem;"></i>
                         <h3 class="mt-2 mb-0">Admin Panel</h3>
-                        <p class="mb-0 mt-1 text-white-50">CarMarket Management</p>
+                        <p class="mb-0 mt-1 text-white-50">SAHIGADI Management</p>
                     </div>
                     <div class="login-body">
                         @if(session('error'))

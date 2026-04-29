@@ -34,6 +34,7 @@ class SellCarController extends Controller
             'registration_number' => 'nullable|string|max:20',
             'owners' => 'nullable|integer|min:1|max:10',
             'owner_name' => 'nullable|string|max:255',
+            'owner_email' => 'nullable|email|max:255',
             'owner_phone' => 'required|string|max:20',
             'whatsapp_number' => 'nullable|string|max:20',
             'latitude' => 'required|numeric',
@@ -81,7 +82,7 @@ class SellCarController extends Controller
             }
         }
 
-        CustomerCarListing::create([
+        $customerListing = CustomerCarListing::create([
             'title' => $request->title,
             'slug' => $slug,
             'brand_id' => $request->brand_id,
@@ -99,11 +100,21 @@ class SellCarController extends Controller
             'owner_name' => $request->owner_name,
             'owner_phone' => $request->owner_phone,
             'whatsapp_number' => $request->whatsapp_number,
+            'owner_email' => $request->owner_email ?? null,
             'images' => json_encode($imagePaths),
             'status' => 'pending',
         ]);
 
         session()->forget('sell_car_phone_verified');
+
+        try {
+            \Illuminate\Support\Facades\Mail::to('sachin60140@gmail.com')->send(new \App\Mail\AdminNewListingNotification($customerListing, false));
+            if ($customerListing->owner_email) {
+                \Illuminate\Support\Facades\Mail::to($customerListing->owner_email)->send(new \App\Mail\UserNewListingNotification($customerListing));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send customer car listing emails: ' . $e->getMessage());
+        }
 
         return redirect()->back()->with('success', 'Your car listing has been submitted successfully! We will review it and get back to you soon.');
     }

@@ -55,7 +55,7 @@ class RazorpayService
     }
 
     public function processPayment(
-        Dealer $dealer,
+        ?Dealer $dealer,
         string $razorpayOrderId,
         string $razorpayPaymentId,
         string $razorpaySignature,
@@ -76,7 +76,7 @@ class RazorpayService
         }
 
         return DB::transaction(function () use ($dealer, $razorpayOrderId, $razorpayPaymentId, $razorpaySignature, $amount, $type, $referenceId) {
-            if ($type === 'wallet_recharge') {
+            if ($type === 'wallet_recharge' && $dealer) {
                 $walletService = app(WalletService::class);
                 
                 // Subtract the 18% GST back out to compute the actual recharge amount
@@ -94,7 +94,7 @@ class RazorpayService
             $payment = Payment::updateOrCreate(
                 ['razorpay_order_id' => $razorpayOrderId],
                 [
-                    'dealer_id' => $dealer->id,
+                    'dealer_id' => $dealer ? $dealer->id : null,
                     'razorpay_payment_id' => $razorpayPaymentId,
                     'razorpay_signature' => $razorpaySignature,
                     'amount' => $amount,

@@ -79,7 +79,7 @@ var options = {
     "key": "{{ $keyId }}",
     "amount": {{ ($order['amount'] ?? 0) * 100 }},
     "currency": "INR",
-    "name": "CarMarket",
+    "name": "SAHIGADI",
     "description": "{{ $typeLabel }}",
     "order_id": "{{ $order['order_id'] ?? '' }}",
     "handler": function (response){

@@ -15,6 +15,7 @@ use App\Http\Controllers\Dealer\AuthController;
 use App\Http\Controllers\Dealer\CarController as DealerCarController;
 use App\Http\Controllers\Dealer\DashboardController as DealerDashboardController;
 use App\Http\Controllers\Dealer\EnquiryController;
+use App\Http\Controllers\Dealer\ProfileController;
 use App\Http\Controllers\Dealer\MarutiServiceHistoryController;
 use App\Http\Controllers\Dealer\PlanController;
 use App\Http\Controllers\Dealer\ServiceHistoryController;
@@ -45,6 +46,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
 Route::get('/car/{slug}', [CarController::class, 'show'])->name('car.detail');
 Route::post('/car/{slug}/enquiry', [CarController::class, 'enquiry'])->name('car.enquiry');
+
+// Contact Unlock OTP Routes
+Route::post('/api/enquiry/send-otp', [\App\Http\Controllers\Frontend\EnquiryApiController::class, 'sendOtp'])->name('api.enquiry.send-otp');
+Route::post('/api/enquiry/verify-otp', [\App\Http\Controllers\Frontend\EnquiryApiController::class, 'verifyOtp'])->name('api.enquiry.verify-otp');
 Route::get('/used-cars-in-{city}', [CarController::class, 'byCity'])
     ->name('cars.city');
 Route::get('/used-{brand}-cars', [CarController::class, 'byBrand'])
@@ -70,11 +75,21 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/send-otp', [AuthController::class, 'sendOtp'])->name('send-otp');
         Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verify-otp');
+
+        Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
+        Route::post('/forgot-password/send-otp', [AuthController::class, 'sendResetOtp'])->name('forgot-password.send-otp');
+        Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword'])->name('forgot-password.reset');
     });
 
     Route::middleware('auth:dealer')->group(function () {
         Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [DealerDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/phone-otp', [ProfileController::class, 'sendPhoneOtp'])->name('profile.phone-otp');
+        Route::post('/profile/verify-phone', [ProfileController::class, 'verifyPhoneOtp'])->name('profile.verify-phone');
+        Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
 
         Route::middleware('dealer.approval')->group(function () {
             Route::resource('cars', DealerCarController::class);
@@ -160,6 +175,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('plans', AdminPlanController::class);
         Route::resource('brands', BrandController::class);
 
+        Route::get('/enquiries/export/excel', [AdminEnquiryController::class, 'exportExcel'])->name('enquiries.exportExcel');
         Route::resource('enquiries', AdminEnquiryController::class)->only(['index', 'show']);
         Route::post('/enquiries/{enquiry}/contacted', [AdminEnquiryController::class, 'markContacted'])->name('enquiries.contacted');
 
@@ -225,8 +241,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/customer-transactions', [App\Http\Controllers\Admin\CustomerTransactionController::class, 'index'])->name('customer-transactions.index');
         Route::get('/customer-transactions/{id}', [App\Http\Controllers\Admin\CustomerTransactionController::class, 'show'])->name('customer-transactions.show');
         Route::post('/customer-transactions/{id}/refund', [App\Http\Controllers\Admin\CustomerTransactionController::class, 'refund'])->name('customer-transactions.refund');
+        
+        Route::get('/payment-links', [App\Http\Controllers\Admin\PaymentLinkController::class, 'index'])->name('payment-links.index');
+        Route::post('/payment-links', [App\Http\Controllers\Admin\PaymentLinkController::class, 'store'])->name('payment-links.store');
+        Route::delete('/payment-links/{payment_link}', [App\Http\Controllers\Admin\PaymentLinkController::class, 'destroy'])->name('payment-links.destroy');
     });
 });
+
+Route::get('/pay-link/{payment_link}', [\App\Http\Controllers\Frontend\PaymentLinkController::class, 'show'])->name('pay.link');
+Route::post('/pay-link/{payment_link}/checkout', [\App\Http\Controllers\Frontend\PaymentLinkController::class, 'checkout'])->name('pay.link.checkout');
+Route::match(['GET', 'POST'], '/pay-link/phonepe/callback', [\App\Http\Controllers\Frontend\PaymentLinkController::class, 'phonepeCallback'])->name('pay.link.phonepe.callback');
 
 Route::get('/page/{page}', function ($page) {
     return view('frontend.pages.'.$page);

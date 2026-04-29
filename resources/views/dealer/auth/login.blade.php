@@ -21,8 +21,11 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-label mb-0">Password</label>
+                                <a href="{{ route('dealer.forgot-password') }}" class="text-decoration-none small">Forgot Password?</a>
+                            </div>
+                            <input type="password" name="password" class="form-control mt-1 @error('password') is-invalid @enderror" required>
                             @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

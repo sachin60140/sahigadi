@@ -234,11 +234,11 @@ class PaymentController extends Controller
 
     public function phonepeWebhook(Request $request)
     {
-        $payload = $request->getContent();
-        $signature = $request->header('X-VERIFY');
+        $expectedUser = env('PHONEPE_WEBHOOK_USER', 'sahigadiwebhook');
+        $expectedPass = env('PHONEPE_WEBHOOK_PASS', 'Sahigadi12345');
 
-        if (!$this->phonepeService->isValidWebhookSignature($payload, $signature)) {
-            return response()->json(['error' => 'Invalid signature'], 400);
+        if ($request->getUser() !== $expectedUser || $request->getPassword() !== $expectedPass) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $data = json_decode(base64_decode($request->input('response')), true);

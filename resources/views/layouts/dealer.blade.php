@@ -145,6 +145,9 @@
                         <i class="bi bi-wrench-adjustable-circle"></i> Maruti History
                     </a>
                     <div class="sidebar-divider"></div>
+                    <a href="{{ route('dealer.profile.edit') }}" class="{{ request()->routeIs('dealer.profile.*') ? 'active' : '' }}">
+                        <i class="bi bi-person-circle"></i> My Profile
+                    </a>
                     <a href="{{ route('dealer.logout') }}" class="text-danger hover-danger">
                         <i class="bi bi-box-arrow-right"></i> Sign Out
                     </a>

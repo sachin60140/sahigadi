@@ -131,11 +131,18 @@ class PhonePeService
 
         if ($response->successful()) {
             $data = $response->json();
+            
+            // Handle different possible structures of PhonePe response
+            $state = $data['state'] ?? ($data['data']['state'] ?? 'UNKNOWN');
+            $amount = $data['amount'] ?? ($data['data']['amount'] ?? 0);
+            $providerRef = $data['transactionId'] ?? ($data['providerReferenceId'] ?? ($data['data']['transactionId'] ?? ($data['data']['providerReferenceId'] ?? null)));
+            
             return [
-                'success' => isset($data['state']) && $data['state'] === 'COMPLETED',
-                'status' => $data['state'] ?? 'UNKNOWN',
-                'amount' => ($data['amount'] ?? 0) / 100,
-                'transaction_id' => $transactionId
+                'success' => $state === 'COMPLETED',
+                'status' => $state,
+                'amount' => $amount / 100,
+                'transaction_id' => $transactionId,
+                'provider_reference_id' => $providerRef
             ];
         }
 
@@ -181,11 +188,12 @@ class PhonePeService
             $payment = Payment::updateOrCreate(
                 ['phonepe_transaction_id' => $transactionId],
                 [
-                    'dealer_id' => $dealer->id,
+                    'dealer_id' => $dealer ? $dealer->id : null,
                     'amount' => $status['amount'],
                     'status' => 'completed',
                     'payment_gateway' => 'phonepe',
                     'type' => $type,
+                    'reference_id' => $status['provider_reference_id'] ?? null,
                 ]
             );
 

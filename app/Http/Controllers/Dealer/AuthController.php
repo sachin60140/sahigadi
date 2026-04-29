@@ -151,6 +151,87 @@ class AuthController extends Controller
         return response()->json(['success' => false, 'message' => 'Invalid OTP']);
     }
 
+    public function showForgotPassword()
+    {
+        return view('dealer.auth.forgot-password');
+    }
+
+    public function sendResetOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|regex:/^[0-9]{10}$/',
+        ]);
+
+        $phone = $request->phone;
+        
+        $dealer = Dealer::where('phone', $phone)->first();
+        if (!$dealer) {
+            return response()->json(['success' => false, 'message' => 'No dealer found with this phone number.']);
+        }
+
+        $otp = rand(100000, 999999);
+        
+        session(['dealer_reset_otp_' . $phone => $otp]);
+        session(['dealer_reset_otp_time_' . $phone => now()]);
+
+        $apiUrl = "https://pgapi.sparc.smartping.io/fe/api/v1/send";
+        $text = "Hi! Your verification code is {$otp}. It is valid for 10 minutes. Please keep it confidential. - Sars Infotech Pvt Ltd";
+        
+        $response = \Illuminate\Support\Facades\Http::get($apiUrl, [
+            'username' => 'sarsinfo.trans',
+            'password' => '6E5s8aI_',
+            'unicode' => 'false',
+            'from' => 'INSARS',
+            'text' => $text,
+            'to' => $phone,
+            'dltContentId' => '1707177677498830200',
+            'dltPrincipalEntityId' => '1701166126846262605'
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'OTP sent successfully']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|regex:/^[0-9]{10}$/',
+            'otp' => 'required|numeric|digits:6',
+            'password' => 'required|min:8|confirmed'
+        ]);
+
+        $phone = $request->phone;
+        $otp = $request->otp;
+
+        $sessionOtp = session('dealer_reset_otp_' . $phone);
+        $sessionTime = session('dealer_reset_otp_time_' . $phone);
+
+        if (!$sessionOtp || !$sessionTime) {
+            return redirect()->back()->with('error', 'OTP expired or not sent.')->withInput();
+        }
+
+        if (now()->diffInMinutes($sessionTime) > 10) {
+            return redirect()->back()->with('error', 'OTP has expired.')->withInput();
+        }
+
+        if ((string)$sessionOtp !== (string)$otp) {
+            return redirect()->back()->with('error', 'Invalid OTP.')->withInput();
+        }
+
+        $dealer = Dealer::where('phone', $phone)->first();
+        if (!$dealer) {
+            return redirect()->back()->with('error', 'Dealer not found.')->withInput();
+        }
+
+        $dealer->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        session()->forget('dealer_reset_otp_' . $phone);
+        session()->forget('dealer_reset_otp_time_' . $phone);
+
+        return redirect()->route('dealer.login')->with('success', 'Password reset successfully! You can now login.');
+    }
+
     public function logout(Request $request)
     {
         auth('dealer')->logout();

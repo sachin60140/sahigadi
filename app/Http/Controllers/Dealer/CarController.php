@@ -111,6 +111,15 @@ class CarController extends Controller
             }
         }
 
+        try {
+            \Illuminate\Support\Facades\Mail::to('sachin60140@gmail.com')->send(new \App\Mail\AdminNewListingNotification($car, true));
+            if ($dealer->email) {
+                \Illuminate\Support\Facades\Mail::to($dealer->email)->send(new \App\Mail\UserNewListingNotification($car));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send dealer car listing emails: ' . $e->getMessage());
+        }
+
         return redirect()->route('dealer.cars.index')->with('success', 'Car listed successfully! It will be reviewed by admin.');
     }
 
