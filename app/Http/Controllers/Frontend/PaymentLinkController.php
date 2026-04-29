@@ -61,6 +61,8 @@ class PaymentLinkController extends Controller
             if ($gateway === 'phonepe') {
                 $transactionId = 'PP_LNK_' . time() . '_' . $payment_link->id;
 
+                $payment_link->update(['transaction_id' => $transactionId]);
+
                 session()->put('phonepe_link_payment', [
                     'transaction_id' => $transactionId,
                     'link_id' => $payment_link->id,

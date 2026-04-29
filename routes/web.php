@@ -245,6 +245,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/payment-links', [App\Http\Controllers\Admin\PaymentLinkController::class, 'index'])->name('payment-links.index');
         Route::post('/payment-links', [App\Http\Controllers\Admin\PaymentLinkController::class, 'store'])->name('payment-links.store');
         Route::delete('/payment-links/{payment_link}', [App\Http\Controllers\Admin\PaymentLinkController::class, 'destroy'])->name('payment-links.destroy');
+        Route::post('/payment-links/{paymentLink}/refresh', [App\Http\Controllers\Admin\PaymentLinkController::class, 'refresh'])->name('payment-links.refresh');
     });
 });
 

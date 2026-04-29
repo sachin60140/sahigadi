@@ -72,13 +72,23 @@
                                 <?php endif; ?>
                             </td>
                             <td class="text-end">
-                                <form action="<?php echo e(route('admin.payment-links.destroy', $link->id)); ?>" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this payment link?');">
-                                    <?php echo csrf_field(); ?>
-                                    <?php echo method_field('DELETE'); ?>
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                <div class="d-flex justify-content-end gap-1">
+                                    <?php if($link->status === 'pending'): ?>
+                                        <form action="<?php echo e(route('admin.payment-links.refresh', $link->id)); ?>" method="POST" class="d-inline" onsubmit="return confirm('Check gateway for payment status updates?');">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-info" title="Refresh Status">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <form action="<?php echo e(route('admin.payment-links.destroy', $link->id)); ?>" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this payment link?');">
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('DELETE'); ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Link">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>

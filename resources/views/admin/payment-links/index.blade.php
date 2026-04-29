@@ -73,13 +73,23 @@
                                 @endif
                             </td>
                             <td class="text-end">
-                                <form action="{{ route('admin.payment-links.destroy', $link->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this payment link?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                <div class="d-flex justify-content-end gap-1">
+                                    @if($link->status === 'pending')
+                                        <form action="{{ route('admin.payment-links.refresh', $link->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Check gateway for payment status updates?');">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-info" title="Refresh Status">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <form action="{{ route('admin.payment-links.destroy', $link->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this payment link?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Link">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

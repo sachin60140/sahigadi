@@ -156,8 +156,10 @@ class PhonePeService
 
     public function isValidWebhookSignature(string $payload, ?string $signature): bool
     {
-        // V2 uses Basic Auth for Webhooks
-        return false;
+        if (!$signature) return false;
+        
+        $expectedSignature = hash('sha256', $payload . $this->clientSecret) . "###" . $this->clientVersion;
+        return hash_equals($expectedSignature, $signature);
     }
 
     public function processPayment($dealer, string $transactionId, float $expectedAmount, string $type)

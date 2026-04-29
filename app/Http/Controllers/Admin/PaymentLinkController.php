@@ -49,4 +49,40 @@ class PaymentLinkController extends Controller
         $paymentLink->delete();
         return redirect()->back()->with('success', 'Payment link deleted.');
     }
+
+    public function refresh(PaymentLink $paymentLink, \App\Services\PhonePeService $phonepeService)
+    {
+        if ($paymentLink->status !== 'pending') {
+            return redirect()->back()->with('error', 'Payment link is already ' . $paymentLink->status);
+        }
+
+        if (!$paymentLink->transaction_id || !str_starts_with($paymentLink->transaction_id, 'PP_LNK_')) {
+            return redirect()->back()->with('error', 'No PhonePe payment attempt has been made for this link yet. (Waiting for customer to click pay)');
+        }
+
+        try {
+            $status = $phonepeService->verifyPaymentStatus($paymentLink->transaction_id);
+            if ($status['success']) {
+                $dealer = $paymentLink->dealer;
+                $payment = $phonepeService->processPayment(
+                    $dealer,
+                    $paymentLink->transaction_id,
+                    (float) $paymentLink->amount,
+                    'custom_payment_link'
+                );
+
+                \Illuminate\Support\Facades\DB::transaction(function() use ($paymentLink, $payment) {
+                    $paymentLink->update([
+                        'status' => 'paid',
+                        'transaction_id' => $payment->id
+                    ]);
+                });
+                
+                return redirect()->back()->with('success', 'Payment status synced! Marked as Paid.');
+            }
+            return redirect()->back()->with('info', 'Payment is still pending or failed at the gateway. PhonePe Status: ' . ($status['status'] ?? 'UNKNOWN'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to sync status: ' . $e->getMessage());
+        }
+    }
 }

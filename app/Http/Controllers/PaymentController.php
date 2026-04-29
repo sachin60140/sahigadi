@@ -243,21 +243,44 @@ class PaymentController extends Controller
         $isBasicAuth = ($request->getUser() === $expectedUser && $request->getPassword() === $expectedPass);
         $isSha256 = (str_replace(' ', '', $authHeader) === 'SHA256(' . $expectedSha256 . ')' || $authHeader === $expectedSha256);
 
-        if (!$isBasicAuth && !$isSha256) {
-            \Illuminate\Support\Facades\Log::warning('PhonePe Webhook Auth Failed', ['header' => $authHeader]);
+        // V2 payload can be raw JSON or Base64 encoded JSON inside "response" key
+        $data = $request->all();
+
+        $xVerify = $request->header('x-verify');
+        $isXVerify = false;
+        if ($xVerify && isset($data['response'])) {
+            $isXVerify = app(\App\Services\PhonePeService::class)->isValidWebhookSignature($data['response'], $xVerify);
+        }
+
+        if (!$isBasicAuth && !$isSha256 && !$isXVerify) {
+            \Illuminate\Support\Facades\Log::warning('PhonePe Webhook Auth Failed', ['header' => $authHeader, 'x_verify' => $xVerify]);
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // V2 payload is raw JSON
-        $data = $request->all();
         \Illuminate\Support\Facades\Log::info('PhonePe Webhook Received', ['data' => $data]);
 
-        if (isset($data['event']) && $data['event'] === 'checkout.order.completed') {
+        $transactionId = null;
+        $state = null;
+        $amount = 0;
+
+        // Handle Base64 Encoded Format
+        if (isset($data['response'])) {
+            $decodedData = json_decode(base64_decode($data['response']), true);
+            if (is_array($decodedData) && isset($decodedData['data'])) {
+                $transactionId = $decodedData['data']['merchantTransactionId'] ?? null;
+                $state = ($decodedData['code'] ?? '') === 'PAYMENT_SUCCESS' ? 'COMPLETED' : 'FAILED';
+                $amount = $decodedData['data']['amount'] ?? 0;
+            }
+        } 
+        // Handle Raw JSON Format
+        elseif (isset($data['event']) && $data['event'] === 'checkout.order.completed') {
             $payload = $data['payload'] ?? [];
             $transactionId = $payload['merchantOrderId'] ?? null;
             $state = $payload['state'] ?? null;
+            $amount = $payload['amount'] ?? 0;
+        }
 
-            if ($transactionId && $state === 'COMPLETED') {
+        if ($transactionId && $state === 'COMPLETED') {
                 if (str_starts_with($transactionId, 'PP_LNK_')) {
                     $parts = explode('_', $transactionId);
                     $linkId = end($parts);
@@ -270,7 +293,7 @@ class PaymentController extends Controller
                                 $payment = $this->phonepeService->processPayment(
                                     $dealer,
                                     $transactionId,
-                                    (float) (($payload['amount'] ?? 0) / 100),
+                                    (float) ($amount / 100),
                                     'custom_payment_link'
                                 );
                                 
@@ -299,7 +322,7 @@ class PaymentController extends Controller
                             $this->phonepeService->processPayment(
                                 $dealer, 
                                 $transactionId, 
-                                (float) (($payload['amount'] ?? 0) / 100), 
+                                (float) ($amount / 100), 
                                 'wallet_recharge'
                             );
                         } catch (\Exception $e) {
