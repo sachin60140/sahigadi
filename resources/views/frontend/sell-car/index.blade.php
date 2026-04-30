@@ -359,45 +359,118 @@
 </section>
 
 <script>
-function previewImages(input) {
+async function compressImage(file, maxSizeMB = 2) {
+    if (file.size <= maxSizeMB * 1024 * 1024) {
+        return file;
+    }
+
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                const MAX_DIM = 1920;
+                if (width > height && width > MAX_DIM) {
+                    height *= MAX_DIM / width;
+                    width = MAX_DIM;
+                } else if (height > MAX_DIM) {
+                    width *= MAX_DIM / height;
+                    height = MAX_DIM;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                let quality = 0.8;
+                let compressNext = () => {
+                    canvas.toBlob((blob) => {
+                        if (!blob) {
+                            reject(new Error('Canvas to Blob failed'));
+                            return;
+                        }
+                        if (blob.size <= maxSizeMB * 1024 * 1024 || quality <= 0.1) {
+                            const extension = file.name.split('.').pop().toLowerCase();
+                            let newFileName = file.name;
+                            if (!['jpg', 'jpeg'].includes(extension)) {
+                                newFileName = file.name.substring(0, file.name.lastIndexOf('.')) + '.jpg';
+                            }
+                            
+                            const compressedFile = new File([blob], newFileName, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            resolve(compressedFile);
+                        } else {
+                            quality -= 0.1;
+                            compressNext();
+                        }
+                    }, 'image/jpeg', quality);
+                };
+                compressNext();
+            };
+            img.onerror = error => reject(error);
+        };
+        reader.onerror = error => reject(error);
+    });
+}
+
+async function previewImages(input) {
     const container = document.getElementById('imagePreviewContainer');
     const countLabel = document.getElementById('imageCount');
-    container.innerHTML = '';
+    const submitBtn = document.getElementById('submitBtn');
     
-    if (input.files) {
+    if (input.files && input.files.length > 0) {
         const totalFiles = input.files.length;
-        countLabel.textContent = totalFiles + ' / 10 images selected';
         
         if (totalFiles > 10) {
             alert('Maximum 10 images allowed');
             input.value = '';
-            countLabel.textContent = '0 / 10 images selected';
-            return;
-        }
-        
-        if (totalFiles < 5) {
-            countLabel.className = 'text-danger';
-        } else {
-            countLabel.className = 'text-success';
-        }
-        
-        let invalidSize = false;
-        Array.from(input.files).forEach((file, index) => {
-            if (file.size > 2 * 1024 * 1024) { // 2MB
-                invalidSize = true;
-            }
-        });
-
-        if (invalidSize) {
-            alert('One or more images exceed the 2MB limit. Please select smaller images. Use an image compressor if necessary.');
-            input.value = '';
+            container.innerHTML = '';
             countLabel.textContent = '0 / 10 images selected';
             countLabel.className = 'text-muted';
             return;
         }
+
+        countLabel.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Compressing images...';
+        countLabel.className = 'text-warning';
         
-        Array.from(input.files).forEach((file, index) => {
-            if (file.type.startsWith('image/')) {
+        // Save the original disabled state to restore it later
+        let originalSubmitState = submitBtn.disabled;
+        submitBtn.disabled = true;
+        
+        const dataTransfer = new DataTransfer();
+        container.innerHTML = '';
+        
+        try {
+            for (let i = 0; i < totalFiles; i++) {
+                let file = input.files[i];
+                if (file.type.startsWith('image/')) {
+                    const compressedFile = await compressImage(file, 2);
+                    dataTransfer.items.add(compressedFile);
+                }
+            }
+            
+            input.files = dataTransfer.files;
+            
+            const newTotal = input.files.length;
+            countLabel.textContent = newTotal + ' / 10 images selected';
+            
+            if (newTotal < 5) {
+                countLabel.className = 'text-danger';
+            } else {
+                countLabel.className = 'text-success';
+            }
+            
+            Array.from(input.files).forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const col = document.createElement('div');
@@ -405,7 +478,7 @@ function previewImages(input) {
                     col.innerHTML = `
                         <div class="position-relative border p-1 rounded ${index === 0 ? 'bg-primary-subtle border-primary' : ''}" id="preview_col_${index}">
                             <img src="${e.target.result}" class="img-thumbnail border-0 bg-transparent p-0" style="height: 100px; width: 100%; object-fit: cover;">
-                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="removeImage(this, ${index})" style="padding: 0.1rem 0.3rem;">
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="removeImage(this)" style="padding: 0.1rem 0.3rem;">
                                 <i class="bi bi-x"></i>
                             </button>
                             <div class="mt-1 text-center">
@@ -419,33 +492,69 @@ function previewImages(input) {
                     container.appendChild(col);
                 };
                 reader.readAsDataURL(file);
-            }
-        });
+            });
+            
+            submitBtn.disabled = originalSubmitState;
+            
+        } catch (error) {
+            console.error('Error compressing images:', error);
+            alert('An error occurred while processing images. Please try again.');
+            input.value = '';
+            container.innerHTML = '';
+            countLabel.textContent = '0 / 10 images selected';
+            countLabel.className = 'text-muted';
+            submitBtn.disabled = originalSubmitState;
+        }
+    } else {
+        container.innerHTML = '';
+        countLabel.textContent = '0 / 10 images selected';
+        countLabel.className = 'text-muted';
     }
 }
 
-function removeImage(btn, index) {
+function removeImage(btn) {
     const input = document.getElementById('car_images');
-    const dt = new DataTransfer();
-    const files = input.files;
+    const container = document.getElementById('imagePreviewContainer');
+    const col = btn.closest('.preview-item-col');
+    const index = Array.from(container.children).indexOf(col);
     
-    for (let i = 0; i < files.length; i++) {
-        if (i !== index) {
-            dt.items.add(files[i]);
+    if (index > -1) {
+        const dt = new DataTransfer();
+        const files = input.files;
+        
+        for (let i = 0; i < files.length; i++) {
+            if (i !== index) {
+                dt.items.add(files[i]);
+            }
         }
-    }
-    
-    input.files = dt.files;
-    btn.closest('.col-4').remove();
-    
-    const countLabel = document.getElementById('imageCount');
-    const totalFiles = input.files.length;
-    countLabel.textContent = totalFiles + ' / 10 images selected';
-    
-    if (totalFiles < 5) {
-        countLabel.className = 'text-danger';
-    } else {
-        countLabel.className = 'text-success';
+        
+        input.files = dt.files;
+        col.remove();
+        
+        const countLabel = document.getElementById('imageCount');
+        const totalFiles = input.files.length;
+        countLabel.textContent = totalFiles + ' / 10 images selected';
+        
+        if (totalFiles < 5) {
+            countLabel.className = 'text-danger';
+        } else {
+            countLabel.className = 'text-success';
+        }
+        
+        // Re-index remaining elements to prevent desync
+        Array.from(container.children).forEach((child, newIndex) => {
+            child.querySelector('div.position-relative').id = `preview_col_${newIndex}`;
+            const radio = child.querySelector('input[type="radio"]');
+            radio.id = `feature_${newIndex}`;
+            radio.value = newIndex;
+            radio.setAttribute('onchange', `setFeatured(${newIndex})`);
+            child.querySelector('label').setAttribute('for', `feature_${newIndex}`);
+            
+            if (newIndex === 0 && !container.querySelector('input[type="radio"]:checked')) {
+                radio.checked = true;
+                setFeatured(0);
+            }
+        });
     }
 }
 
