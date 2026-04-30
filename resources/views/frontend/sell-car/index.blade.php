@@ -70,6 +70,18 @@
                 <div class="card border-0 shadow-lg rounded-4">
                     <div class="card-body p-5">
                         <h4 class="fw-bold mb-4"><i class="bi bi-car-front me-2 text-danger"></i>Car Details</h4>
+                        
+                        @if ($errors->any())
+                            <div class="alert alert-danger mb-4">
+                                <h6 class="fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Please fix the following errors:</h6>
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <form action="{{ route('sell-car.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row g-3">
@@ -259,9 +271,11 @@
                                             @error('images')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
-                                            @error('images.*')
-                                                <div class="text-danger small mt-1">{{ $message }}</div>
-                                            @enderror
+                                            @foreach($errors->keys() as $key)
+                                                @if(\Illuminate\Support\Str::startsWith($key, 'images.'))
+                                                    <div class="text-danger small mt-1">{{ $errors->first($key) }}</div>
+                                                @endif
+                                            @endforeach
                                         </div>
                                         <div class="mt-2">
                                             <small class="text-muted" id="imageCount">0 / 10 images selected</small>
@@ -367,6 +381,21 @@ function previewImages(input) {
             countLabel.className = 'text-success';
         }
         
+        let invalidSize = false;
+        Array.from(input.files).forEach((file, index) => {
+            if (file.size > 2 * 1024 * 1024) { // 2MB
+                invalidSize = true;
+            }
+        });
+
+        if (invalidSize) {
+            alert('One or more images exceed the 2MB limit. Please select smaller images. Use an image compressor if necessary.');
+            input.value = '';
+            countLabel.textContent = '0 / 10 images selected';
+            countLabel.className = 'text-muted';
+            return;
+        }
+        
         Array.from(input.files).forEach((file, index) => {
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
@@ -447,6 +476,18 @@ function setFeatured(index) {
         submitBtn.disabled = true; // Disable until OTP verify
         
         let timerInterval;
+
+        @if(session('sell_car_phone_verified') === old('owner_phone') && old('owner_phone') != '')
+            // Pre-verify on reload if phone was already verified
+            otpSection.classList.add('d-none');
+            phoneHelp.classList.remove('d-none');
+            phoneInput.readOnly = true;
+            btnSendOtp.classList.add('d-none');
+            // Allow submit only if location is also available
+            if(document.getElementById('latitude').value !== '') {
+                submitBtn.disabled = false;
+            }
+        @endif
 
         function startTimer() {
             let count = 30;
