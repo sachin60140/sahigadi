@@ -6,14 +6,24 @@
 .spec-item {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 15px;
+    gap: 10px;
+    padding: 10px;
     background: #f8f9fa;
     border-radius: 10px;
+    height: 100%;
 }
 .spec-item i {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: #e94560;
+}
+.spec-item h6, .spec-item h5 {
+    font-size: 0.9rem;
+}
+@media (min-width: 768px) {
+    .spec-item { gap: 15px; padding: 15px; }
+    .spec-item i { font-size: 1.5rem; }
+    .spec-item h6 { font-size: 1rem; }
+    .spec-item h5 { font-size: 1.25rem; }
 }
 .img-thumbnail {
     transition: all 0.3s;
@@ -134,13 +144,16 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                 </div>
             </div>
 
+            <!-- Mobile Sidebar Container -->
+            <div id="mobile-sidebar-container" class="d-lg-none mb-4"></div>
+
             <div class="card mb-4">
                 <div class="card-header bg-white">
                     <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Car Specifications</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-4">
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-6 col-md-4">
                             <div class="spec-item">
                                 <i class="bi bi-currency-rupee"></i>
                                 <div>
@@ -149,7 +162,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-6 col-md-4">
                             <div class="spec-item">
                                 <i class="bi bi-calendar3"></i>
                                 <div>
@@ -158,7 +171,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-6 col-md-4">
                             <div class="spec-item">
                                 <i class="bi bi-speedometer2"></i>
                                 <div>
@@ -167,7 +180,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-6 col-md-4">
                             <div class="spec-item">
                                 <i class="bi bi-fuelPump"></i>
                                 <div>
@@ -176,7 +189,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-6 col-md-4">
                             <div class="spec-item">
                                 <i class="bi bi-gear"></i>
                                 <div>
@@ -185,7 +198,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-6 col-md-4">
                             <div class="spec-item">
                                 <i class="bi bi-people"></i>
                                 <div>
@@ -195,7 +208,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                             </div>
                         </div>
                         @if($item->registration_number)
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-6 col-md-4">
                             <div class="spec-item">
                                 <i class="bi bi-card-text"></i>
                                 <div>
@@ -206,7 +219,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                         </div>
                         @endif
                         @if($item->model)
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-6 col-md-4">
                             <div class="spec-item">
                                 <i class="bi bi-car-front"></i>
                                 <div>
@@ -222,6 +235,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
         </div>
 
         <div class="col-lg-4">
+            <div id="sidebar-wrapper">
             @if($isCustomerListing)
             <div class="card mb-4 sticky-top" style="top: 20px; z-index: 100;">
                 <div class="card-header text-white" style="background: #e94560;">
@@ -319,6 +333,38 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                     <small class="text-muted">This listing is verified by SAHI GADI</small>
                 </div>
             </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-share me-2"></i>Share this car</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode('Check out this ' . $item->title . ' on SAHI GADI: ' . route('car.detail', $item->slug)) }}" target="_blank" class="btn btn-success flex-grow-1" style="font-size: 0.9rem;">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('car.detail', $item->slug)) }}" target="_blank" class="btn text-white flex-grow-1" style="background-color: #1877F2; font-size: 0.9rem;">
+                            <i class="bi bi-facebook"></i> Facebook
+                        </a>
+                        <button onclick="shareToInstagram('{{ route('car.detail', $item->slug) }}')" class="btn text-white flex-grow-1" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border: none; font-size: 0.9rem;">
+                            <i class="bi bi-instagram"></i> Instagram
+                        </button>
+                    </div>
+                    <script>
+                        function shareToInstagram(url) {
+                            if (navigator.share) {
+                                navigator.share({
+                                    title: 'SAHI GADI - {{ $item->title }}',
+                                    url: url
+                                }).catch(console.error);
+                            } else {
+                                navigator.clipboard.writeText(url).then(() => {
+                                    alert('Link copied to clipboard! You can now paste it in Instagram.');
+                                });
+                            }
+                        }
+                    </script>
+                </div>
+            </div>
+            </div> <!-- End sidebar-wrapper -->
         </div>
     </div>
 
@@ -429,6 +475,15 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                     }
                 });
             });
+        }
+
+        // Mobile Sidebar Mover
+        if (window.innerWidth < 992) {
+            let sidebar = document.getElementById('sidebar-wrapper');
+            let mobileContainer = document.getElementById('mobile-sidebar-container');
+            if (sidebar && mobileContainer) {
+                mobileContainer.appendChild(sidebar);
+            }
         }
 
         // OTP Verification Logic
