@@ -306,3 +306,41 @@ Route::get('/run-migrations', function () {
     \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
     return "Migrations executed successfully! Result: " . \Illuminate\Support\Facades\Artisan::output();
 });
+
+// Temporary route to optimize existing images
+Route::get('/optimize-images', function () {
+    $directories = ['customer-listings', 'dealer-listings', 'cars', 'customer-cars'];
+    $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+    
+    $count = 0;
+    $output = "";
+    foreach ($directories as $dir) {
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($dir)) {
+            $files = \Illuminate\Support\Facades\Storage::disk('public')->files($dir);
+            foreach ($files as $file) {
+                if (preg_match('/\.(jpg|jpeg|png)$/i', $file)) {
+                    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($file);
+                    $size = filesize($fullPath);
+                    
+                    if ($size > 250000) {
+                        try {
+                            $image = $manager->read($fullPath);
+                            $width = $image->width();
+                            
+                            if ($width > 800) {
+                                $image->scaleDown(width: 800);
+                                $image->save($fullPath, quality: 75);
+                                $output .= "Optimized: {$file} <br>";
+                                $count++;
+                            }
+                        } catch (\Exception $e) {
+                            $output .= "Failed to optimize {$file}: " . $e->getMessage() . "<br>";
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return "Successfully optimized {$count} images! <br><br>" . $output;
+});
