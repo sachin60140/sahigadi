@@ -22,7 +22,11 @@
     <meta property="og:url" content="<?php echo $__env->yieldContent('og_url', url()->current()); ?>">
     <meta property="og:title" content="<?php echo $__env->yieldContent('og_title', 'SAHI GADI - Used Car Marketplace'); ?>">
     <meta property="og:description" content="<?php echo $__env->yieldContent('og_description', 'Find verified pre-owned cars in Patna, Bihar'); ?>">
-    <meta property="og:image" content="<?php echo $__env->yieldContent('og_image', asset('images/og-image.png')); ?>">
+    <meta property="og:image" itemprop="image" content="<?php echo $__env->yieldContent('og_image', asset('images/og-image.png')); ?>">
+    <meta property="og:image:secure_url" content="<?php echo $__env->yieldContent('og_image', asset('images/og-image.png')); ?>">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="800">
+    <meta property="og:image:height" content="600">
     <meta property="og:site_name" content="SAHI GADI">
     
     <!-- Twitter -->
