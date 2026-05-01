@@ -124,6 +124,17 @@ class CustomerCarListingController extends Controller
             foreach ($request->file('images') as $image) {
                 $filename = \Illuminate\Support\Str::uuid().'.'.$image->getClientOriginalExtension();
                 $path = $image->storeAs('customer-listings', $filename, 'public');
+                
+                try {
+                    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($path);
+                    $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                    $img = $manager->read($fullPath);
+                    if ($img->width() > 800) {
+                        $img->scaleDown(width: 800);
+                        $img->save($fullPath, quality: 75);
+                    }
+                } catch (\Exception $e) {}
+
                 $imagesArray[] = $path;
             }
         }

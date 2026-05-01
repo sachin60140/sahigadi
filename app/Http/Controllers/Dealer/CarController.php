@@ -102,6 +102,16 @@ class CarController extends Controller
 
                 \Storage::disk('public')->putFileAs('cars/'.$car->id, $image, $filename);
 
+                try {
+                    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($path);
+                    $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                    $img = $manager->read($fullPath);
+                    if ($img->width() > 800) {
+                        $img->scaleDown(width: 800);
+                        $img->save($fullPath, quality: 75);
+                    }
+                } catch (\Exception $e) {}
+
                 CarImage::create([
                     'car_id' => $car->id,
                     'image_path' => $path,
@@ -164,6 +174,16 @@ class CarController extends Controller
                 $path = 'cars/'.$car->id.'/'.$filename;
 
                 \Storage::disk('public')->putFileAs('cars/'.$car->id, $image, $filename);
+
+                try {
+                    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($path);
+                    $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                    $img = $manager->read($fullPath);
+                    if ($img->width() > 800) {
+                        $img->scaleDown(width: 800);
+                        $img->save($fullPath, quality: 75);
+                    }
+                } catch (\Exception $e) {}
 
                 CarImage::create([
                     'car_id' => $car->id,
