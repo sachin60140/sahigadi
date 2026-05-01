@@ -115,7 +115,7 @@ $seoKeywords = 'used cars Patna, pre-owned cars Bihar, car marketplace, buy sell
                 <div class="card h-100">
                     <div class="position-relative">
                         @if($imageUrl)
-                            <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $item->title }}">
+                            <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $item->title }}" loading="lazy">
                         @else
                             <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                                 <i class="bi bi-car-front text-secondary" style="font-size: 4rem;"></i>
@@ -177,7 +177,7 @@ $seoKeywords = 'used cars Patna, pre-owned cars Bihar, car marketplace, buy sell
                             }
                         @endphp
                         @if($imageUrl)
-                            <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $car->title }}">
+                            <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $car->title }}" loading="lazy">
                         @else
                             <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                                 <i class="bi bi-car-front text-secondary" style="font-size: 4rem;"></i>

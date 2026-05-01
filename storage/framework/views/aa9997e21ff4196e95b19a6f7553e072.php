@@ -114,7 +114,7 @@ $seoKeywords = 'used cars Patna, pre-owned cars Bihar, car marketplace, buy sell
                 <div class="card h-100">
                     <div class="position-relative">
                         <?php if($imageUrl): ?>
-                            <img src="<?php echo e($imageUrl); ?>" class="card-img-top" alt="<?php echo e($item->title); ?>">
+                            <img src="<?php echo e($imageUrl); ?>" class="card-img-top" alt="<?php echo e($item->title); ?>" loading="lazy">
                         <?php else: ?>
                             <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                                 <i class="bi bi-car-front text-secondary" style="font-size: 4rem;"></i>
@@ -177,7 +177,7 @@ $seoKeywords = 'used cars Patna, pre-owned cars Bihar, car marketplace, buy sell
                             }
                         ?>
                         <?php if($imageUrl): ?>
-                            <img src="<?php echo e($imageUrl); ?>" class="card-img-top" alt="<?php echo e($car->title); ?>">
+                            <img src="<?php echo e($imageUrl); ?>" class="card-img-top" alt="<?php echo e($car->title); ?>" loading="lazy">
                         <?php else: ?>
                             <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                                 <i class="bi bi-car-front text-secondary" style="font-size: 4rem;"></i>
