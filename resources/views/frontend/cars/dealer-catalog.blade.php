@@ -74,8 +74,8 @@
             </div>
 
             <div class="filter-section">
-                <h6 class="fw-bold mb-3"><i class="bi bi-shield-check me-2"></i>SAHIGADI Verified Dealer</h6>
-                <p class="small text-muted mb-0">All listings from this dealer are verified by SAHIGADI for quality and authenticity.</p>
+                <h6 class="fw-bold mb-3"><i class="bi bi-shield-check me-2"></i>SAHI GADI Verified Dealer</h6>
+                <p class="small text-muted mb-0">All listings from this dealer are verified by SAHI GADI for quality and authenticity.</p>
             </div>
         </div>
 

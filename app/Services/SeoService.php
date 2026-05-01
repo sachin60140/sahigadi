@@ -40,7 +40,7 @@ class SeoService
             $title ?: ($year ? "$year $brandName $model" : "$brandName $model"),
             'for Sale',
             'in '.$city,
-            '| SAHIGADI',
+            '| SAHI GADI',
         ]);
 
         return implode(' ', $parts);
@@ -98,7 +98,7 @@ class SeoService
 
     protected function generateOgTitle(string $title, ?int $year, string $brandName, float $price): string
     {
-        return $title.' - '.number_format($price).' Rs | SAHIGADI';
+        return $title.' - '.number_format($price).' Rs | SAHI GADI';
     }
 
     protected function generateOgDescription(string $title, ?int $year, string $brandName, ?int $kmDriven, float $price): string
@@ -126,7 +126,7 @@ class SeoService
         $transmission = $data['transmission'] ?? '';
         $brandName = $brand instanceof Brand ? $brand->name : ($brand ?? 'Unknown');
         $images = $data['images'] ?? [];
-        $sellerName = $data['seller_name'] ?? 'SAHIGADI';
+        $sellerName = $data['seller_name'] ?? 'SAHI GADI';
         $sellerType = $data['seller_type'] ?? 'Organization';
         $url = $data['url'] ?? url('/');
 

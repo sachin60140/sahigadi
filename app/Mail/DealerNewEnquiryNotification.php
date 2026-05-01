@@ -30,7 +30,7 @@ class DealerNewEnquiryNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Lead: Customer Enquiry on SAHIGADI',
+            subject: 'New Lead: Customer Enquiry on SAHI GADI',
         );
     }
 

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>RC Details - {{ $vehicleSearch->registration_number }} - SAHIGADI</title>
+    <title>RC Details - {{ $vehicleSearch->registration_number }} - SAHI GADI</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 12px; }
         .header { text-align: center; margin-bottom: 20px; padding: 20px; background: #1a1a2e; color: white; }
@@ -21,7 +21,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>SAHIGADI - RC Details</h1>
+        <h1>SAHI GADI - RC Details</h1>
         <div class="reg-number">{{ $vehicleSearch->registration_number }}</div>
         @if($vehicleSearch->is_success)
             <span class="badge badge-success">Verified</span>
@@ -85,7 +85,7 @@
     @endif
 
     <div class="footer">
-        <p>SAHIGADI - Vehicle Marketplace | Generated on: {{ date('d M Y, h:i A') }}</p>
+        <p>SAHI GADI - Vehicle Marketplace | Generated on: {{ date('d M Y, h:i A') }}</p>
     </div>
 </body>
 </html>

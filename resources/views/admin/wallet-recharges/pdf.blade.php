@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Wallet Recharges Export - SAHIGADI</title>
+    <title>Wallet Recharges Export - SAHI GADI</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 11px; color: #333; margin: 0; padding: 0; }
         .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1a1a2e; padding-bottom: 10px; }
@@ -25,7 +25,7 @@
     @endphp
 
     <div class="header">
-        <h1>SAHIGADI - Admin Wallet Recharges</h1>
+        <h1>SAHI GADI - Admin Wallet Recharges</h1>
         <p>Generated on: {{ date('d M Y, h:i A') }}</p>
     </div>
 
@@ -108,7 +108,7 @@
     </table>
 
     <div class="footer">
-        SAHIGADI - Confidential Document | Admin Trace Export
+        SAHI GADI - Confidential Document | Admin Trace Export
     </div>
 </body>
 </html>

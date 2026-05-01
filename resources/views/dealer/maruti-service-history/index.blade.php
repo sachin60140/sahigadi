@@ -1,6 +1,6 @@
 @extends('layouts.dealer')
 
-@section('title', 'Maruti Service History - SAHIGADI')
+@section('title', 'Maruti Service History - SAHI GADI')
 
 @php
 $dealer = auth('dealer')->user();

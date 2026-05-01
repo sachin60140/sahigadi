@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Refund Policy - SAHIGADI')
+@section('title', 'Refund Policy - SAHI GADI')
 
 @section('content')
 <div class="container py-5">
@@ -14,10 +14,10 @@
                     <hr class="my-4">
 
                     <h4 class="fw-bold mb-3">1. Overview</h4>
-                    <p class="mb-4">This Refund Policy outlines the terms and conditions for refunds related to dealer subscriptions, premium listings, and other paid services offered by SAHIGADI. By using our paid services, you agree to this policy.</p>
+                    <p class="mb-4">This Refund Policy outlines the terms and conditions for refunds related to dealer subscriptions, premium listings, and other paid services offered by SAHI GADI. By using our paid services, you agree to this policy.</p>
 
                     <h4 class="fw-bold mb-3">2. Subscription Plans</h4>
-                    <p class="mb-4">SAHIGADI offers various subscription plans for dealers. All subscription payments are processed through secure payment gateways. Subscription fees are non-refundable unless explicitly stated otherwise.</p>
+                    <p class="mb-4">SAHI GADI offers various subscription plans for dealers. All subscription payments are processed through secure payment gateways. Subscription fees are non-refundable unless explicitly stated otherwise.</p>
 
                     <h4 class="fw-bold mb-3">3. Refund Eligibility</h4>
                     <p class="mb-2">You may be eligible for a refund in the following circumstances:</p>
@@ -42,7 +42,7 @@
                     <p class="mb-4">You may cancel your subscription at any time through your account settings. Upon cancellation, your subscription will remain active until the end of the current billing period. No refunds will be provided for the remaining period unless required by applicable law.</p>
 
                     <h4 class="fw-bold mb-3">6. Wallet Balance</h4>
-                    <p class="mb-2">Wallet credits purchased on SAHIGADI are subject to the following:</p>
+                    <p class="mb-2">Wallet credits purchased on SAHI GADI are subject to the following:</p>
                     <ul class="mb-4">
                         <li>Wallet credits can be used for vehicle searches, service history reports, and other paid features</li>
                         <li>Wallet credits are non-transferable and non-refundable</li>
@@ -72,7 +72,7 @@
                     <p class="mb-4">If you are not satisfied with the resolution provided, you may raise a dispute by contacting our customer support. We will make every effort to resolve disputes fairly and promptly.</p>
 
                     <h4 class="fw-bold mb-3">10. Changes to This Policy</h4>
-                    <p class="mb-4">SAHIGADI reserves the right to modify this Refund Policy at any time. Changes will be posted on this page and will take effect immediately upon posting.</p>
+                    <p class="mb-4">SAHI GADI reserves the right to modify this Refund Policy at any time. Changes will be posted on this page and will take effect immediately upon posting.</p>
 
                     <h4 class="fw-bold mb-3">11. Contact Us</h4>
                     <p class="mb-0">If you have any questions about this Refund Policy, please contact us at support@sahigadi.com</p>

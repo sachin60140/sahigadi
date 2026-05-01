@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Change Password - SAHIGADI Admin')
+@section('title', 'Change Password - SAHI GADI Admin')
 
 @section('content')
 <div class="row justify-content-center">

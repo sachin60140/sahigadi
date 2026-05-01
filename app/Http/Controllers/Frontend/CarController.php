@@ -172,7 +172,7 @@ class CarController extends Controller
             'fuel_type' => $item->fuel_type,
             'transmission' => $item->transmission,
             'images' => $allImages,
-            'seller_name' => $isCustomerListing ? ($item->owner_name ?? 'Owner') : ($item->dealer->name ?? 'SAHIGADI'),
+            'seller_name' => $isCustomerListing ? ($item->owner_name ?? 'Owner') : ($item->dealer->name ?? 'SAHI GADI'),
             'seller_type' => $isCustomerListing ? 'Person' : 'Organization',
             'url' => route('car.detail', $item->slug),
         ]);
@@ -377,7 +377,7 @@ class CarController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
-        $seoTitle = "{$dealer->name} - Car Listings | SAHIGADI";
+        $seoTitle = "{$dealer->name} - Car Listings | SAHI GADI";
         $seoDescription = "Browse all pre-owned cars from {$dealer->name}. View {$cars->total()} verified listings with photos, prices, and dealer details.";
 
         return view('frontend.cars.dealer-catalog', compact('dealer', 'cars', 'seoTitle', 'seoDescription'));
@@ -395,7 +395,7 @@ class CarController extends Controller
             ->orderBy('approved_cars_count', 'desc')
             ->paginate(12);
 
-        $seoTitle = 'Verified Dealers | SAHIGADI';
+        $seoTitle = 'Verified Dealers | SAHI GADI';
         $seoDescription = 'Browse verified car dealers with authentic listings. Find trusted dealers with quality pre-owned cars.';
 
         return view('frontend.cars.verified-dealers', compact('dealers', 'seoTitle', 'seoDescription'));

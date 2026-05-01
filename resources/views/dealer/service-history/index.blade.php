@@ -1,6 +1,6 @@
 @extends('layouts.dealer')
 
-@section('title', 'Service History - SAHIGADI')
+@section('title', 'Service History - SAHI GADI')
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">

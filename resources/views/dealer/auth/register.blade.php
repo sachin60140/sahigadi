@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Dealer Registration - SAHIGADI')
+@section('title', 'Dealer Registration - SAHI GADI')
 
 @section('content')
 <section class="py-5" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);">
     <div class="container">
         <div class="text-center text-white">
             <h1 class="fw-bold mb-2">Dealer Registration</h1>
-            <p>Join SAHIGADI - Your trusted car marketplace</p>
+            <p>Join SAHI GADI - Your trusted car marketplace</p>
         </div>
     </div>
 </section>

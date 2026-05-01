@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Enquiries - SAHIGADI Admin')
+@section('title', 'Enquiries - SAHI GADI Admin')
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -126,7 +126,7 @@
                                 @endif
                                 @php
                                     $carDetails = $enquiry->actual_car ? " {$enquiry->actual_car->title} (" . ($enquiry->actual_car->year ?? '') . " " . ucfirst($enquiry->actual_car->fuel_type ?? '') . ")" : "";
-                                    $waText = urlencode("Hi {$enquiry->customer_name},\n\nThank you for your interest in the{$carDetails} listed on SAHIGADI!\n\nPlease let us know if you need any further details or would like to schedule a visit.");
+                                    $waText = urlencode("Hi {$enquiry->customer_name},\n\nThank you for your interest in the{$carDetails} listed on SAHI GADI!\n\nPlease let us know if you need any further details or would like to schedule a visit.");
                                 @endphp
                                 <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $enquiry->customer_phone) }}?text={{ $waText }}" target="_blank" class="btn btn-outline-success" title="Send WhatsApp Message">
                                     <i class="bi bi-whatsapp"></i>

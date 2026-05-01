@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Service Tracking - RC Search - SAHIGADI Admin')
+@section('title', 'Service Tracking - RC Search - SAHI GADI Admin')
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">

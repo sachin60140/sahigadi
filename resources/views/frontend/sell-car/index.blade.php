@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Sell Your Used Car Online In India - Best Market Price | SAHIGADI')
-@section('meta_description', 'Looking to sell your car in Bihar, Patna, or anywhere in India? List your second-hand car on SAHIGADI for free valuation, instant payout, and hassle-free RC transfer.')
+@section('title', 'Sell Your Used Car Online In India - Best Market Price | SAHI GADI')
+@section('meta_description', 'Looking to sell your car in Bihar, Patna, or anywhere in India? List your second-hand car on SAHI GADI for free valuation, instant payout, and hassle-free RC transfer.')
 @section('meta_keywords', 'sell my car in Bihar, sell second hand car online, used car dealer in Bihar, second hand cars in Patna, used cars in Muzaffarpur, sell used car online')
 @section('canonical', route('sell-car.index'))
 
@@ -10,7 +10,7 @@
 {
   "@@context": "https://schema.org",
   "@@type": "WebPage",
-  "name": "Sell Used Car Online - Instant Valuation | SAHIGADI",
+  "name": "Sell Used Car Online - Instant Valuation | SAHI GADI",
   "description": "Sell your car quickly for the best market price. Fast inspection, instant payout, and hassle-free RC transfer across Patna, Bihar, and PAN India.",
   "url": "{{ route('sell-car.index') }}"
 }
@@ -33,7 +33,7 @@
             <div class="col-lg-10 mx-auto">
                <h2 class="h3 fw-bold text-dark">Ready to "Sell My Car" in Bihar or Across India?</h2>
                <p class="text-muted lead">
-                   Whether you are looking for a reliable <strong>used car dealer in Bihar</strong> or want to sell <strong>second hand cars in Patna</strong> and <strong>used cars in Muzaffarpur</strong>, SAHIGADI is your top trusted platform. We provide a transparent bridge between individual sellers and verified buyers networks across our PAN-India marketplace.
+                   Whether you are looking for a reliable <strong>used car dealer in Bihar</strong> or want to sell <strong>second hand cars in Patna</strong> and <strong>used cars in Muzaffarpur</strong>, SAHI GADI is your top trusted platform. We provide a transparent bridge between individual sellers and verified buyers networks across our PAN-India marketplace.
                </p>
             </div>
         </div>

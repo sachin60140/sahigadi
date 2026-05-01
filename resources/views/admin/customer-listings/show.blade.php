@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'View Listing - ' . $listing->title . ' - SAHIGADI Admin')
+@section('title', 'View Listing - ' . $listing->title . ' - SAHI GADI Admin')
 
 @section('content')
 <div class="top-bar">

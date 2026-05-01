@@ -3,7 +3,7 @@
 
 Hi there,
 
-Thank you for listing your car on SAHIGADI. Your new listing has been successfully submitted and is currently **Pending Approval**.
+Thank you for listing your car on SAHI GADI. Your new listing has been successfully submitted and is currently **Pending Approval**.
 
 **Car Details:**
 - **Title:** {{ $car->title }}
@@ -13,7 +13,7 @@ Thank you for listing your car on SAHIGADI. Your new listing has been successful
 Our team will review your listing shortly. You will be notified once it goes live on the platform!
 
 <x-mail::button :url="route('home')">
-Visit SAHIGADI
+Visit SAHI GADI
 </x-mail::button>
 
 Thanks,<br>

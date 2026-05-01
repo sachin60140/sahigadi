@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Terms of Use - SAHIGADI')
+@section('title', 'Terms of Use - SAHI GADI')
 
 @section('content')
 <div class="container py-5">
@@ -14,10 +14,10 @@
                     <hr class="my-4">
 
                     <h4 class="fw-bold mb-3">1. Acceptance of Terms</h4>
-                    <p class="mb-4">By accessing and using the SAHIGADI website and services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.</p>
+                    <p class="mb-4">By accessing and using the SAHI GADI website and services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.</p>
 
                     <h4 class="fw-bold mb-3">2. Description of Service</h4>
-                    <p class="mb-4">SAHIGADI is an online marketplace connecting buyers with sellers and dealers of pre-owned vehicles. We provide a platform for listing, browsing, and enquiry management for used cars in Bihar and surrounding regions.</p>
+                    <p class="mb-4">SAHI GADI is an online marketplace connecting buyers with sellers and dealers of pre-owned vehicles. We provide a platform for listing, browsing, and enquiry management for used cars in Bihar and surrounding regions.</p>
 
                     <h4 class="fw-bold mb-3">3. User Registration and Account</h4>
                     <p class="mb-2">To use certain features of our service, you may be required to register an account. You agree to:</p>
@@ -50,7 +50,7 @@
                     </ul>
 
                     <h4 class="fw-bold mb-3">6. Content and Intellectual Property</h4>
-                    <p class="mb-4">All content on SAHIGADI, including text, graphics, logos, and software, is the property of SAHIGADI or its content suppliers and is protected by copyright and other intellectual property laws. You may not reproduce, distribute, or modify any content without our prior written consent.</p>
+                    <p class="mb-4">All content on SAHI GADI, including text, graphics, logos, and software, is the property of SAHI GADI or its content suppliers and is protected by copyright and other intellectual property laws. You may not reproduce, distribute, or modify any content without our prior written consent.</p>
 
                     <h4 class="fw-bold mb-3">7. Listing Rules for Vehicles</h4>
                     <p class="mb-2">All vehicle listings must:</p>
@@ -63,13 +63,13 @@
                     </ul>
 
                     <h4 class="fw-bold mb-3">8. Disclaimer of Warranties</h4>
-                    <p class="mb-4">SAHIGADI provides the platform "as is" and "as available" without any warranties of any kind, express or implied. We do not guarantee the accuracy, completeness, or reliability of any listings or user content.</p>
+                    <p class="mb-4">SAHI GADI provides the platform "as is" and "as available" without any warranties of any kind, express or implied. We do not guarantee the accuracy, completeness, or reliability of any listings or user content.</p>
 
                     <h4 class="fw-bold mb-3">9. Limitation of Liability</h4>
-                    <p class="mb-4">SAHIGADI shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the platform or services.</p>
+                    <p class="mb-4">SAHI GADI shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the platform or services.</p>
 
                     <h4 class="fw-bold mb-3">10. Indemnification</h4>
-                    <p class="mb-4">You agree to indemnify, defend, and hold harmless SAHIGADI and its officers, directors, employees, and agents from any claims, damages, losses, or expenses arising out of your use of the platform or violation of these Terms of Use.</p>
+                    <p class="mb-4">You agree to indemnify, defend, and hold harmless SAHI GADI and its officers, directors, employees, and agents from any claims, damages, losses, or expenses arising out of your use of the platform or violation of these Terms of Use.</p>
 
                     <h4 class="fw-bold mb-3">11. Termination</h4>
                     <p class="mb-4">We reserve the right to terminate or suspend your account and access to the platform at any time, without prior notice, for any reason, including violation of these Terms of Use.</p>

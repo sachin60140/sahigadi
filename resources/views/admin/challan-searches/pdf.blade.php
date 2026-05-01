@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>E-Challan Reports - SAHIGADI</title>
+    <title>E-Challan Reports - SAHI GADI</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 12px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -19,7 +19,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>SAHIGADI - E-Challan Reports</h1>
+        <h1>SAHI GADI - E-Challan Reports</h1>
         <p>Generated on: {{ date('d M Y, h:i A') }}</p>
         <p>Total Revenue: Rs. {{ number_format($totalRevenue, 2) }}</p>
     </div>
@@ -50,7 +50,7 @@
     </table>
 
     <div class="footer">
-        <p>SAHIGADI - Vehicle Marketplace | This is a system generated report</p>
+        <p>SAHI GADI - Vehicle Marketplace | This is a system generated report</p>
     </div>
 </body>
 </html>

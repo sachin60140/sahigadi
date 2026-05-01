@@ -1,6 +1,4 @@
-@extends('layouts.admin')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
 .kpi-card {
     border-radius: 16px;
@@ -50,11 +48,11 @@
     border-color: #ddd;
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('title', 'Admin Dashboard - SAHI GADI')
+<?php $__env->startSection('title', 'Admin Dashboard - SAHI GADI'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h3 class="fw-bold mb-1"><i class="bi bi-rocket-takeoff text-primary me-2"></i>Admin Command Center</h3>
@@ -62,7 +60,7 @@
     </div>
     <div class="text-end d-none d-md-block">
         <div class="bg-white px-4 py-2 rounded-pill shadow-sm border">
-            <i class="bi bi-calendar3 me-2 text-primary"></i> <span class="fw-medium text-dark">{{ now()->format('l, d M Y') }}</span>
+            <i class="bi bi-calendar3 me-2 text-primary"></i> <span class="fw-medium text-dark"><?php echo e(now()->format('l, d M Y')); ?></span>
         </div>
     </div>
 </div>
@@ -75,14 +73,14 @@
             <div class="d-flex justify-content-between">
                 <div>
                     <h6 class="text-muted text-uppercase fw-bold mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">Total Wallet Recharges</h6>
-                    <h2 class="fw-800 mb-0 text-success">₹{{ number_format($stats['total_wallet_recharges']) }}</h2>
+                    <h2 class="fw-800 mb-0 text-success">₹<?php echo e(number_format($stats['total_wallet_recharges'])); ?></h2>
                     <p class="mb-0 mt-2 mini-stat text-muted">Platform Liquidity</p>
                 </div>
                 <div class="kpi-icon-wrapper bg-success-soft">
                     <i class="bi bi-wallet2"></i>
                 </div>
             </div>
-            <a href="{{ route('admin.wallet-recharges.index') }}" class="stretched-link"></a>
+            <a href="<?php echo e(route('admin.wallet-recharges.index')); ?>" class="stretched-link"></a>
         </div>
     </div>
 
@@ -92,14 +90,14 @@
             <div class="d-flex justify-content-between">
                 <div>
                     <h6 class="text-muted text-uppercase fw-bold mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">Verified Dealers</h6>
-                    <h2 class="fw-800 mb-0 text-dark">{{ number_format($stats['approved_dealers']) }}</h2>
-                    <p class="mb-0 mt-2 mini-stat text-warning"><i class="bi bi-hourglass-split me-1"></i>{{ $stats['pending_dealers'] }} Pending Approval</p>
+                    <h2 class="fw-800 mb-0 text-dark"><?php echo e(number_format($stats['approved_dealers'])); ?></h2>
+                    <p class="mb-0 mt-2 mini-stat text-warning"><i class="bi bi-hourglass-split me-1"></i><?php echo e($stats['pending_dealers']); ?> Pending Approval</p>
                 </div>
                 <div class="kpi-icon-wrapper bg-primary-soft">
                     <i class="bi bi-people-fill"></i>
                 </div>
             </div>
-            <a href="{{ route('admin.dealers.index') }}" class="stretched-link"></a>
+            <a href="<?php echo e(route('admin.dealers.index')); ?>" class="stretched-link"></a>
         </div>
     </div>
 
@@ -109,14 +107,14 @@
             <div class="d-flex justify-content-between">
                 <div>
                     <h6 class="text-muted text-uppercase fw-bold mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">Active Car Listings</h6>
-                    <h2 class="fw-800 mb-0 text-dark">{{ number_format($stats['approved_cars'] + $stats['approved_customer_listings']) }}</h2>
+                    <h2 class="fw-800 mb-0 text-dark"><?php echo e(number_format($stats['approved_cars'] + $stats['approved_customer_listings'])); ?></h2>
                     <p class="mb-0 mt-2 mini-stat text-info"><i class="bi bi-car-front-fill me-1"></i>Total Network Inventory</p>
                 </div>
                 <div class="kpi-icon-wrapper bg-info-soft">
                     <i class="bi bi-car-front"></i>
                 </div>
             </div>
-            <a href="{{ route('admin.cars.index') }}" class="stretched-link"></a>
+            <a href="<?php echo e(route('admin.cars.index')); ?>" class="stretched-link"></a>
         </div>
     </div>
 
@@ -126,7 +124,7 @@
             <div class="d-flex justify-content-between">
                 <div>
                     <h6 class="text-muted text-uppercase fw-bold mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">Pending Approval</h6>
-                    <h2 class="fw-800 mb-0 text-danger">{{ number_format($stats['pending_cars'] + $stats['pending_customer_listings'] + $stats['pending_dealers']) }}</h2>
+                    <h2 class="fw-800 mb-0 text-danger"><?php echo e(number_format($stats['pending_cars'] + $stats['pending_customer_listings'] + $stats['pending_dealers'])); ?></h2>
                     <p class="mb-0 mt-2 mini-stat text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>Required Action</p>
                 </div>
                 <div class="kpi-icon-wrapper bg-danger-soft">
@@ -153,7 +151,7 @@
                                 <i class="bi bi-file-earmark-text"></i>
                             </div>
                             <div>
-                                <h4 class="fw-bold mb-0">{{ number_format($stats['vahan_lookups']) }}</h4>
+                                <h4 class="fw-bold mb-0"><?php echo e(number_format($stats['vahan_lookups'])); ?></h4>
                                 <span class="text-muted small fw-medium">Vahan (RC) Lookups</span>
                             </div>
                         </div>
@@ -164,7 +162,7 @@
                                 <i class="bi bi-wrench-adjustable-circle"></i>
                             </div>
                             <div>
-                                <h4 class="fw-bold mb-0">{{ number_format($stats['mahindra_lookups']) }}</h4>
+                                <h4 class="fw-bold mb-0"><?php echo e(number_format($stats['mahindra_lookups'])); ?></h4>
                                 <span class="text-muted small fw-medium">Mahindra Service Lookups</span>
                             </div>
                         </div>
@@ -175,7 +173,7 @@
                                 <i class="bi bi-tools"></i>
                             </div>
                             <div>
-                                <h4 class="fw-bold mb-0">{{ number_format($stats['maruti_lookups']) }}</h4>
+                                <h4 class="fw-bold mb-0"><?php echo e(number_format($stats['maruti_lookups'])); ?></h4>
                                 <span class="text-muted small fw-medium">Maruti Service Lookups</span>
                             </div>
                         </div>
@@ -186,7 +184,7 @@
                                 <i class="bi bi-receipt"></i>
                             </div>
                             <div>
-                                <h4 class="fw-bold mb-0">{{ number_format($stats['challan_lookups']) }}</h4>
+                                <h4 class="fw-bold mb-0"><?php echo e(number_format($stats['challan_lookups'])); ?></h4>
                                 <span class="text-muted small fw-medium">E-Challan Lookups</span>
                             </div>
                         </div>
@@ -204,7 +202,7 @@
             </div>
             <div class="card-body p-4">
                 
-                <a href="{{ route('admin.contact-enquiries.index') }}" class="text-decoration-none">
+                <a href="<?php echo e(route('admin.contact-enquiries.index')); ?>" class="text-decoration-none">
                     <div class="quick-action-card p-3 mb-3 d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <div class="text-primary me-3 fs-3"><i class="bi bi-envelope-paper"></i></div>
@@ -213,11 +211,11 @@
                                 <small class="text-muted">Unread Help Tickets</small>
                             </div>
                         </div>
-                        <span class="badge {{ $stats['contact_enquiries'] > 0 ? 'bg-danger' : 'bg-success' }} rounded-pill">{{ $stats['contact_enquiries'] }}</span>
+                        <span class="badge <?php echo e($stats['contact_enquiries'] > 0 ? 'bg-danger' : 'bg-success'); ?> rounded-pill"><?php echo e($stats['contact_enquiries']); ?></span>
                     </div>
                 </a>
 
-                <a href="{{ route('admin.plans.index') }}" class="text-decoration-none">
+                <a href="<?php echo e(route('admin.plans.index')); ?>" class="text-decoration-none">
                     <div class="quick-action-card p-3 mb-3 d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <div class="text-success me-3 fs-3"><i class="bi bi-box-seam"></i></div>
@@ -226,11 +224,11 @@
                                 <small class="text-muted">Active Tiers</small>
                             </div>
                         </div>
-                        <span class="badge bg-light text-dark border rounded-pill">{{ $stats['total_plans'] }} Plans</span>
+                        <span class="badge bg-light text-dark border rounded-pill"><?php echo e($stats['total_plans']); ?> Plans</span>
                     </div>
                 </a>
 
-                <a href="{{ route('admin.enquiries.index') }}" class="text-decoration-none">
+                <a href="<?php echo e(route('admin.enquiries.index')); ?>" class="text-decoration-none">
                     <div class="quick-action-card p-3 d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <div class="text-info me-3 fs-3"><i class="bi bi-chat-text"></i></div>
@@ -239,7 +237,7 @@
                                 <small class="text-muted">Total Customer Leads</small>
                             </div>
                         </div>
-                        <span class="badge bg-light text-dark border rounded-pill">{{ $stats['total_enquiries'] }}</span>
+                        <span class="badge bg-light text-dark border rounded-pill"><?php echo e($stats['total_enquiries']); ?></span>
                     </div>
                 </a>
 
@@ -247,4 +245,6 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\sahigadi-ai\resources\views/admin/dashboard.blade.php ENDPATH**/ ?>

@@ -182,8 +182,8 @@ class HomeController extends Controller
         return [
             '@context' => 'https://schema.org',
             '@type' => 'ItemList',
-            'name' => 'Featured Cars - SAHIGADI',
-            'description' => 'Featured pre-owned cars from SAHIGADI marketplace',
+            'name' => 'Featured Cars - SAHI GADI',
+            'description' => 'Featured pre-owned cars from SAHI GADI marketplace',
             'url' => url('/'),
             'numberOfItems' => count($itemListElement),
             'itemListElement' => $itemListElement,

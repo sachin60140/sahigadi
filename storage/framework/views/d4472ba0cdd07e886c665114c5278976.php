@@ -12,30 +12,30 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'SAHI GADI - Trusted Used Car Marketplace in Patna, Bihar')</title>
-    <meta name="description" content="@yield('meta_description', 'Find the best verified pre-owned cars in Patna, Bihar.')">
-    <link rel="canonical" href="@yield('canonical', url()->current())">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title><?php echo $__env->yieldContent('title', 'SAHI GADI - Trusted Used Car Marketplace in Patna, Bihar'); ?></title>
+    <meta name="description" content="<?php echo $__env->yieldContent('meta_description', 'Find the best verified pre-owned cars in Patna, Bihar.'); ?>">
+    <link rel="canonical" href="<?php echo $__env->yieldContent('canonical', url()->current()); ?>">
     
     <!-- OpenGraph / Facebook -->
-    <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:url" content="@yield('og_url', url()->current())">
-    <meta property="og:title" content="@yield('og_title', 'SAHI GADI - Used Car Marketplace')">
-    <meta property="og:description" content="@yield('og_description', 'Find verified pre-owned cars in Patna, Bihar')">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-image.png'))">
+    <meta property="og:type" content="<?php echo $__env->yieldContent('og_type', 'website'); ?>">
+    <meta property="og:url" content="<?php echo $__env->yieldContent('og_url', url()->current()); ?>">
+    <meta property="og:title" content="<?php echo $__env->yieldContent('og_title', 'SAHI GADI - Used Car Marketplace'); ?>">
+    <meta property="og:description" content="<?php echo $__env->yieldContent('og_description', 'Find verified pre-owned cars in Patna, Bihar'); ?>">
+    <meta property="og:image" content="<?php echo $__env->yieldContent('og_image', asset('images/og-image.png')); ?>">
     <meta property="og:site_name" content="SAHI GADI">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="@yield('twitter_url', url()->current())">
-    <meta name="twitter:title" content="@yield('twitter_title', 'SAHI GADI - Used Car Marketplace')">
-    <meta name="twitter:description" content="@yield('twitter_description', 'Find verified pre-owned cars in Patna, Bihar')">
-    <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.png'))">
+    <meta name="twitter:url" content="<?php echo $__env->yieldContent('twitter_url', url()->current()); ?>">
+    <meta name="twitter:title" content="<?php echo $__env->yieldContent('twitter_title', 'SAHI GADI - Used Car Marketplace'); ?>">
+    <meta name="twitter:description" content="<?php echo $__env->yieldContent('twitter_description', 'Find verified pre-owned cars in Patna, Bihar'); ?>">
+    <meta name="twitter:image" content="<?php echo $__env->yieldContent('twitter_image', asset('images/og-image.png')); ?>">
     <meta name="twitter:site" content="@Sahigadi">
     
     <meta name="geo.region" content="IN-BR">
     <meta name="geo.placename" content="Patna">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/svg+xml" href="<?php echo e(asset('favicon.ico')); ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -190,7 +190,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
-                <a class="navbar-brand" href="{{ route('home') }}">
+                <a class="navbar-brand" href="<?php echo e(route('home')); ?>">
                     <i class="bi bi-car-front-fill"></i> SAHI <span>GADI</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -199,68 +199,70 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto align-items-center">
                         <li class="nav-item mx-2">
-                            <a class="nav-link" href="{{ route('home') }}">Home</a>
+                            <a class="nav-link" href="<?php echo e(route('home')); ?>">Home</a>
                         </li>
                         <li class="nav-item mx-2">
-                            <a class="nav-link" href="{{ route('cars.index') }}">Browse Cars</a>
+                            <a class="nav-link" href="<?php echo e(route('cars.index')); ?>">Browse Cars</a>
                         </li>
 
                         <li class="nav-item mx-2">
-                            <a class="nav-link text-warning fw-semibold" href="{{ route('sell-car.index') }}">
+                            <a class="nav-link text-warning fw-semibold" href="<?php echo e(route('sell-car.index')); ?>">
                                 <i class="bi bi-plus-circle me-1"></i>Sell Your Car
                             </a>
                         </li>
-                        @if(auth('dealer')->check())
+                        <?php if(auth('dealer')->check()): ?>
                             <li class="nav-item dropdown mx-2">
                                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                                     <i class="bi bi-speedometer2"></i> Dashboard
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="{{ route('dealer.dashboard') }}"><i class="bi bi-grid"></i> Dashboard</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('dealer.cars.index') }}"><i class="bi bi-car-front"></i> My Cars</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('dealer.enquiries.index') }}"><i class="bi bi-chat-dots"></i> Enquiries</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('dealer.wallet.index') }}"><i class="bi bi-wallet2"></i> Wallet</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('dealer.plans.index') }}"><i class="bi bi-box-seam"></i> Plans</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo e(route('dealer.dashboard')); ?>"><i class="bi bi-grid"></i> Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo e(route('dealer.cars.index')); ?>"><i class="bi bi-car-front"></i> My Cars</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo e(route('dealer.enquiries.index')); ?>"><i class="bi bi-chat-dots"></i> Enquiries</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo e(route('dealer.wallet.index')); ?>"><i class="bi bi-wallet2"></i> Wallet</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo e(route('dealer.plans.index')); ?>"><i class="bi bi-box-seam"></i> Plans</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="{{ route('dealer.logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                                    <li><a class="dropdown-item text-danger" href="<?php echo e(route('dealer.logout')); ?>"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                                 </ul>
                             </li>
-                        @else
+                        <?php else: ?>
                             <li class="nav-item mx-2">
-                                <a class="nav-link" href="{{ route('dealer.login') }}">Dealer Login</a>
+                                <a class="nav-link" href="<?php echo e(route('dealer.login')); ?>">Dealer Login</a>
                             </li>
                             <li class="nav-item mx-2">
-                                <a href="{{ route('dealer.register') }}" class="btn btn-accent btn-sm">Register Dealer</a>
+                                <a href="<?php echo e(route('dealer.register')); ?>" class="btn btn-accent btn-sm">Register Dealer</a>
                             </li>
-                        @endif
+                        <?php endif; ?>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
 
-    @if(session('success'))
+    <?php if(session('success')): ?>
         <div class="container mt-3">
             <div class="alert alert-success alert-dismissible fade show">
                 <i class="bi bi-check-circle-fill me-2"></i>
-                {{ session('success') }}
+                <?php echo e(session('success')); ?>
+
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         </div>
-    @endif
+    <?php endif; ?>
 
-    @if(session('error'))
+    <?php if(session('error')): ?>
         <div class="container mt-3">
             <div class="alert alert-danger alert-dismissible fade show">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                {{ session('error') }}
+                <?php echo e(session('error')); ?>
+
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         </div>
-    @endif
+    <?php endif; ?>
 
     <main>
-        @yield('content')
+        <?php echo $__env->yieldContent('content'); ?>
     </main>
 
     <footer>
@@ -281,19 +283,19 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="text-white fw-bold mb-3">Quick Links</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ route('home') }}" class="text-white-50 text-decoration-none">Home</a></li>
-                        <li class="mb-2"><a href="{{ route('cars.index') }}" class="text-white-50 text-decoration-none">Browse Cars</a></li>
-                        <li class="mb-2"><a href="{{ route('dealer.register') }}" class="text-white-50 text-decoration-none">Become a Dealer</a></li>
-                        <li class="mb-2"><a href="{{ route('contact') }}" class="text-white-50 text-decoration-none">Contact Us</a></li>
+                        <li class="mb-2"><a href="<?php echo e(route('home')); ?>" class="text-white-50 text-decoration-none">Home</a></li>
+                        <li class="mb-2"><a href="<?php echo e(route('cars.index')); ?>" class="text-white-50 text-decoration-none">Browse Cars</a></li>
+                        <li class="mb-2"><a href="<?php echo e(route('dealer.register')); ?>" class="text-white-50 text-decoration-none">Become a Dealer</a></li>
+                        <li class="mb-2"><a href="<?php echo e(route('contact')); ?>" class="text-white-50 text-decoration-none">Contact Us</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <h6 class="text-white fw-bold mb-3">Popular Brands</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ route('cars.brand', 'maruti-suzuki') }}" class="text-white-50 text-decoration-none">Maruti Suzuki</a></li>
-                        <li class="mb-2"><a href="{{ route('cars.brand', 'hyundai') }}" class="text-white-50 text-decoration-none">Hyundai</a></li>
-                        <li class="mb-2"><a href="{{ route('cars.brand', 'tata') }}" class="text-white-50 text-decoration-none">Tata</a></li>
-                        <li class="mb-2"><a href="{{ route('cars.brand', 'mahindra') }}" class="text-white-50 text-decoration-none">Mahindra</a></li>
+                        <li class="mb-2"><a href="<?php echo e(route('cars.brand', 'maruti-suzuki')); ?>" class="text-white-50 text-decoration-none">Maruti Suzuki</a></li>
+                        <li class="mb-2"><a href="<?php echo e(route('cars.brand', 'hyundai')); ?>" class="text-white-50 text-decoration-none">Hyundai</a></li>
+                        <li class="mb-2"><a href="<?php echo e(route('cars.brand', 'tata')); ?>" class="text-white-50 text-decoration-none">Tata</a></li>
+                        <li class="mb-2"><a href="<?php echo e(route('cars.brand', 'mahindra')); ?>" class="text-white-50 text-decoration-none">Mahindra</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -309,19 +311,20 @@
             <hr class="my-4 border-secondary">
             <div class="row align-items-center">
                 <div class="col-md-6 text-center text-md-start">
-                    <p class="text-white-50 mb-0">&copy; {{ date('Y') }} SAHI GADI. All rights reserved.</p>
+                    <p class="text-white-50 mb-0">&copy; <?php echo e(date('Y')); ?> SAHI GADI. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
-                    <a href="{{ route('privacy-policy') }}" class="text-white-50 text-decoration-none me-3">Privacy Policy</a>
-                    <a href="{{ route('terms-of-use') }}" class="text-white-50 text-decoration-none me-3">Terms of Use</a>
-                    <a href="{{ route('refund-policy') }}" class="text-white-50 text-decoration-none">Refund Policy</a>
+                    <a href="<?php echo e(route('privacy-policy')); ?>" class="text-white-50 text-decoration-none me-3">Privacy Policy</a>
+                    <a href="<?php echo e(route('terms-of-use')); ?>" class="text-white-50 text-decoration-none me-3">Terms of Use</a>
+                    <a href="<?php echo e(route('refund-policy')); ?>" class="text-white-50 text-decoration-none">Refund Policy</a>
                 </div>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    @stack('json_ld')
-    @stack('scripts')
+    <?php echo $__env->yieldPushContent('json_ld'); ?>
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 </html>
+<?php /**PATH C:\xampp\htdocs\sahigadi-ai\resources\views/layouts/app.blade.php ENDPATH**/ ?>

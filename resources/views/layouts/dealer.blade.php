@@ -14,22 +14,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dealer Dashboard')</title>
-    <meta name="description" content="@yield('meta_description', 'Dealer Dashboard for SAHIGADI')">
+    <meta name="description" content="@yield('meta_description', 'Dealer Dashboard for SAHI GADI')">
     <link rel="canonical" href="@yield('canonical', url()->current())">
     
     <!-- OpenGraph / Facebook -->
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="@yield('og_url', url()->current())">
-    <meta property="og:title" content="@yield('og_title', 'Dealer Dashboard - SAHIGADI')">
-    <meta property="og:description" content="@yield('og_description', 'Dealer Dashboard for SAHIGADI')">
+    <meta property="og:title" content="@yield('og_title', 'Dealer Dashboard - SAHI GADI')">
+    <meta property="og:description" content="@yield('og_description', 'Dealer Dashboard for SAHI GADI')">
     <meta property="og:image" content="@yield('og_image', asset('images/og-image.png'))">
-    <meta property="og:site_name" content="SAHIGADI">
+    <meta property="og:site_name" content="SAHI GADI">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="@yield('twitter_url', url()->current())">
-    <meta name="twitter:title" content="@yield('twitter_title', 'Dealer Dashboard - SAHIGADI')">
-    <meta name="twitter:description" content="@yield('twitter_description', 'Dealer Dashboard for SAHIGADI')">
+    <meta name="twitter:title" content="@yield('twitter_title', 'Dealer Dashboard - SAHI GADI')">
+    <meta name="twitter:description" content="@yield('twitter_description', 'Dealer Dashboard for SAHI GADI')">
     <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.png'))">
     <meta name="twitter:site" content="@Sahigadi">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -87,7 +87,7 @@
                 <div class="bg-primary text-white p-1 rounded-2 me-2 shadow-sm" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
                     <i class="bi bi-car-front-fill fs-6"></i>
                 </div>
-                SAHIGADI
+                SAHI GADI
             </a>
             <button class="navbar-toggler border-0 shadow-none text-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#dealerSidebar" aria-controls="dealerSidebar">
                 <span class="navbar-toggler-icon"></span>
@@ -97,7 +97,7 @@
         <div class="row g-0">
             <div class="col-md-2 sidebar p-0 offcanvas-md offcanvas-start" tabindex="-1" id="dealerSidebar" aria-labelledby="dealerSidebarLabel">
                 <div class="offcanvas-header d-md-none border-bottom bg-light" style="border-color: #e2e8f0!important;">
-                    <h5 class="offcanvas-title text-dark fw-bold" id="dealerSidebarLabel"><i class="bi bi-car-front-fill text-primary me-2"></i>SAHIGADI Portal</h5>
+                    <h5 class="offcanvas-title text-dark fw-bold" id="dealerSidebarLabel"><i class="bi bi-car-front-fill text-primary me-2"></i>SAHI GADI Portal</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#dealerSidebar" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body p-0 flex-column">
@@ -105,7 +105,7 @@
                         <div class="bg-primary text-white p-2 rounded-3 mb-2 shadow" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                             <i class="bi bi-car-front-fill fs-4"></i>
                         </div>
-                        <h5 class="mb-0">SAHIGADI</h5>
+                        <h5 class="mb-0">SAHI GADI</h5>
                         <small class="text-secondary mt-1 fw-medium text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">Dealer Portal</small>
                     </div>
                     <nav class="nav flex-column sidebar-nav w-100">

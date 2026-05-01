@@ -235,7 +235,7 @@ class PaymentController extends Controller
     public function phonepeWebhook(Request $request)
     {
         $expectedUser = env('PHONEPE_WEBHOOK_USER', 'sahigadiwebhook');
-        $expectedPass = env('PHONEPE_WEBHOOK_PASS', 'Sahigadi12345');
+        $expectedPass = env('PHONEPE_WEBHOOK_PASS', 'Sahi Gadi12345');
 
         $authHeader = $request->header('Authorization');
         $expectedSha256 = hash('sha256', $expectedUser . ':' . $expectedPass);

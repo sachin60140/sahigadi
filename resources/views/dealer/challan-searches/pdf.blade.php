@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>E-Challan Report - {{ $challanSearch->vehicle_number }} - SAHIGADI</title>
+    <title>E-Challan Report - {{ $challanSearch->vehicle_number }} - SAHI GADI</title>
     <style>
         body { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: #333; margin: 0; padding: 0; }
         .header { background: #1a1a2e; color: white; padding: 20px; text-align: center; }
@@ -86,7 +86,7 @@
     @endphp
 
     <div class="header">
-        <h1>SAHI<span>GADI</span></h1>
+        <h1>SAHI <span>GADI</span></h1>
         <p>E-Challan Search Report</p>
         <div class="vehicle-box">
             <div class="label">Vehicle Number</div>
@@ -213,7 +213,7 @@
     @endif
 
     <div class="footer">
-        <strong>SAHIGADI</strong> - Vehicle Marketplace | Generated on: {{ date('d M Y, h:i A') }}
+        <strong>SAHI GADI</strong> - Vehicle Marketplace | Generated on: {{ date('d M Y, h:i A') }}
     </div>
 </body>
 </html>

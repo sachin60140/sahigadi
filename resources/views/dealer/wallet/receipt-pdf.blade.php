@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Wallet Recharge Receipt - {{ $transaction->id }} - SAHIGADI</title>
+    <title>Wallet Recharge Receipt - {{ $transaction->id }} - SAHI GADI</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #333; }
         .header { border-bottom: 2px solid #1a1a2e; padding-bottom: 20px; margin-bottom: 30px; display: table; width: 100%; }
@@ -36,7 +36,7 @@
     
     <div class="header">
         <div class="company-info">
-            <div class="brand-name">SAHIGADI</div>
+            <div class="brand-name">SAHI GADI</div>
             <div class="company-name">Awani Enterprises</div>
             <div class="address">
                 UGF-4-5, Parsvanath Majestic Arcade<br>
@@ -110,7 +110,7 @@
 
     <div class="footer">
         <p>This is a computer-generated receipt and does not require a physical signature.</p>
-        <p>Thank you for your business with SAHIGADI!</p>
+        <p>Thank you for your business with SAHI GADI!</p>
         <p>Generated on: {{ date('d M Y, h:i A') }}</p>
     </div>
 </body>

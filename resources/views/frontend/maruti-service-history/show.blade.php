@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Maruti Service History - ' . $marutiServiceHistory->vehicle_number . ' - SAHIGADI')
+@section('title', 'Maruti Service History - ' . $marutiServiceHistory->vehicle_number . ' - SAHI GADI')
 
 @section('content')
 <div class="container py-5">

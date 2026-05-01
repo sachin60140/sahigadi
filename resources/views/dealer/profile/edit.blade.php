@@ -1,6 +1,6 @@
 @extends('layouts.dealer')
 
-@section('title', 'My Profile - SAHIGADI')
+@section('title', 'My Profile - SAHI GADI')
 
 @push('styles')
 <style>

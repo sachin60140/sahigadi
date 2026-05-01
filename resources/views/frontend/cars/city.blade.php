@@ -94,7 +94,7 @@
             <div class="mt-5 p-4 bg-light rounded shadow-sm border">
                 <h2 class="h4 fw-bold text-dark mb-3">Buy Used Cars in {{ $cityName }}</h2>
                 <p class="text-muted">
-                    Looking for the best deals on <strong>used cars in {{ $cityName }}</strong>? At SAHIGADI, we offer a wide range of verified second hand cars tailored to your budget and lifestyle. Whether you need a compact hatchback for daily commutes, a premium sedan, or a sturdy SUV for family trips, our extensive inventory has you covered. 
+                    Looking for the best deals on <strong>used cars in {{ $cityName }}</strong>? At SAHI GADI, we offer a wide range of verified second hand cars tailored to your budget and lifestyle. Whether you need a compact hatchback for daily commutes, a premium sedan, or a sturdy SUV for family trips, our extensive inventory has you covered. 
                 </p>
                 <p class="text-muted mb-0">
                     Buying a <strong>second hand car in {{ $cityName }}</strong> has never been easier. We ensure every vehicle passes stringent quality checks. Enjoy transparent pricing, easy financing options, and top-notch customer support. Start browsing to find the perfect pre-owned car that matches your needs today!

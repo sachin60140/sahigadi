@@ -315,8 +315,8 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
             <div class="card">
                 <div class="card-body text-center">
                     <i class="bi bi-shield-check" style="font-size: 3rem; color: #e94560;"></i>
-                    <h6 class="mt-2 mb-2">SAHIGADI Verified</h6>
-                    <small class="text-muted">This listing is verified by SAHIGADI</small>
+                    <h6 class="mt-2 mb-2">SAHI GADI Verified</h6>
+                    <small class="text-muted">This listing is verified by SAHI GADI</small>
                 </div>
             </div>
         </div>

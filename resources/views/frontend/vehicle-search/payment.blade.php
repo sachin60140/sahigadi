@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Payment - SAHIGADI')
+@section('title', 'Payment - SAHI GADI')
 
 @section('content')
 <div class="container py-5">
@@ -48,7 +48,7 @@
         "key": "{{ $keyId }}",
         "amount": "{{ $amount * 100 }}",
         "currency": "INR",
-        "name": "SAHIGADI",
+        "name": "SAHI GADI",
         "description": "RC Search - {{ $registrationNumber }}",
         "order_id": "{{ $orderId }}",
         "handler": function (response) {

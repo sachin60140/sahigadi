@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Dealer - SAHIGADI Admin')
+@section('title', 'Edit Dealer - SAHI GADI Admin')
 
 @section('content')
 <div class="top-bar">

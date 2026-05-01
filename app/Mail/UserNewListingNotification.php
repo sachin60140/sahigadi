@@ -30,7 +30,7 @@ class UserNewListingNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Car Listing is Pending Approval - SAHIGADI',
+            subject: 'Your Car Listing is Pending Approval - SAHI GADI',
         );
     }
 

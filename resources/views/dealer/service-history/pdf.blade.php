@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Service History - {{ $serviceHistory->vehicle_number }} - SAHIGADI</title>
+    <title>Service History - {{ $serviceHistory->vehicle_number }} - SAHI GADI</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 12px; }
         .header { text-align: center; margin-bottom: 20px; padding: 20px; background: #1a1a2e; color: white; }
@@ -23,7 +23,7 @@
     date_default_timezone_set('Asia/Kolkata');
     @endphp
     <div class="header">
-        <h1>SAHIGADI - Service History</h1>
+        <h1>SAHI GADI - Service History</h1>
         <div class="vehicle-number">{{ $serviceHistory->vehicle_number }}</div>
         <span class="badge badge-success">{{ $serviceHistory->records->count() }} Services Found</span>
     </div>
@@ -78,7 +78,7 @@
     @endif
 
     <div class="footer">
-        <p>SAHIGADI - Vehicle Marketplace | Generated on: {{ date('d M Y, h:i A') }}</p>
+        <p>SAHI GADI - Vehicle Marketplace | Generated on: {{ date('d M Y, h:i A') }}</p>
     </div>
 </body>
 </html>

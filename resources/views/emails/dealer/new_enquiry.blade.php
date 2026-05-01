@@ -3,7 +3,7 @@
 
 Hi {{ $enquiry->dealer->name ?? 'Dealer' }},
 
-Great news! A potential buyer just viewed the contact details for one of your car listings on SAHIGADI.
+Great news! A potential buyer just viewed the contact details for one of your car listings on SAHI GADI.
 
 **Car Details:**
 - **Title:** {{ $enquiry->actual_car->title ?? 'N/A' }}

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Maruti Service History - SAHIGADI')
+@section('title', 'Maruti Service History - SAHI GADI')
 @section('meta_description', 'Search Maruti vehicle service history online. Get complete service records from authorized Maruti service centers.')
 
 @section('content')

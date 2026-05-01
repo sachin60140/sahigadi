@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Privacy Policy - SAHIGADI')
+@section('title', 'Privacy Policy - SAHI GADI')
 
 @section('content')
 <div class="container py-5">
@@ -14,7 +14,7 @@
                     <hr class="my-4">
 
                     <h4 class="fw-bold mb-3">1. Introduction</h4>
-                    <p class="mb-4">Welcome to SAHIGADI. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.</p>
+                    <p class="mb-4">Welcome to SAHI GADI. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.</p>
 
                     <h4 class="fw-bold mb-3">2. Information We Collect</h4>
                     <p class="mb-2">We collect personal information that you voluntarily provide to us when you:</p>

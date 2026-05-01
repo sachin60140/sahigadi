@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Browse Used Cars - SAHIGADI')
-@section('meta_title', 'Browse Used Cars - Pre-Owned Cars Marketplace in Bihar | SAHIGADI')
+@section('title', 'Browse Used Cars - SAHI GADI')
+@section('meta_title', 'Browse Used Cars - Pre-Owned Cars Marketplace in Bihar | SAHI GADI')
 @section('meta_description', 'Browse thousands of verified pre-owned cars in Patna and Bihar. Filter by brand, price, km driven, fuel type. Quality assured used cars from trusted dealers.')
 @section('meta_keywords', 'browse used cars, pre-owned cars, car marketplace, filter cars, used cars Patna, used cars Bihar')
 @section('canonical', route('cars.index'))
 
 @section('og_type', 'website')
 @section('og_url', route('cars.index'))
-@section('og_title', 'Browse Used Cars - Pre-Owned Cars Marketplace in Bihar | SAHIGADI')
+@section('og_title', 'Browse Used Cars - Pre-Owned Cars Marketplace in Bihar | SAHI GADI')
 @section('og_description', 'Browse thousands of verified pre-owned cars in Patna and Bihar. Filter by brand, price, km driven, fuel type.')
-@section('twitter_title', 'Browse Used Cars - SAHIGADI')
+@section('twitter_title', 'Browse Used Cars - SAHI GADI')
 @section('twitter_description', 'Browse thousands of verified pre-owned cars in Patna and Bihar.')
 
 @section('content')

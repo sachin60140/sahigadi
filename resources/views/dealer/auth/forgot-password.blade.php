@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Forgot Password - Dealer Portal | SAHIGADI')
+@section('title', 'Forgot Password - Dealer Portal | SAHI GADI')
 
 @section('content')
 <section class="py-5" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);">

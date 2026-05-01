@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Contact Us - SAHIGADI')
-@section('meta_description', 'Get in touch with SAHIGADI for any queries regarding pre-owned cars in Patna, Bihar.')
+@section('title', 'Contact Us - SAHI GADI')
+@section('meta_description', 'Get in touch with SAHI GADI for any queries regarding pre-owned cars in Patna, Bihar.')
 
 @push('styles')
 <style>

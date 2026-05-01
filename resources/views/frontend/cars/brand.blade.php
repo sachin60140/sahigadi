@@ -91,7 +91,7 @@
             <div class="mt-5 p-4 bg-light rounded shadow-sm border">
                 <h2 class="h4 fw-bold text-dark mb-3">Buy Used {{ $brandName }} Cars{{ $cityName ? ' in ' . $cityName : '' }}</h2>
                 <p class="text-muted">
-                    Searching for reliable <strong>used {{ $brandName }} cars{{ $cityName ? ' in ' . $cityName : '' }}</strong>? Your search ends here. SAHIGADI brings to you an exclusively verified collection of pre-owned {{ $brandName }} vehicles. Known for their build quality, reliable engines, and great resale value, {{ $brandName }} cars are a favorite among buyers. 
+                    Searching for reliable <strong>used {{ $brandName }} cars{{ $cityName ? ' in ' . $cityName : '' }}</strong>? Your search ends here. SAHI GADI brings to you an exclusively verified collection of pre-owned {{ $brandName }} vehicles. Known for their build quality, reliable engines, and great resale value, {{ $brandName }} cars are a favorite among buyers. 
                 </p>
                 <p class="text-muted mb-0">
                     Filter your search by price, model, and year to find the perfect <strong>second hand {{ $brandName }} car{{ $cityName ? ' in ' . $cityName : '' }}</strong>. We make sure every listing passes thorough inspections, ensuring our buyers get nothing but the best. Skip the hassle of unverified sellers and grab the best deals with easy RC transfer and financing support today.

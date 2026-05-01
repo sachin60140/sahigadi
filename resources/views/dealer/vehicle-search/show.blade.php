@@ -1,6 +1,6 @@
 @extends('layouts.dealer')
 
-@section('title', 'RC Details - ' . $vehicleSearch->registration_number . ' - SAHIGADI')
+@section('title', 'RC Details - ' . $vehicleSearch->registration_number . ' - SAHI GADI')
 
 @php
 function formatDate($date) {
