@@ -69,6 +69,10 @@ Route::post('/sell-your-car/send-otp', [SellCarController::class, 'sendOtp'])->n
 Route::post('/sell-your-car/verify-otp', [SellCarController::class, 'verifyOtp'])->name('sell-car.verify-otp');
 
 Route::prefix('customer')->name('customer.')->group(function () {
+    Route::get('/', function () {
+        return auth('customer')->check() ? redirect()->route('customer.dashboard') : redirect()->route('customer.login');
+    });
+
     Route::middleware('guest:customer')->group(function () {
         Route::get('/login', [CustomerController::class, 'showLogin'])->name('login');
         Route::post('/send-otp', [CustomerController::class, 'sendOtp'])->name('send-otp');
@@ -99,6 +103,10 @@ Route::prefix('customer')->name('customer.')->group(function () {
 });
 
 Route::prefix('dealer')->name('dealer.')->group(function () {
+    Route::get('/', function () {
+        return auth('dealer')->check() ? redirect()->route('dealer.dashboard') : redirect()->route('dealer.login');
+    });
+
     Route::middleware('guest:dealer')->group(function () {
         Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
         Route::post('/login', [AuthController::class, 'login']);
@@ -174,6 +182,10 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
 Route::post('/payments/phonepe/webhook', [PaymentController::class, 'phonepeWebhook'])->name('payments.phonepe.webhook');
 
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', function () {
+        return auth('admin')->check() ? redirect()->route('admin.dashboard') : redirect()->route('admin.login');
+    });
+
     Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AdminDashboardController::class, 'login'])->name('login');
         Route::post('/authenticate', [AdminDashboardController::class, 'authenticate'])->name('authenticate');
