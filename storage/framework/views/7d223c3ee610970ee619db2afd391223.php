@@ -95,7 +95,7 @@
                     <span class="badge bg-dark px-3 py-2"><?php echo e($cars->total() + $customerListings->count()); ?> Cars Found</span>
                 </div>
                 <select class="form-select w-auto" onchange="window.location.href=this.value" style="min-width: 200px;">
-                    <option value="<?php echo e(route('cars.index', array_merge(request()->except('sort'), ['sort' => '']))); ?>" <?php echo e(!request('sort') ? 'selected' : ''); ?>>Sort by: Relevance</option>
+                    <option value="<?php echo e(route('cars.index', request()->except('sort'))); ?>" <?php echo e(!request('sort') || request('sort') == 'relevance' ? 'selected' : ''); ?>>Sort by: Relevance</option>
                     <option value="<?php echo e(route('cars.index', array_merge(request()->except('sort'), ['sort' => 'newest']))); ?>" <?php echo e(request('sort') == 'newest' ? 'selected' : ''); ?>>Newest First</option>
                     <option value="<?php echo e(route('cars.index', array_merge(request()->except('sort'), ['sort' => 'price_low']))); ?>" <?php echo e(request('sort') == 'price_low' ? 'selected' : ''); ?>>Price: Low to High</option>
                     <option value="<?php echo e(route('cars.index', array_merge(request()->except('sort'), ['sort' => 'price_high']))); ?>" <?php echo e(request('sort') == 'price_high' ? 'selected' : ''); ?>>Price: High to Low</option>
@@ -172,6 +172,11 @@
                             <span class="position-absolute top-0 start-0 badge bg-info m-2">
                                 <i class="bi bi-person me-1"></i>Owner Sale
                             </span>
+                            <?php if($listing->isFeatured()): ?>
+                                <span class="position-absolute top-0 start-0 badge badge-featured m-2" style="margin-left: 100px !important;">
+                                    <i class="bi bi-star-fill me-1"></i>Featured
+                                </span>
+                            <?php endif; ?>
                             <span class="position-absolute top-0 end-0 badge bg-dark text-white m-2">
                                 <?php echo e($listing->year ?? 'N/A'); ?>
 

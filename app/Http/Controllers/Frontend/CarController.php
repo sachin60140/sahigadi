@@ -60,30 +60,7 @@ class CarController extends Controller
             $query->where('km_driven', '<=', $request->max_km);
         }
 
-        if ($request->has('sort')) {
-            switch ($request->sort) {
-                case 'price_low':
-                    $query->orderBy('price', 'asc');
-                    break;
-                case 'price_high':
-                    $query->orderBy('price', 'desc');
-                    break;
-                case 'newest':
-                    $query->orderBy('created_at', 'desc');
-                    break;
-                case 'km_low':
-                    $query->orderBy('km_driven', 'asc');
-                    break;
-                default:
-                    $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
-            }
-        } else {
-            $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
-        }
-
-        $cars = $query->paginate(12);
-
-        $customerListings = CustomerCarListing::with('brand')
+        $customerListingQuery = CustomerCarListing::with('brand')
             ->approved()
             ->active()
             ->when($request->filled('keyword'), function ($q) use ($request) {
@@ -109,9 +86,38 @@ class CarController extends Controller
             })
             ->when($request->filled('transmission'), function ($q) use ($request) {
                 $q->where('transmission', $request->transmission);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+            });
+
+        if ($request->has('sort')) {
+            switch ($request->sort) {
+                case 'price_low':
+                    $query->orderBy('price', 'asc');
+                    $customerListingQuery->orderBy('price', 'asc');
+                    break;
+                case 'price_high':
+                    $query->orderBy('price', 'desc');
+                    $customerListingQuery->orderBy('price', 'desc');
+                    break;
+                case 'newest':
+                    $query->orderBy('created_at', 'desc');
+                    $customerListingQuery->orderBy('created_at', 'desc');
+                    break;
+                case 'km_low':
+                    $query->orderBy('km_driven', 'asc');
+                    $customerListingQuery->orderBy('km_driven', 'asc');
+                    break;
+                case 'relevance':
+                default:
+                    $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
+                    $customerListingQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
+            }
+        } else {
+            $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
+            $customerListingQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
+        }
+
+        $cars = $query->paginate(12);
+        $customerListings = $customerListingQuery->get();
 
         $brands = Brand::active()->orderBy('name')->get();
         
