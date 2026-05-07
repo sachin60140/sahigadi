@@ -312,6 +312,23 @@ class PaymentController extends Controller
                             }
                         }
                     }
+                } elseif (str_starts_with($transactionId, 'PPC_')) {
+                    $parts = explode('_', $transactionId);
+                    $customerId = end($parts);
+                    $customer = \App\Models\Customer::find($customerId);
+                    
+                    if ($customer) {
+                        try {
+                            $this->phonepeService->processPayment(
+                                $customer, 
+                                $transactionId, 
+                                (float) ($amount / 100), 
+                                'wallet_recharge'
+                            );
+                        } catch (\Exception $e) {
+                            \Illuminate\Support\Facades\Log::error('PhonePe Webhook Process Error for Customer', ['error' => $e->getMessage()]);
+                        }
+                    }
                 } else {
                     $parts = explode('_', $transactionId);
                     $dealerId = end($parts);

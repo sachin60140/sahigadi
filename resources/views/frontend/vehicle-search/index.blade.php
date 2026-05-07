@@ -4,15 +4,44 @@
 
 @section('content')
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+    @if(auth('customer')->check())
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8 d-flex align-items-center">
+            <button class="btn btn-light rounded-circle me-3 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#customerSidebar" aria-controls="customerSidebar">
+                <i class="bi bi-list fs-5"></i>
+            </button>
+            <h3 class="fw-bold mb-0">RC Search Details</h3>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill">
+                Wallet Balance: ₹{{ number_format(auth('customer')->user()->wallet->balance ?? 0, 2) }}
+            </span>
+        </div>
+    </div>
+    @endif
+
+    <div class="row {{ !auth('customer')->check() ? 'justify-content-center' : '' }}">
+        @if(auth('customer')->check())
+            <div class="col-lg-3 d-none d-lg-block">
+                @include('frontend.customer.partials.sidebar')
+            </div>
+        @endif
+
+        <div class="{{ auth('customer')->check() ? 'col-lg-9' : 'col-lg-8' }}">
             <div class="card border-0 shadow-lg">
                 <div class="card-body p-5">
+                    @if(!auth('customer')->check())
                     <div class="text-center mb-4">
                         <i class="bi bi-car-front-fill" style="font-size: 4rem; color: var(--accent);"></i>
                         <h2 class="fw-bold mt-3">Vahan Details (RC Search)</h2>
                         <p class="text-muted">Get complete vehicle registration details from Vahan database</p>
                     </div>
+                    @else
+                    <div class="mb-4">
+                        <h4 class="fw-bold text-primary"><i class="bi bi-search me-2"></i>New RC Search</h4>
+                        <p class="text-muted mb-0">Get complete vehicle registration details from Vahan database</p>
+                    </div>
+                    @endif
 
                     <form action="{{ route('vehicle-search.search') }}" method="POST">
                         @csrf
@@ -22,6 +51,7 @@
                             <small class="text-muted">Enter your vehicle registration number</small>
                         </div>
 
+                        @if(!auth('customer')->check())
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Your Name <span class="text-danger">*</span></label>
@@ -37,6 +67,7 @@
                             <label class="form-label">Email Address <span class="text-muted">(Optional)</span></label>
                             <input type="email" name="customer_email" class="form-control" placeholder="Enter email address">
                         </div>
+                        @endif
 
                         <div class="alert alert-info d-flex align-items-center mb-4">
                             <i class="bi bi-info-circle me-2"></i>
@@ -51,6 +82,66 @@
                     </form>
                 </div>
             </div>
+
+            @if(auth('customer')->check() && isset($history))
+            <div class="card border-0 shadow-lg mt-4 rounded-4">
+                <div class="card-header bg-white rounded-top-4">
+                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Your Search History</h5>
+                </div>
+                <div class="card-body p-4">
+                    @if($history->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Registration Number</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($history as $record)
+                                        <tr>
+                                            <td>{{ $record->created_at->format('d M Y, h:i A') }}</td>
+                                            <td class="text-uppercase fw-bold">{{ $record->registration_number }}</td>
+                                            <td>
+                                                @if($record->is_success)
+                                                    <span class="badge bg-success">Success</span>
+                                                @else
+                                                    <span class="badge bg-danger">Failed</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($record->is_success)
+                                                    <div class="btn-group">
+                                                        <a href="{{ route('vehicle-search.show', $record->id) }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                                            <i class="bi bi-eye"></i> View
+                                                        </a>
+                                                        <a href="{{ route('vehicle-search.pdf', $record->id) }}" class="btn btn-sm btn-outline-danger" title="Download PDF">
+                                                            <i class="bi bi-file-earmark-pdf"></i> PDF
+                                                        </a>
+                                                    </div>
+                                                @else
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled>
+                                                        <i class="bi bi-eye"></i> View
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-4">
+                            <i class="bi bi-search text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2 mb-0">No search history found.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>

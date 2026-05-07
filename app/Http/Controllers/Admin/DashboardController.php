@@ -32,6 +32,13 @@ class DashboardController extends Controller
             
             'total_wallet_recharges' => \App\Models\WalletTransaction::where('type', 'credit')->sum('amount'),
             
+            'dealer_wallet_balance' => \App\Models\Wallet::sum('balance'),
+            'customer_wallet_balance' => \App\Models\CustomerWallet::sum('balance'),
+            
+            'total_customers' => \App\Models\Customer::count(),
+            'today_customers' => \App\Models\Customer::whereDate('created_at', today())->count(),
+            'today_dealers' => Dealer::whereDate('created_at', today())->count(),
+            
             'total_enquiries' => \App\Models\Enquiry::count(),
             'contact_enquiries' => \App\Models\ContactEnquiry::where('is_read', false)->count(),
             

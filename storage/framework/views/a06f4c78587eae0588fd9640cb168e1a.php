@@ -347,11 +347,15 @@ unset($__errorArgs, $__bag); ?>
                                             document.getElementById('longitude').value = position.coords.longitude;
                                             
                                             // Enable submission only if phone is verified
-                                            if (!document.getElementById('otpSection').classList.contains('d-none') || document.getElementById('phoneHelp').classList.contains('d-none')) {
-                                                submitBtn.disabled = true;
-                                            } else {
+                                            <?php if(auth('customer')->check()): ?>
                                                 submitBtn.disabled = false;
-                                            }
+                                            <?php else: ?>
+                                                if (!document.getElementById('otpSection').classList.contains('d-none') || document.getElementById('phoneHelp').classList.contains('d-none')) {
+                                                    submitBtn.disabled = true;
+                                                } else {
+                                                    submitBtn.disabled = false;
+                                                }
+                                            <?php endif; ?>
                                         }, handleLocationError, {
                                             enableHighAccuracy: true,
                                             timeout: 10000,
@@ -456,33 +460,18 @@ unset($__errorArgs, $__bag); ?>
                             <hr class="my-4">
 
                             <h4 class="fw-bold mb-4"><i class="bi bi-person me-2 text-danger"></i>Owner Details</h4>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Your Name</label>
-                                    <input type="text" name="owner_name" class="form-control <?php $__errorArgs = ['owner_name'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" 
-                                           placeholder="Enter your name" value="<?php echo e(old('owner_name')); ?>">
-                                    <?php $__errorArgs = ['owner_name'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                        <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                    <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
+                            <?php if(auth('customer')->check()): ?>
+                                <div class="alert alert-info border-0 rounded-3 mb-4">
+                                    <h6 class="fw-bold mb-1"><i class="bi bi-check-circle-fill me-2"></i>Linked to your Profile</h6>
+                                    <p class="mb-0 small">This listing will automatically be published under your registered mobile number (+91 <?php echo e(auth('customer')->user()->phone); ?>).</p>
                                 </div>
+                                <input type="hidden" name="owner_phone" value="<?php echo e(auth('customer')->user()->phone); ?>">
+                                <input type="hidden" name="owner_name" value="<?php echo e(auth('customer')->user()->name); ?>">
                                 
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Email Address (Optional)</label>
-                                    <input type="email" name="owner_email" class="form-control <?php $__errorArgs = ['owner_email'];
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Email Address (Optional)</label>
+                                        <input type="email" name="owner_email" class="form-control <?php $__errorArgs = ['owner_email'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -490,60 +479,21 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" 
-                                           placeholder="For notifications" value="<?php echo e(old('owner_email')); ?>">
-                                    <?php $__errorArgs = ['owner_email'];
+                                               placeholder="For notifications" value="<?php echo e(old('owner_email', auth('customer')->user()->email)); ?>">
+                                        <?php $__errorArgs = ['owner_email'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                        <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                    <?php unset($message);
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <input type="text" id="owner_phone" name="owner_phone" class="form-control <?php $__errorArgs = ['owner_phone'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" 
-                                               placeholder="10-digit phone number" value="<?php echo e(old('owner_phone')); ?>" required pattern="[0-9]{10}">
-                                        <button class="btn btn-outline-primary" type="button" id="btnSendOtp">Send OTP</button>
                                     </div>
-                                    <div id="phoneHelp" class="form-text text-success d-none"><i class="bi bi-check-circle-fill"></i> Phone Number Verified</div>
-                                    <?php $__errorArgs = ['owner_phone'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                        <div class="invalid-feedback d-block"><?php echo e($message); ?></div>
-                                    <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                </div>
-                                
-                                <div class="col-md-6 d-none" id="otpSection">
-                                    <label class="form-label fw-semibold">Enter OTP <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <input type="text" id="otp_input" class="form-control" placeholder="6-digit OTP" maxlength="6">
-                                        <button class="btn btn-primary" type="button" id="btnVerifyOtp">Verify</button>
-                                    </div>
-                                    <div class="form-text text-muted mt-1" id="otpTimerText">Resend OTP in <span id="timerCount">30</span>s</div>
-                                    <button class="btn btn-link btn-sm p-0 text-decoration-none d-none mt-1" type="button" id="btnResendOtp">Resend OTP</button>
-                                    <div id="otpMessage" class="small mt-1 text-danger"></div>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label fw-semibold">WhatsApp Number</label>
-                                    <input type="text" name="whatsapp_number" class="form-control <?php $__errorArgs = ['whatsapp_number'];
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">WhatsApp Number</label>
+                                        <input type="text" name="whatsapp_number" class="form-control <?php $__errorArgs = ['whatsapp_number'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -551,19 +501,129 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" 
-                                           placeholder="Enter your WhatsApp number" value="<?php echo e(old('whatsapp_number')); ?>">
-                                    <?php $__errorArgs = ['whatsapp_number'];
+                                               placeholder="Enter your WhatsApp number" value="<?php echo e(old('whatsapp_number', auth('customer')->user()->whatsapp_number ?? auth('customer')->user()->phone)); ?>">
+                                        <?php $__errorArgs = ['whatsapp_number'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                        <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                    <?php unset($message);
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
+                                    </div>
                                 </div>
-                            </div>
+                            <?php else: ?>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Your Name</label>
+                                        <input type="text" name="owner_name" class="form-control <?php $__errorArgs = ['owner_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
+                                               placeholder="Enter your name" value="<?php echo e(old('owner_name')); ?>">
+                                        <?php $__errorArgs = ['owner_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Email Address (Optional)</label>
+                                        <input type="email" name="owner_email" class="form-control <?php $__errorArgs = ['owner_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
+                                               placeholder="For notifications" value="<?php echo e(old('owner_email')); ?>">
+                                        <?php $__errorArgs = ['owner_email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" id="owner_phone" name="owner_phone" class="form-control <?php $__errorArgs = ['owner_phone'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
+                                                   placeholder="10-digit phone number" value="<?php echo e(old('owner_phone')); ?>" required pattern="[0-9]{10}">
+                                            <button class="btn btn-outline-primary" type="button" id="btnSendOtp">Send OTP</button>
+                                        </div>
+                                        <div id="phoneHelp" class="form-text text-success d-none"><i class="bi bi-check-circle-fill"></i> Phone Number Verified</div>
+                                        <?php $__errorArgs = ['owner_phone'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <div class="invalid-feedback d-block"><?php echo e($message); ?></div>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                    </div>
+                                    
+                                    <div class="col-md-6 d-none" id="otpSection">
+                                        <label class="form-label fw-semibold">Enter OTP <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" id="otp_input" class="form-control" placeholder="6-digit OTP" maxlength="6">
+                                            <button class="btn btn-primary" type="button" id="btnVerifyOtp">Verify</button>
+                                        </div>
+                                        <div class="form-text text-muted mt-1" id="otpTimerText">Resend OTP in <span id="timerCount">30</span>s</div>
+                                        <button class="btn btn-link btn-sm p-0 text-decoration-none d-none mt-1" type="button" id="btnResendOtp">Resend OTP</button>
+                                        <div id="otpMessage" class="small mt-1 text-danger"></div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold">WhatsApp Number</label>
+                                        <input type="text" name="whatsapp_number" class="form-control <?php $__errorArgs = ['whatsapp_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
+                                               placeholder="Enter your WhatsApp number" value="<?php echo e(old('whatsapp_number')); ?>">
+                                        <?php $__errorArgs = ['whatsapp_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
 
                             <div class="mt-4">
                                 <button type="submit" id="submitBtn" class="btn btn-accent btn-lg w-100" disabled>
@@ -883,58 +943,62 @@ function setFeatured(index) {
             });
         }
 
-        btnSendOtp.addEventListener('click', sendOtpAJAX);
-        btnResendOtp.addEventListener('click', sendOtpAJAX);
+        if (btnSendOtp) {
+            btnSendOtp.addEventListener('click', sendOtpAJAX);
+            btnResendOtp.addEventListener('click', sendOtpAJAX);
 
-        btnVerifyOtp.addEventListener('click', function() {
-            const phone = phoneInput.value.trim();
-            const otp = otpInput.value.trim();
+            btnVerifyOtp.addEventListener('click', function() {
+                const phone = phoneInput.value.trim();
+                const otp = otpInput.value.trim();
 
-            if(!/^[0-9]{6}$/.test(otp)) {
-                otpMessage.textContent = 'Please enter a valid 6-digit OTP.';
-                otpMessage.className = 'small mt-1 text-danger';
-                return;
-            }
+                if(!/^[0-9]{6}$/.test(otp)) {
+                    otpMessage.textContent = 'Please enter a valid 6-digit OTP.';
+                    otpMessage.className = 'small mt-1 text-danger';
+                    return;
+                }
 
-            btnVerifyOtp.disabled = true;
-            btnVerifyOtp.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                btnVerifyOtp.disabled = true;
+                btnVerifyOtp.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
-            fetch("<?php echo e(route('sell-car.verify-otp')); ?>", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
-                },
-                body: JSON.stringify({ phone: phone, otp: otp })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    otpSection.classList.add('d-none');
-                    phoneHelp.classList.remove('d-none');
-                    submitBtn.disabled = document.getElementById('latitude').value == ''; // Recheck location
-                    clearInterval(timerInterval);
-                } else {
+                fetch("<?php echo e(route('sell-car.verify-otp')); ?>", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                    },
+                    body: JSON.stringify({ phone: phone, otp: otp })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        otpSection.classList.add('d-none');
+                        phoneHelp.classList.remove('d-none');
+                        submitBtn.disabled = document.getElementById('latitude').value == ''; // Recheck location
+                        clearInterval(timerInterval);
+                    } else {
+                        btnVerifyOtp.disabled = false;
+                        btnVerifyOtp.innerHTML = 'Verify';
+                        otpMessage.textContent = data.message || 'Invalid OTP';
+                        otpMessage.className = 'small mt-1 text-danger';
+                    }
+                })
+                .catch(err => {
                     btnVerifyOtp.disabled = false;
                     btnVerifyOtp.innerHTML = 'Verify';
-                    otpMessage.textContent = data.message || 'Invalid OTP';
+                    otpMessage.textContent = 'An error occurred during verification.';
                     otpMessage.className = 'small mt-1 text-danger';
-                }
-            })
-            .catch(err => {
-                btnVerifyOtp.disabled = false;
-                btnVerifyOtp.innerHTML = 'Verify';
-                otpMessage.textContent = 'An error occurred during verification.';
-                otpMessage.className = 'small mt-1 text-danger';
+                });
             });
-        });
-        
-        // Also enable submitBtn on map location load if phone is already verified (in case old validation failed but phone was verified)
-        // Though Laravel session will handle this mostly, in pure client-side we keep submitBtn disabled until OTP verify.
+        }
         
         // Let's modify the map load behavior as well, if location takes long.
         // The original location script sets submitBtn.disabled = false, we need to ensure it only sets it if phone is also verified.
         // Since phone isn't verified on page load, we should just disable it.
+        <?php if(!auth('customer')->check()): ?>
+        if (phoneInput) {
+            submitBtn.disabled = true; // Disable until OTP verify
+        }
+        <?php endif; ?>
     });
 </script>
 <?php $__env->stopSection(); ?>

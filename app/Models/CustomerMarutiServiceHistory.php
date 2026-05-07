@@ -76,6 +76,8 @@ class CustomerMarutiServiceHistoryRecord extends Model
         'total_amount' => 'decimal:2',
         'part_amount' => 'decimal:2',
         'labour_amount' => 'decimal:2',
+        'svc_date' => 'date',
+        'repair_order_bill_date' => 'date',
     ];
 
     public function serviceHistory(): BelongsTo

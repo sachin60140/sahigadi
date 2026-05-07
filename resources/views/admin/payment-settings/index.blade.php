@@ -82,10 +82,16 @@
                                 <h5 class="border-bottom pb-2">General Settings</h5>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Minimum Wallet Recharge Amount (₹)</label>
+                                <label class="form-label">Dealer Minimum Wallet Recharge Amount (₹)</label>
                                 <input type="number" name="min_wallet_recharge_amount" class="form-control" 
                                     value="{{ old('min_wallet_recharge_amount', $minRechargeAmount) }}" min="1" step="0.01" required>
                                 <small class="text-muted">Minimum amount a dealer must recharge</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Customer Minimum Wallet Recharge Amount (₹)</label>
+                                <input type="number" name="customer_min_wallet_recharge_amount" class="form-control" 
+                                    value="{{ old('customer_min_wallet_recharge_amount', $customerMinRechargeAmount) }}" min="1" step="0.01" required>
+                                <small class="text-muted">Minimum amount a customer must recharge</small>
                             </div>
                         </div>
                         <div class="mt-3">

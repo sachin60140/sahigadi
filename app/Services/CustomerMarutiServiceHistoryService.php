@@ -20,7 +20,7 @@ class CustomerMarutiServiceHistoryService
 
     public function __construct()
     {
-        $this->apiUrl = 'https://api.invincibleocean.com/invincible/maruti-service-history';
+        $this->apiUrl = 'https://api.invincibleocean.com/invincible/vehicleMarutiServiceHistory';
         $this->secretKey = config('services.service_history_api.secret_key', 'ONsoB7pAonpp1FYJ0Bf6sHFuGLYGEbytHxURPsEmK64gt3HR8yDtxwDafwMuCaonL');
         $this->clientId = config('services.service_history_api.client_id', '8f16f6344cbdcc74620cfdf7c87554f2:045cb470d3ae8da988c7e0982917e1ea');
         $this->chargePerSearch = Setting::getMarutiServiceHistoryCharge();
@@ -35,17 +35,9 @@ class CustomerMarutiServiceHistoryService
     {
         $vehicleNum = strtoupper(preg_replace('/[^A-Z0-9]/', '', $vehicleNumber));
 
-        $cached = CustomerMarutiServiceHistory::checkCache($vehicleNum);
-        if ($cached) {
-            $cached->load('records');
+        $vehicleNum = strtoupper(preg_replace('/[^A-Z0-9]/', '', $vehicleNumber));
 
-            return [
-                'success' => true,
-                'cached' => true,
-                'data' => $cached,
-                'message' => 'Retrieved from cache (last 24 hours)',
-            ];
-        }
+        // Cache disabled per user request: "search always fresh no old record required"
 
         try {
             $response = $this->callApi($vehicleNum);

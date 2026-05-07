@@ -55,7 +55,7 @@ class RazorpayService
     }
 
     public function processPayment(
-        ?Dealer $dealer,
+        $dealer,
         string $razorpayOrderId,
         string $razorpayPaymentId,
         string $razorpaySignature,
@@ -77,24 +77,32 @@ class RazorpayService
 
         return DB::transaction(function () use ($dealer, $razorpayOrderId, $razorpayPaymentId, $razorpaySignature, $amount, $type, $referenceId) {
             if ($type === 'wallet_recharge' && $dealer) {
-                $walletService = app(WalletService::class);
-                
-                // Subtract the 18% GST back out to compute the actual recharge amount
                 $walletCreditAmount = round($amount / 1.18, 2);
 
-                $walletService->credit(
-                    $dealer->id,
-                    $walletCreditAmount,
-                    'Wallet recharge via Razorpay',
-                    $razorpayPaymentId,
-                    'payment'
-                );
+                if ($dealer instanceof \App\Models\Dealer) {
+                    $walletService = app(WalletService::class);
+                    $walletService->credit(
+                        $dealer->id,
+                        $walletCreditAmount,
+                        'Wallet recharge via Razorpay',
+                        $razorpayPaymentId,
+                        'payment'
+                    );
+                } elseif ($dealer instanceof \App\Models\Customer) {
+                    $dealer->wallet()->firstOrCreate([])->addFunds(
+                        $walletCreditAmount,
+                        'Wallet recharge via Razorpay',
+                        $razorpayPaymentId,
+                        'payment'
+                    );
+                }
             }
 
             $payment = Payment::updateOrCreate(
                 ['razorpay_order_id' => $razorpayOrderId],
                 [
-                    'dealer_id' => $dealer ? $dealer->id : null,
+                    'dealer_id' => ($dealer instanceof \App\Models\Dealer) ? $dealer->id : null,
+                    'customer_id' => ($dealer instanceof \App\Models\Customer) ? $dealer->id : null,
                     'razorpay_payment_id' => $razorpayPaymentId,
                     'razorpay_signature' => $razorpaySignature,
                     'amount' => $amount,

@@ -333,6 +333,9 @@
             <a href="<?php echo e(route('admin.dealers.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.dealers.*') ? 'active' : ''); ?>">
                 <i class="bi bi-people-fill"></i> Dealers
             </a>
+            <a href="<?php echo e(route('admin.customers.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.customers.*') ? 'active' : ''); ?>">
+                <i class="bi bi-person-hearts"></i> Customers
+            </a>
             <a href="<?php echo e(route('admin.cars.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.cars.*') ? 'active' : ''); ?>">
                 <i class="bi bi-car-front-fill"></i> Cars
             </a>
@@ -360,10 +363,16 @@
                 </a>
                 <div class="submenu">
                     <a href="<?php echo e(route('admin.vehicle-searches.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.vehicle-searches.index') ? 'active' : ''); ?>">
-                        <i class="bi bi-list"></i> All Searches
+                        <i class="bi bi-list"></i> Dealer RC Searches
+                    </a>
+                    <a href="<?php echo e(route('admin.customer-vehicle-searches.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.customer-vehicle-searches.index') ? 'active' : ''); ?>">
+                        <i class="bi bi-person-lines-fill"></i> Customer RC Searches
                     </a>
                     <a href="<?php echo e(route('admin.service-tracking.vehicle-search')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.service-tracking.vehicle-search') ? 'active' : ''); ?>">
                         <i class="bi bi-graph-up"></i> Tracking
+                    </a>
+                    <a href="<?php echo e(route('admin.vehicle-searches.settings')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.vehicle-searches.settings') ? 'active' : ''); ?>">
+                        <i class="bi bi-gear"></i> Settings
                     </a>
                 </div>
             </div>
@@ -374,10 +383,16 @@
                 </a>
                 <div class="submenu">
                     <a href="<?php echo e(route('admin.service-histories.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.service-histories.index') ? 'active' : ''); ?>">
-                        <i class="bi bi-list"></i> Mahindra Service History
+                        <i class="bi bi-list"></i> Generic Service History
                     </a>
                     <a href="<?php echo e(route('admin.maruti-service-histories.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.maruti-service-histories.*') ? 'active' : ''); ?>">
-                        <i class="bi bi-car-front"></i> Maruti Service History
+                        <i class="bi bi-car-front"></i> Dealer Maruti Service History
+                    </a>
+                    <a href="<?php echo e(route('admin.customer-maruti-service-histories.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.customer-maruti-service-histories.*') ? 'active' : ''); ?>">
+                        <i class="bi bi-car-front-fill"></i> Customer Maruti History
+                    </a>
+                    <a href="<?php echo e(route('admin.mahindra-service-histories.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.mahindra-service-histories.*') ? 'active' : ''); ?>">
+                        <i class="bi bi-truck-front"></i> Mahindra Service History
                     </a>
                     <a href="<?php echo e(route('admin.service-tracking.service-history')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.service-tracking.service-history') ? 'active' : ''); ?>">
                         <i class="bi bi-graph-up"></i> Tracking
@@ -408,6 +423,9 @@
             </a>
 
             <div class="menu-header">Customer Finance</div>
+            <a href="<?php echo e(route('admin.customer-wallet-recharges.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.customer-wallet-recharges.*') ? 'active' : ''); ?>">
+                <i class="bi bi-wallet-fill"></i> Wallet Recharges
+            </a>
             <a href="<?php echo e(route('admin.customer-transactions.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.customer-transactions.*') ? 'active' : ''); ?>">
                 <i class="bi bi-wallet2"></i> Payments & Refunds
             </a>

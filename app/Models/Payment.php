@@ -12,6 +12,7 @@ class Payment extends Model
 
     protected $fillable = [
         'dealer_id',
+        'customer_id',
         'payment_gateway',
         'razorpay_order_id',
         'razorpay_payment_id',
@@ -36,6 +37,11 @@ class Payment extends Model
     public function dealer(): BelongsTo
     {
         return $this->belongsTo(Dealer::class);
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     public function isCompleted(): bool

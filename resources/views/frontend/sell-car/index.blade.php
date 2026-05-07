@@ -213,11 +213,15 @@
                                             document.getElementById('longitude').value = position.coords.longitude;
                                             
                                             // Enable submission only if phone is verified
-                                            if (!document.getElementById('otpSection').classList.contains('d-none') || document.getElementById('phoneHelp').classList.contains('d-none')) {
-                                                submitBtn.disabled = true;
-                                            } else {
+                                            @if(auth('customer')->check())
                                                 submitBtn.disabled = false;
-                                            }
+                                            @else
+                                                if (!document.getElementById('otpSection').classList.contains('d-none') || document.getElementById('phoneHelp').classList.contains('d-none')) {
+                                                    submitBtn.disabled = true;
+                                                } else {
+                                                    submitBtn.disabled = false;
+                                                }
+                                            @endif
                                         }, handleLocationError, {
                                             enableHighAccuracy: true,
                                             timeout: 10000,
@@ -287,58 +291,86 @@
                             <hr class="my-4">
 
                             <h4 class="fw-bold mb-4"><i class="bi bi-person me-2 text-danger"></i>Owner Details</h4>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Your Name</label>
-                                    <input type="text" name="owner_name" class="form-control @error('owner_name') is-invalid @enderror" 
-                                           placeholder="Enter your name" value="{{ old('owner_name') }}">
-                                    @error('owner_name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                            @if(auth('customer')->check())
+                                <div class="alert alert-info border-0 rounded-3 mb-4">
+                                    <h6 class="fw-bold mb-1"><i class="bi bi-check-circle-fill me-2"></i>Linked to your Profile</h6>
+                                    <p class="mb-0 small">This listing will automatically be published under your registered mobile number (+91 {{ auth('customer')->user()->phone }}).</p>
                                 </div>
+                                <input type="hidden" name="owner_phone" value="{{ auth('customer')->user()->phone }}">
+                                <input type="hidden" name="owner_name" value="{{ auth('customer')->user()->name }}">
                                 
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Email Address (Optional)</label>
-                                    <input type="email" name="owner_email" class="form-control @error('owner_email') is-invalid @enderror" 
-                                           placeholder="For notifications" value="{{ old('owner_email') }}">
-                                    @error('owner_email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <input type="text" id="owner_phone" name="owner_phone" class="form-control @error('owner_phone') is-invalid @enderror" 
-                                               placeholder="10-digit phone number" value="{{ old('owner_phone') }}" required pattern="[0-9]{10}">
-                                        <button class="btn btn-outline-primary" type="button" id="btnSendOtp">Send OTP</button>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Email Address (Optional)</label>
+                                        <input type="email" name="owner_email" class="form-control @error('owner_email') is-invalid @enderror" 
+                                               placeholder="For notifications" value="{{ old('owner_email', auth('customer')->user()->email) }}">
+                                        @error('owner_email')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
-                                    <div id="phoneHelp" class="form-text text-success d-none"><i class="bi bi-check-circle-fill"></i> Phone Number Verified</div>
-                                    @error('owner_phone')
-                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                
-                                <div class="col-md-6 d-none" id="otpSection">
-                                    <label class="form-label fw-semibold">Enter OTP <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <input type="text" id="otp_input" class="form-control" placeholder="6-digit OTP" maxlength="6">
-                                        <button class="btn btn-primary" type="button" id="btnVerifyOtp">Verify</button>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">WhatsApp Number</label>
+                                        <input type="text" name="whatsapp_number" class="form-control @error('whatsapp_number') is-invalid @enderror" 
+                                               placeholder="Enter your WhatsApp number" value="{{ old('whatsapp_number', auth('customer')->user()->whatsapp_number ?? auth('customer')->user()->phone) }}">
+                                        @error('whatsapp_number')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
-                                    <div class="form-text text-muted mt-1" id="otpTimerText">Resend OTP in <span id="timerCount">30</span>s</div>
-                                    <button class="btn btn-link btn-sm p-0 text-decoration-none d-none mt-1" type="button" id="btnResendOtp">Resend OTP</button>
-                                    <div id="otpMessage" class="small mt-1 text-danger"></div>
                                 </div>
+                            @else
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Your Name</label>
+                                        <input type="text" name="owner_name" class="form-control @error('owner_name') is-invalid @enderror" 
+                                               placeholder="Enter your name" value="{{ old('owner_name') }}">
+                                        @error('owner_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Email Address (Optional)</label>
+                                        <input type="email" name="owner_email" class="form-control @error('owner_email') is-invalid @enderror" 
+                                               placeholder="For notifications" value="{{ old('owner_email') }}">
+                                        @error('owner_email')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
-                                <div class="col-12">
-                                    <label class="form-label fw-semibold">WhatsApp Number</label>
-                                    <input type="text" name="whatsapp_number" class="form-control @error('whatsapp_number') is-invalid @enderror" 
-                                           placeholder="Enter your WhatsApp number" value="{{ old('whatsapp_number') }}">
-                                    @error('whatsapp_number')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" id="owner_phone" name="owner_phone" class="form-control @error('owner_phone') is-invalid @enderror" 
+                                                   placeholder="10-digit phone number" value="{{ old('owner_phone') }}" required pattern="[0-9]{10}">
+                                            <button class="btn btn-outline-primary" type="button" id="btnSendOtp">Send OTP</button>
+                                        </div>
+                                        <div id="phoneHelp" class="form-text text-success d-none"><i class="bi bi-check-circle-fill"></i> Phone Number Verified</div>
+                                        @error('owner_phone')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    
+                                    <div class="col-md-6 d-none" id="otpSection">
+                                        <label class="form-label fw-semibold">Enter OTP <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" id="otp_input" class="form-control" placeholder="6-digit OTP" maxlength="6">
+                                            <button class="btn btn-primary" type="button" id="btnVerifyOtp">Verify</button>
+                                        </div>
+                                        <div class="form-text text-muted mt-1" id="otpTimerText">Resend OTP in <span id="timerCount">30</span>s</div>
+                                        <button class="btn btn-link btn-sm p-0 text-decoration-none d-none mt-1" type="button" id="btnResendOtp">Resend OTP</button>
+                                        <div id="otpMessage" class="small mt-1 text-danger"></div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold">WhatsApp Number</label>
+                                        <input type="text" name="whatsapp_number" class="form-control @error('whatsapp_number') is-invalid @enderror" 
+                                               placeholder="Enter your WhatsApp number" value="{{ old('whatsapp_number') }}">
+                                        @error('whatsapp_number')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
 
                             <div class="mt-4">
                                 <button type="submit" id="submitBtn" class="btn btn-accent btn-lg w-100" disabled>
@@ -658,58 +690,62 @@ function setFeatured(index) {
             });
         }
 
-        btnSendOtp.addEventListener('click', sendOtpAJAX);
-        btnResendOtp.addEventListener('click', sendOtpAJAX);
+        if (btnSendOtp) {
+            btnSendOtp.addEventListener('click', sendOtpAJAX);
+            btnResendOtp.addEventListener('click', sendOtpAJAX);
 
-        btnVerifyOtp.addEventListener('click', function() {
-            const phone = phoneInput.value.trim();
-            const otp = otpInput.value.trim();
+            btnVerifyOtp.addEventListener('click', function() {
+                const phone = phoneInput.value.trim();
+                const otp = otpInput.value.trim();
 
-            if(!/^[0-9]{6}$/.test(otp)) {
-                otpMessage.textContent = 'Please enter a valid 6-digit OTP.';
-                otpMessage.className = 'small mt-1 text-danger';
-                return;
-            }
+                if(!/^[0-9]{6}$/.test(otp)) {
+                    otpMessage.textContent = 'Please enter a valid 6-digit OTP.';
+                    otpMessage.className = 'small mt-1 text-danger';
+                    return;
+                }
 
-            btnVerifyOtp.disabled = true;
-            btnVerifyOtp.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                btnVerifyOtp.disabled = true;
+                btnVerifyOtp.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
-            fetch("{{ route('sell-car.verify-otp') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ phone: phone, otp: otp })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    otpSection.classList.add('d-none');
-                    phoneHelp.classList.remove('d-none');
-                    submitBtn.disabled = document.getElementById('latitude').value == ''; // Recheck location
-                    clearInterval(timerInterval);
-                } else {
+                fetch("{{ route('sell-car.verify-otp') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ phone: phone, otp: otp })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        otpSection.classList.add('d-none');
+                        phoneHelp.classList.remove('d-none');
+                        submitBtn.disabled = document.getElementById('latitude').value == ''; // Recheck location
+                        clearInterval(timerInterval);
+                    } else {
+                        btnVerifyOtp.disabled = false;
+                        btnVerifyOtp.innerHTML = 'Verify';
+                        otpMessage.textContent = data.message || 'Invalid OTP';
+                        otpMessage.className = 'small mt-1 text-danger';
+                    }
+                })
+                .catch(err => {
                     btnVerifyOtp.disabled = false;
                     btnVerifyOtp.innerHTML = 'Verify';
-                    otpMessage.textContent = data.message || 'Invalid OTP';
+                    otpMessage.textContent = 'An error occurred during verification.';
                     otpMessage.className = 'small mt-1 text-danger';
-                }
-            })
-            .catch(err => {
-                btnVerifyOtp.disabled = false;
-                btnVerifyOtp.innerHTML = 'Verify';
-                otpMessage.textContent = 'An error occurred during verification.';
-                otpMessage.className = 'small mt-1 text-danger';
+                });
             });
-        });
-        
-        // Also enable submitBtn on map location load if phone is already verified (in case old validation failed but phone was verified)
-        // Though Laravel session will handle this mostly, in pure client-side we keep submitBtn disabled until OTP verify.
+        }
         
         // Let's modify the map load behavior as well, if location takes long.
         // The original location script sets submitBtn.disabled = false, we need to ensure it only sets it if phone is also verified.
         // Since phone isn't verified on page load, we should just disable it.
+        @if(!auth('customer')->check())
+        if (phoneInput) {
+            submitBtn.disabled = true; // Disable until OTP verify
+        }
+        @endif
     });
 </script>
 @endsection

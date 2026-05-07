@@ -26,39 +26,94 @@ class MarutiServiceHistoryController extends Controller
     public function index()
     {
         $charge = $this->serviceHistoryService->getCharge();
+        $history = collect();
 
-        return view('frontend.maruti-service-history.index', compact('charge'));
+        if (auth('customer')->check()) {
+            $history = CustomerMarutiServiceHistory::where('customer_phone', auth('customer')->user()->phone)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('frontend.maruti-service-history.index', compact('charge', 'history'));
     }
 
     public function search(Request $request)
     {
-        $request->validate([
+        $rules = [
             'vehicle_number' => 'required|string|min:4|max:20',
-            'customer_name' => 'required|string|max:255',
-            'customer_phone' => 'required|string|max:20',
-            'customer_email' => 'nullable|email|max:255',
-        ]);
-
-        $vehicleNumber = $request->vehicle_number;
-        $customerInfo = [
-            'name' => $request->customer_name,
-            'phone' => $request->customer_phone,
-            'email' => $request->customer_email,
         ];
 
-        $forceFresh = $request->has('force_fresh');
-        $cached = $forceFresh ? null : CustomerMarutiServiceHistory::checkCache($vehicleNumber);
-        if ($cached) {
-            $cached->load('records');
-
-            return view('frontend.maruti-service-history.result', [
-                'marutiServiceHistory' => $cached,
-                'cached' => true,
-            ]);
+        if (!auth('customer')->check()) {
+            $rules['customer_name'] = 'required|string|max:255';
+            $rules['customer_phone'] = 'required|string|max:20';
+            $rules['customer_email'] = 'nullable|email|max:255';
         }
+
+        $request->validate($rules);
+
+        $vehicleNumber = $request->vehicle_number;
+        
+        if (auth('customer')->check()) {
+            $customerInfo = [
+                'name' => auth('customer')->user()->name,
+                'phone' => auth('customer')->user()->phone,
+                'email' => auth('customer')->user()->email,
+            ];
+        } else {
+            $customerInfo = [
+                'name' => $request->customer_name,
+                'phone' => $request->customer_phone,
+                'email' => $request->customer_email,
+            ];
+        }
+
+        // Cache disabled per user request: "search always fresh no old record required"
 
         $charge = $this->serviceHistoryService->getCharge();
 
+        if (auth('customer')->check()) {
+            $customer = auth('customer')->user();
+            $wallet = \App\Models\CustomerWallet::firstOrCreate(
+                ['customer_id' => $customer->id],
+                ['balance' => 0]
+            );
+
+            if ($wallet->balance < $charge) {
+                return redirect()->route('customer.wallet.add')
+                    ->with('error', 'Low Balance! Please recharge your wallet to continue.');
+            }
+
+            // Deduct funds
+            $transaction = $wallet->deductFunds($charge, "Maruti Service History Search for {$vehicleNumber}");
+
+            // Perform API search directly
+            $result = $this->serviceHistoryService->search($vehicleNumber, $customerInfo);
+
+            if (isset($result['data']) && $result['data']) {
+                $result['data']->update([
+                    'paid_amount' => $charge,
+                ]);
+
+                if ($result['success']) {
+                    $result['data']->load('records');
+                }
+            }
+
+            // If API fails, refund the wallet
+            if (!$result['success']) {
+                $wallet->addFunds($charge, "Refund: Failed Maruti Service History Search for {$vehicleNumber}");
+                $transaction->update(['remark' => $transaction->remark . ' (Refunded)']);
+            }
+
+            return view('frontend.maruti-service-history.result', [
+                'marutiServiceHistory' => $result['data'] ?? null,
+                'cached' => $result['cached'] ?? false,
+                'success' => $result['success'],
+                'message' => $result['message'],
+            ]);
+        }
+
+        // For non-logged-in users, continue with Razorpay
         $order = $this->razorpayService->createOrder(
             $charge,
             'msh_'.time(),
@@ -144,7 +199,7 @@ class MarutiServiceHistoryController extends Controller
         $marutiServiceHistory->load('records');
 
         $pdf = Pdf::loadView('frontend.maruti-service-history.pdf', compact('marutiServiceHistory'));
-        $pdf->setPaper('A4', 'portrait');
+        $pdf->setPaper('A4', 'landscape');
 
         return $pdf->download('maruti-service-history-'.$marutiServiceHistory->vehicle_number.'.pdf');
     }

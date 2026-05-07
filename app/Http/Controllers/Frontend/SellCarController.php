@@ -21,6 +21,14 @@ class SellCarController extends Controller
 
     public function store(Request $request)
     {
+        if (auth('customer')->check()) {
+            $request->merge([
+                'owner_phone' => auth('customer')->user()->phone,
+                'owner_name' => $request->owner_name ?? auth('customer')->user()->name,
+                'owner_email' => $request->owner_email ?? auth('customer')->user()->email,
+            ]);
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'brand_id' => 'nullable|exists:brands,id',
@@ -45,7 +53,7 @@ class SellCarController extends Controller
             'longitude.required' => 'Location data is missing. Please ensure location services are enabled.',
         ]);
 
-        if (session('sell_car_phone_verified') !== $request->owner_phone) {
+        if (!auth('customer')->check() && session('sell_car_phone_verified') !== $request->owner_phone) {
             return redirect()->back()->withInput()->with('error', 'Please verify your phone number via OTP before submitting the listing.');
         }
 
@@ -110,7 +118,7 @@ class SellCarController extends Controller
             'owners' => $request->owners ?? 1,
             'owner_name' => $request->owner_name,
             'owner_phone' => $request->owner_phone,
-            'whatsapp_number' => $request->whatsapp_number,
+            'whatsapp_number' => $request->whatsapp_number ?? $request->owner_phone,
             'owner_email' => $request->owner_email ?? null,
             'images' => json_encode($imagePaths),
             'status' => 'pending',
@@ -120,8 +128,9 @@ class SellCarController extends Controller
 
         try {
             \Illuminate\Support\Facades\Mail::to('sachin60140@gmail.com')->send(new \App\Mail\AdminNewListingNotification($customerListing, false));
-            if ($customerListing->owner_email) {
-                \Illuminate\Support\Facades\Mail::to($customerListing->owner_email)->send(new \App\Mail\UserNewListingNotification($customerListing));
+            $email = $customerListing->owner_email ?: \App\Models\Customer::where('phone', $customerListing->owner_phone)->value('email');
+            if ($email) {
+                \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\UserNewListingNotification($customerListing));
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to send customer car listing emails: ' . $e->getMessage());
@@ -155,6 +164,15 @@ class SellCarController extends Controller
             'dltContentId' => '1707177677498830200',
             'dltPrincipalEntityId' => '1701166126846262605'
         ]);
+
+        $customer = \App\Models\Customer::where('phone', $phone)->first();
+        if ($customer && $customer->email) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($customer->email)->send(new \App\Mail\CustomerOtpMail($otp, 'phone verification'));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send sell car OTP email: ' . $e->getMessage());
+            }
+        }
 
         return response()->json(['success' => true, 'message' => 'OTP sent successfully']);
     }

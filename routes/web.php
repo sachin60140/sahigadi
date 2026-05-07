@@ -25,6 +25,7 @@ use App\Http\Controllers\Frontend\CarController;
 use App\Http\Controllers\Frontend\ChallanSearchController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\SellCarController;
+use App\Http\Controllers\Frontend\CustomerController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +67,36 @@ Route::get('/sell-your-car', [SellCarController::class, 'index'])->name('sell-ca
 Route::post('/sell-your-car', [SellCarController::class, 'store'])->name('sell-car.store');
 Route::post('/sell-your-car/send-otp', [SellCarController::class, 'sendOtp'])->name('sell-car.send-otp');
 Route::post('/sell-your-car/verify-otp', [SellCarController::class, 'verifyOtp'])->name('sell-car.verify-otp');
+
+Route::prefix('customer')->name('customer.')->group(function () {
+    Route::middleware('guest:customer')->group(function () {
+        Route::get('/login', [CustomerController::class, 'showLogin'])->name('login');
+        Route::post('/send-otp', [CustomerController::class, 'sendOtp'])->name('send-otp');
+        Route::post('/verify-otp', [CustomerController::class, 'verifyOtp'])->name('verify-otp');
+    });
+
+    Route::middleware('auth:customer')->group(function () {
+        Route::get('/dashboard', [CustomerController::class, 'dashboard'])->name('dashboard');
+        Route::post('/send-delete-otp', [CustomerController::class, 'sendDeleteOtp'])->name('listing.delete.otp');
+        Route::delete('/listing/{id}', [CustomerController::class, 'deleteListing'])->name('listing.delete');
+        Route::get('/listing/{id}/edit', [CustomerController::class, 'editListing'])->name('listing.edit');
+        Route::put('/listing/{id}', [CustomerController::class, 'updateListing'])->name('listing.update');
+        Route::get('/profile', [CustomerController::class, 'editProfile'])->name('profile.edit');
+        Route::put('/profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
+        Route::get('/wallet', [\App\Http\Controllers\Frontend\CustomerWalletController::class, 'index'])->name('wallet.index');
+        Route::get('/wallet/add', [\App\Http\Controllers\Frontend\CustomerWalletController::class, 'add'])->name('wallet.add');
+        Route::get('/wallet/transaction/{id}/receipt', [\App\Http\Controllers\Frontend\CustomerWalletController::class, 'downloadReceipt'])->name('wallet.receipt');
+
+        Route::get('/payments/checkout', [\App\Http\Controllers\Frontend\CustomerPaymentController::class, 'checkout'])->name('payments.checkout');
+        Route::post('/payments/success', [\App\Http\Controllers\Frontend\CustomerPaymentController::class, 'success'])->name('payments.success');
+        Route::get('/payments/failed', [\App\Http\Controllers\Frontend\CustomerPaymentController::class, 'failed'])->name('payments.failed');
+
+        Route::post('/payments/phonepe/initiate', [\App\Http\Controllers\Frontend\CustomerPaymentController::class, 'phonepeInitiate'])->name('payments.phonepe.initiate');
+        Route::match(['GET', 'POST'], '/payments/phonepe/callback', [\App\Http\Controllers\Frontend\CustomerPaymentController::class, 'phonepeCallback'])->name('payments.phonepe.callback');
+
+        Route::post('/logout', [CustomerController::class, 'logout'])->name('logout');
+    });
+});
 
 Route::prefix('dealer')->name('dealer.')->group(function () {
     Route::middleware('guest:dealer')->group(function () {
@@ -174,6 +205,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::resource('plans', AdminPlanController::class);
         Route::resource('brands', BrandController::class);
+        
+        Route::resource('customers', App\Http\Controllers\Admin\CustomerController::class)->only(['index', 'show', 'edit', 'update']);
 
         Route::get('/enquiries/export/excel', [AdminEnquiryController::class, 'exportExcel'])->name('enquiries.exportExcel');
         Route::resource('enquiries', AdminEnquiryController::class)->only(['index', 'show']);
@@ -199,6 +232,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/vehicle-searches/export/pdf', [AdminVehicleSearchController::class, 'exportPdf'])->name('vehicle-searches.exportPdf');
         Route::get('/vehicle-searches/{vehicleSearch}/pdf', [AdminVehicleSearchController::class, 'downloadSinglePdf'])->name('vehicle-searches.downloadPdf');
 
+        Route::get('/customer-vehicle-searches', [App\Http\Controllers\Admin\CustomerVehicleSearchController::class, 'index'])->name('customer-vehicle-searches.index');
+        Route::get('/customer-vehicle-searches/export/excel', [App\Http\Controllers\Admin\CustomerVehicleSearchController::class, 'exportExcel'])->name('customer-vehicle-searches.exportExcel');
+        Route::get('/customer-vehicle-searches/export/pdf', [App\Http\Controllers\Admin\CustomerVehicleSearchController::class, 'exportPdf'])->name('customer-vehicle-searches.exportPdf');
+        Route::get('/customer-vehicle-searches/{vehicleSearch}', [App\Http\Controllers\Admin\CustomerVehicleSearchController::class, 'show'])->name('customer-vehicle-searches.show');
+        Route::get('/customer-vehicle-searches/{vehicleSearch}/pdf', [App\Http\Controllers\Admin\CustomerVehicleSearchController::class, 'downloadPdf'])->name('customer-vehicle-searches.downloadPdf');
+
         Route::get('/service-histories', [AdminServiceHistoryController::class, 'index'])->name('service-histories.index');
         Route::get('/service-histories/settings', [AdminServiceHistoryController::class, 'settings'])->name('service-histories.settings');
         Route::post('/service-histories/settings', [AdminServiceHistoryController::class, 'settings']);
@@ -214,6 +253,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/maruti-service-histories/export/excel', [App\Http\Controllers\Admin\MarutiServiceHistoryController::class, 'exportExcel'])->name('maruti-service-histories.exportExcel');
         Route::get('/maruti-service-histories/export/pdf', [App\Http\Controllers\Admin\MarutiServiceHistoryController::class, 'exportPdf'])->name('maruti-service-histories.exportPdf');
         Route::get('/maruti-service-histories/{marutiServiceHistory}/pdf', [App\Http\Controllers\Admin\MarutiServiceHistoryController::class, 'downloadPdf'])->name('maruti-service-histories.downloadPdf');
+
+        Route::get('/customer-maruti-service-histories', [App\Http\Controllers\Admin\CustomerMarutiServiceHistoryController::class, 'index'])->name('customer-maruti-service-histories.index');
+        Route::get('/customer-maruti-service-histories/export/excel', [App\Http\Controllers\Admin\CustomerMarutiServiceHistoryController::class, 'exportExcel'])->name('customer-maruti-service-histories.exportExcel');
+        Route::get('/customer-maruti-service-histories/export/pdf', [App\Http\Controllers\Admin\CustomerMarutiServiceHistoryController::class, 'exportPdf'])->name('customer-maruti-service-histories.exportPdf');
+        Route::get('/customer-maruti-service-histories/{marutiServiceHistory}', [App\Http\Controllers\Admin\CustomerMarutiServiceHistoryController::class, 'show'])->name('customer-maruti-service-histories.show');
+        Route::get('/customer-maruti-service-histories/{marutiServiceHistory}/pdf', [App\Http\Controllers\Admin\CustomerMarutiServiceHistoryController::class, 'downloadPdf'])->name('customer-maruti-service-histories.downloadPdf');
+
+        Route::get('/mahindra-service-histories', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'index'])->name('mahindra-service-histories.index');
+        Route::get('/mahindra-service-histories/settings', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'settings'])->name('mahindra-service-histories.settings');
+        Route::post('/mahindra-service-histories/settings', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'settings']);
+        Route::get('/mahindra-service-histories/export/excel', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'exportExcel'])->name('mahindra-service-histories.exportExcel');
+        Route::get('/mahindra-service-histories/export/pdf', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'exportPdf'])->name('mahindra-service-histories.exportPdf');
+        Route::get('/mahindra-service-histories/{mahindraServiceHistory}', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'show'])->name('mahindra-service-histories.show');
+        Route::get('/mahindra-service-histories/{mahindraServiceHistory}/pdf', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'downloadPdf'])->name('mahindra-service-histories.downloadPdf');
 
         Route::get('/challan-searches', [App\Http\Controllers\Admin\ChallanSearchController::class, 'index'])->name('challan-searches.index');
         Route::get('/challan-searches/settings', [App\Http\Controllers\Admin\ChallanSearchController::class, 'settings'])->name('challan-searches.settings');
@@ -237,6 +290,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/wallet-recharges/export/excel', [App\Http\Controllers\Admin\WalletRechargeController::class, 'exportExcel'])->name('wallet-recharges.exportExcel');
         Route::get('/wallet-recharges/export/pdf', [App\Http\Controllers\Admin\WalletRechargeController::class, 'exportPdf'])->name('wallet-recharges.exportPdf');
         Route::get('/wallet-recharges/{id}/receipt', [App\Http\Controllers\Admin\WalletRechargeController::class, 'downloadReceipt'])->name('wallet-recharges.receipt');
+
+        Route::get('/customer-wallet-recharges', [App\Http\Controllers\Admin\CustomerWalletRechargeController::class, 'index'])->name('customer-wallet-recharges.index');
+        Route::get('/customer-wallet-recharges/export/excel', [App\Http\Controllers\Admin\CustomerWalletRechargeController::class, 'exportExcel'])->name('customer-wallet-recharges.exportExcel');
+        Route::get('/customer-wallet-recharges/export/pdf', [App\Http\Controllers\Admin\CustomerWalletRechargeController::class, 'exportPdf'])->name('customer-wallet-recharges.exportPdf');
+        Route::get('/customer-wallet-recharges/{id}/receipt', [App\Http\Controllers\Admin\CustomerWalletRechargeController::class, 'downloadReceipt'])->name('customer-wallet-recharges.receipt');
+        Route::post('/customer-wallet-recharges/deduct', [App\Http\Controllers\Admin\CustomerWalletRechargeController::class, 'deductMoney'])->name('customer-wallet-recharges.deduct');
 
         Route::get('/customer-transactions', [App\Http\Controllers\Admin\CustomerTransactionController::class, 'index'])->name('customer-transactions.index');
         Route::get('/customer-transactions/{id}', [App\Http\Controllers\Admin\CustomerTransactionController::class, 'show'])->name('customer-transactions.show');
@@ -284,6 +343,8 @@ Route::get('/vehicle-search', [App\Http\Controllers\Frontend\VehicleSearchContro
 Route::post('/vehicle-search/search', [App\Http\Controllers\Frontend\VehicleSearchController::class, 'search'])->name('vehicle-search.search');
 Route::get('/vehicle-search/callback', [App\Http\Controllers\Frontend\VehicleSearchController::class, 'paymentCallback'])->name('vehicle-search.callback');
 Route::post('/vehicle-search/callback', [App\Http\Controllers\Frontend\VehicleSearchController::class, 'paymentCallback']);
+Route::get('/vehicle-search/{vehicleSearch}', [App\Http\Controllers\Frontend\VehicleSearchController::class, 'show'])->name('vehicle-search.show');
+Route::get('/vehicle-search/{vehicleSearch}/pdf', [App\Http\Controllers\Frontend\VehicleSearchController::class, 'downloadPdf'])->name('vehicle-search.pdf');
 
 Route::get('/challan-search', [ChallanSearchController::class, 'index'])->name('challan-search.index');
 Route::post('/challan-search/search', [ChallanSearchController::class, 'search'])->name('challan-search.search');
@@ -298,6 +359,13 @@ Route::get('/maruti-service-history/callback', [App\Http\Controllers\Frontend\Ma
 Route::post('/maruti-service-history/callback', [App\Http\Controllers\Frontend\MarutiServiceHistoryController::class, 'paymentCallback']);
 Route::get('/maruti-service-history/{marutiServiceHistory}', [App\Http\Controllers\Frontend\MarutiServiceHistoryController::class, 'show'])->name('maruti-service-history.show');
 Route::get('/maruti-service-history/{marutiServiceHistory}/pdf', [App\Http\Controllers\Frontend\MarutiServiceHistoryController::class, 'downloadPdf'])->name('maruti-service-history.pdf');
+
+Route::get('/mahindra-service-history', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'index'])->name('mahindra-service-history.index');
+Route::post('/mahindra-service-history/search', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'search'])->name('mahindra-service-history.search');
+Route::get('/mahindra-service-history/callback', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'paymentCallback'])->name('mahindra-service-history.callback');
+Route::post('/mahindra-service-history/callback', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'paymentCallback']);
+Route::get('/mahindra-service-history/{mahindraServiceHistory}', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'show'])->name('mahindra-service-history.show');
+Route::get('/mahindra-service-history/{mahindraServiceHistory}/pdf', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'downloadPdf'])->name('mahindra-service-history.pdf');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 

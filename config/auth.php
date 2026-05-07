@@ -2,6 +2,7 @@
 
 use App\Models\Dealer;
 use App\Models\User;
+use App\Models\Customer;
 
 return [
 
@@ -51,6 +52,10 @@ return [
             'driver' => 'session',
             'provider' => 'dealers',
         ],
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'customers',
+        ],
     ],
 
     /*
@@ -79,6 +84,10 @@ return [
         'dealers' => [
             'driver' => 'eloquent',
             'model' => Dealer::class,
+        ],
+        'customers' => [
+            'driver' => 'eloquent',
+            'model' => Customer::class,
         ],
     ],
 

@@ -4,8 +4,30 @@
 
 @section('content')
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
+    @if(auth('customer')->check())
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8 d-flex align-items-center">
+            <button class="btn btn-light rounded-circle me-3 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#customerSidebar" aria-controls="customerSidebar">
+                <i class="bi bi-list fs-5"></i>
+            </button>
+            <h3 class="fw-bold mb-0">RC Search Details</h3>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill">
+                Wallet Balance: ₹{{ number_format(auth('customer')->user()->wallet->balance ?? 0, 2) }}
+            </span>
+        </div>
+    </div>
+    @endif
+
+    <div class="row {{ !auth('customer')->check() ? 'justify-content-center' : '' }}">
+        @if(auth('customer')->check())
+            <div class="col-lg-3 d-none d-lg-block">
+                @include('frontend.customer.partials.sidebar')
+            </div>
+        @endif
+
+        <div class="{{ auth('customer')->check() ? 'col-lg-9' : 'col-lg-10' }}">
             @if(isset($success) && !$success)
                 <div class="alert alert-danger">
                     <h5><i class="bi bi-exclamation-triangle me-2"></i>Search Failed</h5>

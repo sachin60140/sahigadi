@@ -108,6 +108,26 @@ class Setting extends Model
         static::set('dealer_maruti_service_history_charge', $amount, 'number', 'services', 'Charge per maruti service history for dealers');
     }
 
+    public static function getMahindraServiceHistoryCharge(): float
+    {
+        return (float) static::get('mahindra_service_history_charge', 500);
+    }
+
+    public static function setMahindraServiceHistoryCharge(float $amount): void
+    {
+        static::set('mahindra_service_history_charge', $amount, 'number', 'services', 'Charge per mahindra service history search in rupees');
+    }
+
+    public static function getDealerMahindraServiceHistoryCharge(): float
+    {
+        return (float) static::get('dealer_mahindra_service_history_charge', 250);
+    }
+
+    public static function setDealerMahindraServiceHistoryCharge(float $amount): void
+    {
+        static::set('dealer_mahindra_service_history_charge', $amount, 'number', 'services', 'Charge per mahindra service history for dealers');
+    }
+
     public static function getRazorpayKeyId(): ?string
     {
         return static::get('razorpay_key_id', config('services.razorpay.key'));
@@ -135,7 +155,17 @@ class Setting extends Model
 
     public static function setMinimumWalletRechargeAmount(float $amount): void
     {
-        static::set('min_wallet_recharge_amount', $amount, 'number', 'payment', 'Minimum wallet recharge amount via Razorpay');
+        static::set('min_wallet_recharge_amount', $amount, 'number', 'payment', 'Minimum dealer wallet recharge amount');
+    }
+
+    public static function getCustomerMinimumWalletRechargeAmount(): float
+    {
+        return (float) static::get('customer_min_wallet_recharge_amount', 100);
+    }
+
+    public static function setCustomerMinimumWalletRechargeAmount(float $amount): void
+    {
+        static::set('customer_min_wallet_recharge_amount', $amount, 'number', 'payment', 'Minimum customer wallet recharge amount');
     }
 
     public static function getPhonePeMerchantId(): ?string

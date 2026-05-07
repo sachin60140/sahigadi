@@ -95,7 +95,7 @@ class PhonePeService
             'paymentFlow' => [
                 'type' => 'PG_CHECKOUT',
                 'merchantUrls' => [
-                    'redirectUrl' => route('dealer.payments.phonepe.callback')
+                    'redirectUrl' => $callbackParams['redirectUrl'] ?? route('dealer.payments.phonepe.callback')
                 ]
             ]
         ];
@@ -176,21 +176,24 @@ class PhonePeService
 
         DB::beginTransaction();
         try {
-            // Prevent duplicate processing
-            $existingTxn = WalletTransaction::where('reference_id', $transactionId)
-                ->where('type', 'credit')
+            // Prevent duplicate processing - this logic was previously dealer specific using WalletTransaction
+            // But we don't strictly enforce reference_id unique across both wallet transaction types.
+            // A better way is checking the Payment model.
+            $existingPayment = Payment::where('phonepe_transaction_id', $transactionId)
+                ->where('status', 'completed')
                 ->lockForUpdate()
                 ->first();
 
-            if ($existingTxn) {
+            if ($existingPayment) {
                 DB::commit();
-                return $existingTxn;
+                return $existingPayment;
             }
 
             $payment = Payment::updateOrCreate(
                 ['phonepe_transaction_id' => $transactionId],
                 [
-                    'dealer_id' => $dealer ? $dealer->id : null,
+                    'dealer_id' => ($dealer instanceof \App\Models\Dealer) ? $dealer->id : null,
+                    'customer_id' => ($dealer instanceof \App\Models\Customer) ? $dealer->id : null,
                     'amount' => $status['amount'],
                     'status' => 'completed',
                     'payment_gateway' => 'phonepe',
@@ -200,10 +203,19 @@ class PhonePeService
             );
 
             if ($type === 'wallet_recharge') {
-                // Credit the wallet (subtract 18% GST to match razorpay logic)
                 $walletCreditAmount = round($status['amount'] / 1.18, 2);
-                $walletService = app(\App\Services\WalletService::class);
-                $walletService->credit($dealer->id, $walletCreditAmount, 'Wallet recharge via PhonePe', $transactionId, 'payment');
+                
+                if ($dealer instanceof \App\Models\Dealer) {
+                    $walletService = app(\App\Services\WalletService::class);
+                    $walletService->credit($dealer->id, $walletCreditAmount, 'Wallet recharge via PhonePe', $transactionId, 'payment');
+                } elseif ($dealer instanceof \App\Models\Customer) {
+                    $dealer->wallet()->firstOrCreate([])->addFunds(
+                        $walletCreditAmount,
+                        'Wallet recharge via PhonePe',
+                        $transactionId,
+                        'payment'
+                    );
+                }
             }
 
             DB::commit();

@@ -216,7 +216,32 @@
                                 <i class="bi bi-plus-circle me-1"></i>Sell Your Car
                             </a>
                         </li>
-                        @if(auth('dealer')->check())
+                        @if(auth('customer')->check())
+                            <li class="nav-item dropdown mx-2">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
+                                    @if(auth('customer')->user()->profile_image)
+                                        <img src="{{ asset('storage/' . auth('customer')->user()->profile_image) }}" alt="Profile" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                    @else
+                                        <i class="bi bi-person-circle me-1"></i>
+                                    @endif
+                                    My Account
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ route('customer.dashboard') }}"><i class="bi bi-grid"></i> Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('customer.profile.edit') }}"><i class="bi bi-person"></i> Edit Profile</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('customer.wallet.index') }}"><i class="bi bi-wallet2"></i> Wallet</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{{ route('customer.logout') }}" class="m-0">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item text-danger border-0 bg-transparent w-100 text-start">
+                                                <i class="bi bi-box-arrow-right"></i> Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        @elseif(auth('dealer')->check())
                             <li class="nav-item dropdown mx-2">
                                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                                     <i class="bi bi-speedometer2"></i> Dashboard
@@ -232,11 +257,17 @@
                                 </ul>
                             </li>
                         @else
-                            <li class="nav-item mx-2">
-                                <a class="nav-link" href="{{ route('dealer.login') }}">Dealer Login</a>
+                            <li class="nav-item dropdown mx-2">
+                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                    Login
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ route('customer.login') }}"><i class="bi bi-person"></i> Customer Login</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('dealer.login') }}"><i class="bi bi-shop"></i> Dealer Login</a></li>
+                                </ul>
                             </li>
                             <li class="nav-item mx-2">
-                                <a href="{{ route('dealer.register') }}" class="btn btn-accent btn-sm">Register Dealer</a>
+                                <a href="{{ route('dealer.register') }}" class="btn btn-accent btn-sm mt-1">Register Dealer</a>
                             </li>
                         @endif
                     </ul>

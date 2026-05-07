@@ -216,7 +216,32 @@
                                 <i class="bi bi-plus-circle me-1"></i>Sell Your Car
                             </a>
                         </li>
-                        <?php if(auth('dealer')->check()): ?>
+                        <?php if(auth('customer')->check()): ?>
+                            <li class="nav-item dropdown mx-2">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
+                                    <?php if(auth('customer')->user()->profile_image): ?>
+                                        <img src="<?php echo e(asset('storage/' . auth('customer')->user()->profile_image)); ?>" alt="Profile" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                    <?php else: ?>
+                                        <i class="bi bi-person-circle me-1"></i>
+                                    <?php endif; ?>
+                                    My Account
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="<?php echo e(route('customer.dashboard')); ?>"><i class="bi bi-grid"></i> Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo e(route('customer.profile.edit')); ?>"><i class="bi bi-person"></i> Edit Profile</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo e(route('customer.wallet.index')); ?>"><i class="bi bi-wallet2"></i> Wallet</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="<?php echo e(route('customer.logout')); ?>" class="m-0">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="dropdown-item text-danger border-0 bg-transparent w-100 text-start">
+                                                <i class="bi bi-box-arrow-right"></i> Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        <?php elseif(auth('dealer')->check()): ?>
                             <li class="nav-item dropdown mx-2">
                                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                                     <i class="bi bi-speedometer2"></i> Dashboard
@@ -232,11 +257,17 @@
                                 </ul>
                             </li>
                         <?php else: ?>
-                            <li class="nav-item mx-2">
-                                <a class="nav-link" href="<?php echo e(route('dealer.login')); ?>">Dealer Login</a>
+                            <li class="nav-item dropdown mx-2">
+                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                    Login
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="<?php echo e(route('customer.login')); ?>"><i class="bi bi-person"></i> Customer Login</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo e(route('dealer.login')); ?>"><i class="bi bi-shop"></i> Dealer Login</a></li>
+                                </ul>
                             </li>
                             <li class="nav-item mx-2">
-                                <a href="<?php echo e(route('dealer.register')); ?>" class="btn btn-accent btn-sm">Register Dealer</a>
+                                <a href="<?php echo e(route('dealer.register')); ?>" class="btn btn-accent btn-sm mt-1">Register Dealer</a>
                             </li>
                         <?php endif; ?>
                     </ul>

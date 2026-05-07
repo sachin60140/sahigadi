@@ -135,6 +135,73 @@
     </div>
 </div>
 
+<div class="row g-4 mb-4">
+    <!-- Net Dealer Wallet -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card h-100 border-start border-primary border-4">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">Dealer Wallets (Net)</h6>
+                    <h2 class="fw-800 mb-0 text-primary">₹<?php echo e(number_format($stats['dealer_wallet_balance'])); ?></h2>
+                    <p class="mb-0 mt-2 mini-stat text-muted">Available Balances</p>
+                </div>
+                <div class="kpi-icon-wrapper bg-primary-soft">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Net Customer Wallet -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card h-100 border-start border-info border-4">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">Customer Wallets (Net)</h6>
+                    <h2 class="fw-800 mb-0 text-info">₹<?php echo e(number_format($stats['customer_wallet_balance'])); ?></h2>
+                    <p class="mb-0 mt-2 mini-stat text-muted">Available Balances</p>
+                </div>
+                <div class="kpi-icon-wrapper bg-info-soft">
+                    <i class="bi bi-wallet-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Customers -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card h-100 border-start border-warning border-4">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">Total Customers</h6>
+                    <h2 class="fw-800 mb-0 text-warning"><?php echo e(number_format($stats['total_customers'])); ?></h2>
+                    <p class="mb-0 mt-2 mini-stat text-warning"><i class="bi bi-person-plus-fill me-1"></i>+<?php echo e($stats['today_customers']); ?> Today</p>
+                </div>
+                <div class="kpi-icon-wrapper bg-warning-soft text-dark">
+                    <i class="bi bi-person-hearts"></i>
+                </div>
+            </div>
+            <a href="<?php echo e(route('admin.customers.index')); ?>" class="stretched-link"></a>
+        </div>
+    </div>
+
+    <!-- Today Dealer Signups -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card h-100 border-start border-success border-4">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">Dealer Signups Today</h6>
+                    <h2 class="fw-800 mb-0 text-success"><?php echo e(number_format($stats['today_dealers'])); ?></h2>
+                    <p class="mb-0 mt-2 mini-stat text-success"><i class="bi bi-graph-up-arrow me-1"></i>New Registrations</p>
+                </div>
+                <div class="kpi-icon-wrapper bg-success-soft">
+                    <i class="bi bi-building-add"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Secondary KPIs & Actions -->
 <div class="row g-4">
     <!-- API Lookups & Service Tracking -->

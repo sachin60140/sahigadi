@@ -159,6 +159,15 @@ class CustomerCarListingController extends Controller
         $listing = CustomerCarListing::where('slug', $customer_listing)->firstOrFail();
         $listing->update(['status' => 'approved']);
 
+        $email = $listing->owner_email ?: \App\Models\Customer::where('phone', $listing->owner_phone)->value('email');
+        if ($email) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\UserListingStatusNotification($listing, 'approved'));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send approval email: ' . $e->getMessage());
+            }
+        }
+
         return back()->with('success', 'Listing approved successfully');
     }
 
@@ -174,6 +183,15 @@ class CustomerCarListingController extends Controller
             'status' => 'rejected',
             'rejection_reason' => $request->rejection_reason,
         ]);
+
+        $email = $listing->owner_email ?: \App\Models\Customer::where('phone', $listing->owner_phone)->value('email');
+        if ($email) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\UserListingStatusNotification($listing, 'rejected', $request->rejection_reason));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send rejection email: ' . $e->getMessage());
+            }
+        }
 
         return back()->with('success', 'Listing rejected');
     }
@@ -209,6 +227,16 @@ class CustomerCarListingController extends Controller
     public function destroy($customer_listing)
     {
         $listing = CustomerCarListing::where('slug', $customer_listing)->firstOrFail();
+        
+        $email = $listing->owner_email ?: \App\Models\Customer::where('phone', $listing->owner_phone)->value('email');
+        if ($email) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\UserListingStatusNotification($listing, 'deleted'));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send deletion email: ' . $e->getMessage());
+            }
+        }
+        
         $listing->delete();
 
         return redirect()->route('admin.customer-listings.index')->with('success', 'Listing deleted successfully');
