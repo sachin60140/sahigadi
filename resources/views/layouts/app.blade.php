@@ -17,13 +17,15 @@
     <meta name="description" content="@yield('meta_description', 'Find the best verified pre-owned cars in Patna, Bihar.')">
     <link rel="canonical" href="@yield('canonical', url()->current())">
     
+    <!-- WhatsApp / OpenGraph Image (Prioritized) -->
+    <meta property="og:image" content="@yield('og_image', asset('images/og-image.png'))">
+    <link rel="image_src" href="@yield('og_image', asset('images/og-image.png'))">
+    
     <!-- OpenGraph / Facebook -->
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="@yield('og_url', url()->current())">
     <meta property="og:title" content="@yield('og_title', 'SAHI GADI - Used Car Marketplace')">
     <meta property="og:description" content="@yield('og_description', 'Find verified pre-owned cars in Patna, Bihar')">
-    <meta property="og:image" content="@yield('og_image', asset('images/og-image.png'))">
-    <meta property="og:image:secure_url" content="@yield('og_image', asset('images/og-image.png'))">
     <meta property="og:site_name" content="SAHI GADI">
     
     <!-- Schema.org markup for WhatsApp / Google -->

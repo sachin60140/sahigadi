@@ -23,7 +23,7 @@ class SeoService
         $metaDescription = $this->generateDescription($title, $year, $brandName, $model, $price, $city, $kmDriven, $fuelType, $transmission);
         $metaKeywords = $this->generateKeywords($title, $brandName, $model, $city, $fuelType, $transmission);
         $ogTitle = $this->generateOgTitle($title, $year, $brandName, $price);
-        $ogDescription = $this->generateOgDescription($title, $year, $brandName, $kmDriven, $price);
+        $ogDescription = $this->generateOgDescription($title, $year, $brandName, $kmDriven, $price, $city, $fuelType, $transmission);
 
         return [
             'seo_title' => $seoTitle,
@@ -101,15 +101,32 @@ class SeoService
         return $title.' - '.number_format($price).' Rs | SAHI GADI';
     }
 
-    protected function generateOgDescription(string $title, ?int $year, string $brandName, ?int $kmDriven, float $price): string
+    protected function generateOgDescription(string $title, ?int $year, string $brandName, ?int $kmDriven, float $price, string $city = '', string $fuelType = '', string $transmission = ''): string
     {
-        $desc = $title.' - '.($year ?? '').' '.$brandName;
-
+        $parts = [];
+        if ($year) {
+            $parts[] = $year;
+        }
         if ($kmDriven) {
-            $desc .= '. '.number_format($kmDriven).' km';
+            $parts[] = number_format($kmDriven) . ' km';
+        }
+        if ($fuelType) {
+            $parts[] = ucfirst($fuelType);
+        }
+        if ($transmission) {
+            $parts[] = ucfirst($transmission);
+        }
+        if ($city) {
+            $parts[] = $city;
         }
 
-        $desc .= '. Price: Rs. '.number_format($price);
+        $desc = implode(' • ', array_filter($parts));
+
+        if ($desc) {
+            $desc .= " | Price: ₹" . number_format($price);
+        } else {
+            $desc = "Price: ₹" . number_format($price);
+        }
 
         return $desc;
     }
