@@ -16,7 +16,7 @@
 @section('content')
 <div class="container py-4">
     <h1 class="mb-1">Used Cars in {{ $cityName }}</h1>
-    <p class="text-muted mb-4">{{ $cars->total() }} cars available</p>
+    <p class="text-muted mb-4">{{ $allCars->count() }} cars available</p>
 
     <div class="row">
         <div class="col-lg-3">
@@ -57,12 +57,23 @@
 
         <div class="col-lg-9">
             <div class="row">
-                @forelse($cars as $car)
+                @forelse($allCars as $item)
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card h-100 shadow-sm">
                         <div class="position-relative">
-                            @if($car->image_url)
-                                <img src="{{ $car->image_url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ $car->title }}">
+                            @if($item instanceof \App\Models\Car && $item->image_url)
+                                <img src="{{ $item->image_url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ $item->title }}" loading="lazy">
+                            @elseif($item instanceof \App\Models\CustomerCarListing)
+                                @php
+                                    $images = is_string($item->images) ? json_decode($item->images, true) : $item->images;
+                                @endphp
+                                @if($images && count($images) > 0)
+                                    <img src="{{ asset('storage/'.$images[0]) }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ $item->title }}" loading="lazy">
+                                @else
+                                    <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 180px;">
+                                        <i class="bi bi-car-front text-white" style="font-size: 4rem;"></i>
+                                    </div>
+                                @endif
                             @else
                                 <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 180px;">
                                     <i class="bi bi-car-front text-white" style="font-size: 4rem;"></i>
@@ -70,16 +81,16 @@
                             @endif
                         </div>
                         <div class="card-body">
-                            <h6 class="card-title">{{ Str::limit($car->title, 35) }}</h6>
+                            <h6 class="card-title">{{ Str::limit($item->title, 35) }}</h6>
                             <p class="card-text text-muted small mb-1">
-                                @if($car->year){{ $car->year }} | @endif
-                                @if($car->km_driven){{ number_format($car->km_driven) }} km | @endif
-                                {{ ucfirst($car->fuel_type ?? '') }}
+                                @if($item->year){{ $item->year }} | @endif
+                                @if($item->km_driven){{ number_format($item->km_driven) }} km | @endif
+                                {{ ucfirst($item->fuel_type ?? '') }}
                             </p>
-                            <h5 class="text-primary fw-bold">₹{{ number_format($car->price ?? 0) }}</h5>
+                            <h5 class="text-primary fw-bold">₹{{ number_format($item->price ?? 0) }}</h5>
                         </div>
                         <div class="card-footer bg-white border-top-0">
-                            <a href="{{ route('car.detail', $car->slug) }}" class="btn btn-outline-primary btn-sm w-100">View Details</a>
+                            <a href="{{ route('car.detail', $item->slug) }}" class="btn btn-outline-primary btn-sm w-100">View Details</a>
                         </div>
                     </div>
                 </div>
@@ -89,9 +100,6 @@
                     <p class="text-muted mt-3">No cars found in {{ $cityName }}.</p>
                 </div>
                 @endforelse
-            </div>
-            <div class="d-flex justify-content-center mt-4">
-                {{ $cars->withQueryString()->links() }}
             </div>
 
             <!-- SEO Content Block -->

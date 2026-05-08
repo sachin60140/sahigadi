@@ -281,35 +281,52 @@ class CarController extends Controller
     {
         $cityName = ucwords(str_replace('-', ' ', $city));
 
-        $query = Car::with(['dealer', 'brand', 'images'])
+        $carQuery = Car::with(['dealer', 'brand', 'images'])
+            ->approved()
+            ->active()
+            ->where('city', 'like', '%'.$cityName.'%');
+
+        $customerListingQuery = CustomerCarListing::with(['brand'])
             ->approved()
             ->active()
             ->where('city', 'like', '%'.$cityName.'%');
 
         if ($request->filled('brand')) {
-            $query->where('brand_id', $request->brand);
+            $carQuery->where('brand_id', $request->brand);
+            $customerListingQuery->where('brand_id', $request->brand);
         }
 
         if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
+            $carQuery->where('price', '>=', $request->min_price);
+            $customerListingQuery->where('price', '>=', $request->min_price);
         }
 
         if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
+            $carQuery->where('price', '<=', $request->max_price);
+            $customerListingQuery->where('price', '<=', $request->max_price);
         }
 
-        $cars = $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc')->paginate(12);
+        $cars = $carQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc')->get();
+        $customerListings = $customerListingQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc')->get();
+
+        $allCars = $cars->concat($customerListings)->sortByDesc('created_at')->values();
+
         $brands = Brand::active()->orderBy('name')->get();
 
         $seoTitle = "Used Cars in {$cityName} - Best Deals on Second Hand Cars";
         $seoDescription = "Buy verified used cars in {$cityName}. Best price deals, easy financing, doorstep delivery. Find your perfect second hand vehicle.";
 
         $ogImage = null;
-        if ($cars->isNotEmpty()) {
-            $ogImage = $this->getFirstImage($cars->first(), null);
+        if ($allCars->isNotEmpty()) {
+            $first = $allCars->first();
+            if ($first instanceof \App\Models\Car) {
+                $ogImage = $this->getFirstImage($first, null);
+            } else {
+                $ogImage = $this->getFirstImage(null, $first);
+            }
         }
 
-        return view('frontend.cars.city', compact('cars', 'brands', 'city', 'cityName', 'seoTitle', 'seoDescription', 'ogImage'));
+        return view('frontend.cars.city', compact('allCars', 'brands', 'city', 'cityName', 'seoTitle', 'seoDescription', 'ogImage'));
     }
 
     public function byBrand(Request $request, string $brand, ?string $city = null)
