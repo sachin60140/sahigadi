@@ -440,7 +440,13 @@ Route::get('/og-image', function (\Illuminate\Http\Request $request) {
         }
     }
 
+    $path = urldecode($path);
+
     $storagePath = storage_path('app/public/' . $path);
+    if (!file_exists($storagePath)) {
+        $storagePath = public_path('storage/' . $path);
+    }
+    
     if (!file_exists($storagePath)) {
         return redirect(asset('images/og-image.png'));
     }
