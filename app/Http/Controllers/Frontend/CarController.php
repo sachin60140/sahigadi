@@ -230,13 +230,25 @@ class CarController extends Controller
 
     protected function getFirstImage(?Car $car, ?CustomerCarListing $customerListing): string
     {
+        $path = null;
+        if ($car && $car->image_url) {
+            $path = $car->images->first()->image_path ?? null;
+        } elseif ($customerListing) {
+            $images = json_decode($customerListing->images ?? '[]', true);
+            $path = count($images) > 0 ? $images[0] : null;
+        }
+
+        if ($path && !filter_var($path, FILTER_VALIDATE_URL)) {
+            return route('og.image.generate', ['path' => $path]);
+        }
+
+        // Fallback for URLs or missing
         if ($car) {
             return $car->image_url ?? asset('images/default-car.jpg');
         }
 
         if ($customerListing) {
             $images = json_decode($customerListing->images ?? '[]', true);
-
             return count($images) > 0 ? asset('storage/'.$images[0]) : asset('images/default-car.jpg');
         }
 

@@ -424,3 +424,51 @@ Route::get('/optimize-images', function () {
     
     return "Successfully optimized {$count} images! <br><br>" . $output;
 });
+
+// Dynamic OpenGraph Image Resizer (WhatsApp / Facebook compatibility)
+Route::get('/og-image', function (\Illuminate\Http\Request $request) {
+    $path = $request->get('path');
+    if (!$path) return redirect(asset('images/og-image.png'));
+
+    // Extract path if it's a full URL
+    if (filter_var($path, FILTER_VALIDATE_URL)) {
+        $parsedUrl = parse_url($path);
+        $path = ltrim($parsedUrl['path'] ?? '', '/');
+        // Remove 'storage/' prefix if present
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, 8);
+        }
+    }
+
+    $storagePath = storage_path('app/public/' . $path);
+    if (!file_exists($storagePath)) {
+        return redirect(asset('images/og-image.png'));
+    }
+
+    $cacheDir = storage_path('app/public/og-cache');
+    if (!file_exists($cacheDir)) {
+        mkdir($cacheDir, 0755, true);
+    }
+
+    // Cache based on filename and modification time to ensure updates
+    $filemtime = filemtime($storagePath);
+    $filename = md5($path . $filemtime) . '.jpg';
+    $cachePath = $cacheDir . '/' . $filename;
+
+    if (!file_exists($cachePath)) {
+        try {
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->read($storagePath);
+            // Crop to perfect WhatsApp/Facebook 1200x630 landscape size
+            $image->cover(1200, 630);
+            $image->toJpeg(80)->save($cachePath);
+        } catch (\Exception $e) {
+            return response()->file($storagePath);
+        }
+    }
+
+    return response()->file($cachePath, [
+        'Content-Type' => 'image/jpeg',
+        'Cache-Control' => 'public, max-age=604800'
+    ]);
+})->name('og.image.generate');

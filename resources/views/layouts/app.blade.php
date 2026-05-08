@@ -19,6 +19,7 @@
     
     <!-- WhatsApp / OpenGraph Image (Prioritized) -->
     <meta property="og:image" content="@yield('og_image', asset('images/og-image.png'))">
+    <meta property="og:image:secure_url" content="@yield('og_image', asset('images/og-image.png'))">
     <link rel="image_src" href="@yield('og_image', asset('images/og-image.png'))">
     
     <!-- OpenGraph / Facebook -->
