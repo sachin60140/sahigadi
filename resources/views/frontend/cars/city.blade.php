@@ -9,6 +9,10 @@
 @section('twitter_title', $seoTitle)
 @section('twitter_description', $seoDescription)
 
+@if(isset($ogImage) && $ogImage)
+    @section('og_image', $ogImage)
+@endif
+
 @section('content')
 <div class="container py-4">
     <h1 class="mb-1">Used Cars in {{ $cityName }}</h1>

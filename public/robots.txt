@@ -3,8 +3,21 @@
 User-agent: *
 Allow: /
 
+# Explicitly allow Social Media Crawlers
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
 # Sitemap
-Sitemap: {{ url('/sitemap.xml') }}
+Sitemap: https://sahigadi.com/sitemap.xml
 
 # Disallow admin and dealer areas
 Disallow: /admin/
@@ -12,12 +25,6 @@ Disallow: /dealer/dashboard
 Disallow: /dealer/cars/create
 Disallow: /dealer/wallet
 Disallow: /dealer/plans
-
-# Allow search engines to crawl public pages
-Allow: /cars
-Allow: /car/*
-Allow: /sell-your-car
-Allow: /page/*
 
 # Crawl-delay for polite crawling
 Crawl-delay: 1

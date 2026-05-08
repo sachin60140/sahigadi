@@ -130,7 +130,14 @@ class CarController extends Controller
             ->sort()
             ->values();
 
-        return view('frontend.cars.index', compact('cars', 'customerListings', 'brands', 'cities'));
+        $ogImage = null;
+        if ($cars->isNotEmpty()) {
+            $ogImage = $this->getFirstImage($cars->first(), null);
+        } elseif ($customerListings->isNotEmpty()) {
+            $ogImage = $this->getFirstImage(null, $customerListings->first());
+        }
+
+        return view('frontend.cars.index', compact('cars', 'customerListings', 'brands', 'cities', 'ogImage'));
     }
 
     public function show(string $slug)
@@ -285,7 +292,12 @@ class CarController extends Controller
         $seoTitle = "Used Cars in {$cityName} - Best Deals on Second Hand Cars";
         $seoDescription = "Buy verified used cars in {$cityName}. Best price deals, easy financing, doorstep delivery. Find your perfect second hand vehicle.";
 
-        return view('frontend.cars.city', compact('cars', 'brands', 'city', 'cityName', 'seoTitle', 'seoDescription'));
+        $ogImage = null;
+        if ($cars->isNotEmpty()) {
+            $ogImage = $this->getFirstImage($cars->first(), null);
+        }
+
+        return view('frontend.cars.city', compact('cars', 'brands', 'city', 'cityName', 'seoTitle', 'seoDescription', 'ogImage'));
     }
 
     public function byBrand(Request $request, string $brand, ?string $city = null)
@@ -332,6 +344,16 @@ class CarController extends Controller
             $seoDescription = "Buy verified used {$brandName} cars. Best price deals, easy financing, doorstep delivery.";
         }
 
+        $ogImage = null;
+        if ($allCars->isNotEmpty()) {
+            $first = $allCars->first();
+            if ($first instanceof \App\Models\Car) {
+                $ogImage = $this->getFirstImage($first, null);
+            } else {
+                $ogImage = $this->getFirstImage(null, $first);
+            }
+        }
+
         return view('frontend.cars.brand', [
             'allCars' => $allCars,
             'brand' => $brand,
@@ -340,6 +362,7 @@ class CarController extends Controller
             'cityName' => $cityName,
             'seoTitle' => $seoTitle,
             'seoDescription' => $seoDescription,
+            'ogImage' => $ogImage,
         ]);
     }
 
@@ -386,7 +409,12 @@ class CarController extends Controller
         $seoTitle = "{$dealer->name} - Car Listings | SAHI GADI";
         $seoDescription = "Browse all pre-owned cars from {$dealer->name}. View {$cars->total()} verified listings with photos, prices, and dealer details.";
 
-        return view('frontend.cars.dealer-catalog', compact('dealer', 'cars', 'seoTitle', 'seoDescription'));
+        $ogImage = null;
+        if ($cars->isNotEmpty()) {
+            $ogImage = $this->getFirstImage($cars->first(), null);
+        }
+
+        return view('frontend.cars.dealer-catalog', compact('dealer', 'cars', 'seoTitle', 'seoDescription', 'ogImage'));
     }
 
     public function verifiedDealers()

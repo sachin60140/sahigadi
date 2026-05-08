@@ -14,6 +14,10 @@
 @section('title', $seoTitle)
 @section('meta_description', $seoDescription)
 
+@if(isset($ogImage) && $ogImage)
+    @section('og_image', $ogImage)
+@endif
+
 @section('content')
 <section class="py-4" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);">
     <div class="container">

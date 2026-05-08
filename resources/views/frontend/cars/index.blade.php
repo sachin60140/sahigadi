@@ -13,6 +13,10 @@
 @section('twitter_title', 'Browse Used Cars - SAHI GADI')
 @section('twitter_description', 'Browse thousands of verified pre-owned cars in Patna and Bihar.')
 
+@if(isset($ogImage) && $ogImage)
+    @section('og_image', $ogImage)
+@endif
+
 @section('content')
 <section class="py-4" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);">
     <div class="container">
