@@ -61,7 +61,8 @@
                         <th>Customer</th>
                         <th>Phone</th>
                         <th>Car</th>
-                        <th>Dealer</th>
+                        <th>Reg No.</th>
+                        <th>Listed By</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -81,27 +82,47 @@
                         </td>
                         <td>
                             <?php if($enquiry->actual_car): ?>
-                                <a href="<?php echo e(route('admin.cars.show', $enquiry->actual_car)); ?>">
-                                    <?php echo e(Str::limit($enquiry->actual_car->title, 25)); ?>
+                                <?php if($enquiry->dealer_id): ?>
+                                    <a href="<?php echo e(route('admin.cars.show', $enquiry->actual_car)); ?>">
+                                        <?php echo e(Str::limit($enquiry->actual_car->title, 25)); ?>
 
-                                </a>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?php echo e(route('admin.customer-listings.show', $enquiry->actual_car)); ?>">
+                                        <?php echo e(Str::limit($enquiry->actual_car->title, 25)); ?>
+
+                                    </a>
+                                <?php endif; ?>
                                 <br><small class="text-muted">₹<?php echo e(number_format($enquiry->actual_car->price ?? 0)); ?></small>
                             <?php else: ?>
                                 <span class="text-danger">Car Deleted</span>
                             <?php endif; ?>
                         </td>
                         <td>
+                            <?php if($enquiry->actual_car): ?>
+                                <span class="text-uppercase text-nowrap"><i class="bi bi-card-text text-muted"></i> <?php echo e($enquiry->actual_car->registration_number ?? '-'); ?></span>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?>
+                        </td>
+                        <td>
                             <?php if($enquiry->dealer_id): ?>
                                 <?php if($enquiry->dealer): ?>
-                                    <a href="<?php echo e(route('admin.dealers.show', $enquiry->dealer)); ?>">
+                                    <a href="<?php echo e(route('admin.dealers.show', $enquiry->dealer)); ?>" class="fw-bold text-dark text-decoration-none">
                                         <?php echo e($enquiry->dealer->name); ?>
 
                                     </a>
+                                    <br><span class="badge bg-secondary">Dealer</span>
                                 <?php else: ?>
                                     <span class="text-danger">Dealer Deleted</span>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <span class="badge bg-info">Owner Sale</span>
+                                <?php if($enquiry->actual_car && $enquiry->actual_car->owner_name): ?>
+                                    <span class="fw-bold text-dark"><?php echo e($enquiry->actual_car->owner_name); ?></span>
+                                <?php else: ?>
+                                    <span class="fw-bold text-dark">Customer</span>
+                                <?php endif; ?>
+                                <br><span class="badge bg-info text-dark">Customer</span>
                             <?php endif; ?>
                         </td>
                         <td>

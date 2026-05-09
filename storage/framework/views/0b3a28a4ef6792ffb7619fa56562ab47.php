@@ -43,6 +43,11 @@
                             </a>
                         </li>
                         <li class="nav-item mb-2">
+                            <a class="nav-link <?php echo e(request()->routeIs('customer.enquiries.*') ? 'active bg-primary text-white' : 'text-dark'); ?> rounded-3 px-3 py-2" href="<?php echo e(route('customer.enquiries.index')); ?>">
+                                <i class="bi bi-chat-left-dots me-2"></i> Enquiries
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
                             <a class="nav-link <?php echo e(request()->routeIs('customer.wallet.index') ? 'active bg-primary text-white' : 'text-dark'); ?> rounded-3 px-3 py-2" href="<?php echo e(route('customer.wallet.index')); ?>">
                                 <i class="bi bi-wallet2 me-2"></i> My Wallet
                             </a>

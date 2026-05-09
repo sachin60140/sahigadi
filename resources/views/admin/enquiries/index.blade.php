@@ -63,7 +63,8 @@
                         <th>Customer</th>
                         <th>Phone</th>
                         <th>Car</th>
-                        <th>Dealer</th>
+                        <th>Reg No.</th>
+                        <th>Listed By</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -83,25 +84,44 @@
                         </td>
                         <td>
                             @if($enquiry->actual_car)
-                                <a href="{{ route('admin.cars.show', $enquiry->actual_car) }}">
-                                    {{ Str::limit($enquiry->actual_car->title, 25) }}
-                                </a>
+                                @if($enquiry->dealer_id)
+                                    <a href="{{ route('admin.cars.show', $enquiry->actual_car) }}">
+                                        {{ Str::limit($enquiry->actual_car->title, 25) }}
+                                    </a>
+                                @else
+                                    <a href="{{ route('admin.customer-listings.show', $enquiry->actual_car) }}">
+                                        {{ Str::limit($enquiry->actual_car->title, 25) }}
+                                    </a>
+                                @endif
                                 <br><small class="text-muted">₹{{ number_format($enquiry->actual_car->price ?? 0) }}</small>
                             @else
                                 <span class="text-danger">Car Deleted</span>
                             @endif
                         </td>
                         <td>
+                            @if($enquiry->actual_car)
+                                <span class="text-uppercase text-nowrap"><i class="bi bi-card-text text-muted"></i> {{ $enquiry->actual_car->registration_number ?? '-' }}</span>
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td>
                             @if($enquiry->dealer_id)
                                 @if($enquiry->dealer)
-                                    <a href="{{ route('admin.dealers.show', $enquiry->dealer) }}">
+                                    <a href="{{ route('admin.dealers.show', $enquiry->dealer) }}" class="fw-bold text-dark text-decoration-none">
                                         {{ $enquiry->dealer->name }}
                                     </a>
+                                    <br><span class="badge bg-secondary">Dealer</span>
                                 @else
                                     <span class="text-danger">Dealer Deleted</span>
                                 @endif
                             @else
-                                <span class="badge bg-info">Owner Sale</span>
+                                @if($enquiry->actual_car && $enquiry->actual_car->owner_name)
+                                    <span class="fw-bold text-dark">{{ $enquiry->actual_car->owner_name }}</span>
+                                @else
+                                    <span class="fw-bold text-dark">Customer</span>
+                                @endif
+                                <br><span class="badge bg-info text-dark">Customer</span>
                             @endif
                         </td>
                         <td>

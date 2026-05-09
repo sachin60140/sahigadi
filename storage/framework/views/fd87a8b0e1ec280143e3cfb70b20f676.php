@@ -84,6 +84,9 @@
                 <td>
                     <?php if($car->isFeatured()): ?>
                         <span class="badge bg-warning text-dark badge-modern"><i class="bi bi-star-fill me-1"></i>Featured</span>
+                        <?php if($car->featured_expires_at): ?>
+                            <br><small class="text-muted">Till: <?php echo e(\Carbon\Carbon::parse($car->featured_expires_at)->format('d M Y')); ?></small>
+                        <?php endif; ?>
                         
                         <?php if($car->featuredListings()->active()->exists()): ?>
                             <span class="badge bg-success ms-1" title="Paid Plan Active">User Paid</span>

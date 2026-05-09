@@ -106,6 +106,8 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::get('/listing/{customerListing}/featured-plans', [\App\Http\Controllers\Customer\FeaturedCarController::class, 'showPlans'])->name('listing.featured-plans');
         Route::post('/listing/{customerListing}/featured-purchase', [\App\Http\Controllers\Customer\FeaturedCarController::class, 'purchase'])->name('listing.featured-purchase');
 
+        Route::get('/enquiries', [\App\Http\Controllers\Frontend\Customer\CustomerEnquiryController::class, 'index'])->name('enquiries.index');
+
         Route::post('/logout', [CustomerController::class, 'logout'])->name('logout');
     });
 });
