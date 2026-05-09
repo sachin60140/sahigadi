@@ -500,3 +500,9 @@ Route::get('/og-image', function (\Illuminate\Http\Request $request) {
         'Cache-Control' => 'public, max-age=604800'
     ]);
 })->name('og.image.generate');
+
+// Temporary route to test the Cron Job
+Route::get('/test-cron', function () {
+    \Illuminate\Support\Facades\Artisan::call('app:send-featured-expiry-reminders');
+    return 'Cron job executed manually! Output: ' . \Illuminate\Support\Facades\Artisan::output();
+});
