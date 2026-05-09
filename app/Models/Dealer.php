@@ -180,4 +180,62 @@ class Dealer extends Authenticatable
     {
         return $this->hasMany(VehicleDetail::class);
     }
+
+    public function calculateProfileCompletion(): int
+    {
+        $fields = [
+            'name' => 10,
+            'email' => 5,
+            'phone' => 10,
+            'company_name' => 10,
+            'address' => 10,
+            'city' => 10,
+            'state' => 5,
+            'pincode' => 5,
+            'profile_image' => 5,
+            'pan_number' => 10,
+            'pan_document_path' => 5,
+            'kyc_document_type' => 5,
+            'kyc_document_number' => 5,
+            'kyc_document_path' => 5,
+        ];
+
+        $percentage = 0;
+        foreach ($fields as $field => $weight) {
+            if (!empty($this->{$field})) {
+                $percentage += $weight;
+            }
+        }
+
+        // Save if column exists in the future, for now just return it
+        return min(100, $percentage);
+    }
+
+    public function getMissingProfileFields(): array
+    {
+        $fields = [
+            'name' => 'Full Name',
+            'email' => 'Email Address',
+            'phone' => 'Mobile Number',
+            'company_name' => 'Company Name',
+            'address' => 'Complete Address',
+            'city' => 'City',
+            'state' => 'State',
+            'pincode' => 'Pincode',
+            'profile_image' => 'Profile Photo',
+            'pan_number' => 'PAN Number',
+            'pan_document_path' => 'PAN Document',
+            'kyc_document_type' => 'KYC Document Type',
+            'kyc_document_number' => 'KYC Document Number',
+            'kyc_document_path' => 'KYC Document',
+        ];
+
+        $missing = [];
+        foreach ($fields as $field => $label) {
+            if (empty($this->{$field})) {
+                $missing[] = $label;
+            }
+        }
+        return $missing;
+    }
 }

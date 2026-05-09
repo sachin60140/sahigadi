@@ -151,21 +151,28 @@
             background: var(--accent);
             border-radius: 2px;
         }
-        footer { background: var(--dark); }
-        .footer-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: 2px; }
+        footer { background: #0b0f19; padding-top: 60px; padding-bottom: 30px; border-top: 4px solid var(--accent); }
+        .footer-brand { font-weight: 800; font-size: 1.8rem; letter-spacing: 1px; color: #ffffff; }
         .footer-brand span { color: var(--accent); }
+        .footer-link { color: #e2e8f0; text-decoration: none; transition: all 0.3s ease; font-weight: 500; display: inline-block; }
+        .footer-link:hover, .footer-link:focus { color: #ffffff; transform: translateX(5px); text-decoration: none; text-shadow: 0 0 8px rgba(255,255,255,0.3); }
+        .footer-text { color: #cbd5e1; line-height: 1.7; font-size: 0.95rem; }
+        .footer-heading { color: #ffffff; font-weight: 700; margin-bottom: 1.5rem; font-size: 1.1rem; letter-spacing: 0.5px; position: relative; padding-bottom: 10px; }
+        .footer-heading::after { content: ''; position: absolute; left: 0; bottom: 0; width: 40px; height: 3px; background: var(--accent); border-radius: 2px; }
         .social-links a {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255,255,255,0.1);
+            background: #1e293b;
             border-radius: 50%;
-            color: white;
-            transition: all 0.3s;
+            color: #f8fafc;
+            transition: all 0.3s ease;
+            border: 1px solid #334155;
+            text-decoration: none;
         }
-        .social-links a:hover { background: var(--accent); color: white; transform: translateY(-3px); }
+        .social-links a:hover, .social-links a:focus { background: var(--accent); color: white; transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4); }
         .search-box {
             background: white;
             border-radius: 20px;
@@ -310,55 +317,57 @@
     <footer>
         <div class="container">
             <div class="row g-4">
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
                     <div class="footer-brand mb-3">
-                        <i class="bi bi-car-front-fill"></i> SAHI <span>GADI</span>
+                        <i class="bi bi-car-front-fill text-white"></i> SAHI <span>GADI</span>
                     </div>
-                    <p class="text-white-50 mb-4">Your trusted marketplace for verified pre-owned cars.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="mx-2"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="me-2"><i class="bi bi-twitter-x"></i></a>
-                        <a href="#"><i class="bi bi-youtube"></i></a>
+                    <p class="footer-text mb-4 pe-lg-4">Your trusted marketplace for verified pre-owned cars. Quality assurance, transparent pricing, and hassle-free transactions.</p>
+                    <div class="social-links d-flex gap-2">
+                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-6">
-                    <h6 class="text-white fw-bold mb-3">Quick Links</h6>
+                <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
+                    <h6 class="footer-heading">Quick Links</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="<?php echo e(route('home')); ?>" class="text-white-50 text-decoration-none">Home</a></li>
-                        <li class="mb-2"><a href="<?php echo e(route('cars.index')); ?>" class="text-white-50 text-decoration-none">Browse Cars</a></li>
-                        <li class="mb-2"><a href="<?php echo e(route('dealer.register')); ?>" class="text-white-50 text-decoration-none">Become a Dealer</a></li>
-                        <li class="mb-2"><a href="<?php echo e(route('contact')); ?>" class="text-white-50 text-decoration-none">Contact Us</a></li>
+                        <li class="mb-3"><a href="<?php echo e(route('home')); ?>" class="footer-link">Home</a></li>
+                        <li class="mb-3"><a href="<?php echo e(route('cars.index')); ?>" class="footer-link">Browse Cars</a></li>
+                        <li class="mb-3"><a href="<?php echo e(route('dealer.register')); ?>" class="footer-link">Become a Dealer</a></li>
+                        <li class="mb-3"><a href="<?php echo e(route('contact')); ?>" class="footer-link">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h6 class="footer-heading">Popular Brands</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><a href="<?php echo e(route('cars.brand', 'maruti-suzuki')); ?>" class="footer-link">Maruti Suzuki</a></li>
+                        <li class="mb-3"><a href="<?php echo e(route('cars.brand', 'hyundai')); ?>" class="footer-link">Hyundai</a></li>
+                        <li class="mb-3"><a href="<?php echo e(route('cars.brand', 'tata')); ?>" class="footer-link">Tata Motors</a></li>
+                        <li class="mb-3"><a href="<?php echo e(route('cars.brand', 'mahindra')); ?>" class="footer-link">Mahindra</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <h6 class="text-white fw-bold mb-3">Popular Brands</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="<?php echo e(route('cars.brand', 'maruti-suzuki')); ?>" class="text-white-50 text-decoration-none">Maruti Suzuki</a></li>
-                        <li class="mb-2"><a href="<?php echo e(route('cars.brand', 'hyundai')); ?>" class="text-white-50 text-decoration-none">Hyundai</a></li>
-                        <li class="mb-2"><a href="<?php echo e(route('cars.brand', 'tata')); ?>" class="text-white-50 text-decoration-none">Tata</a></li>
-                        <li class="mb-2"><a href="<?php echo e(route('cars.brand', 'mahindra')); ?>" class="text-white-50 text-decoration-none">Mahindra</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <h6 class="text-white fw-bold mb-3">Contact Info</h6>
-                    <ul class="list-unstyled text-white-50">
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>Awani Enterprises</li>
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>A-5, Sector 65, Noida, UP</li>
-                        <li class="mb-2"><i class="bi bi-envelope me-2"></i>support@sahigadi.com</li>
-                        <li class="mb-2"><i class="bi bi-telephone me-2"></i>+91 98188 23408</li>
+                    <h6 class="footer-heading">Contact Info</h6>
+                    <ul class="list-unstyled footer-text">
+                        <li class="mb-3 d-flex"><i class="bi bi-building me-3 mt-1 text-white"></i> <span>Awani Enterprises</span></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-geo-alt me-3 mt-1 text-white"></i> <span>A-5, Sector 65, Noida, UP</span></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-envelope me-3 mt-1 text-white"></i> <span>support@sahigadi.com</span></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-telephone me-3 mt-1 text-white"></i> <span>+91 98188 23408</span></li>
                     </ul>
                 </div>
             </div>
-            <hr class="my-4 border-secondary">
-            <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start">
-                    <p class="text-white-50 mb-0">&copy; <?php echo e(date('Y')); ?> SAHI GADI. All rights reserved.</p>
+            <hr class="my-4" style="border-color: #334155; opacity: 1;">
+            <div class="row align-items-center pb-2">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <p class="footer-text mb-0">&copy; <?php echo e(date('Y')); ?> SAHI GADI. All rights reserved.</p>
                 </div>
-                <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
-                    <a href="<?php echo e(route('privacy-policy')); ?>" class="text-white-50 text-decoration-none me-3">Privacy Policy</a>
-                    <a href="<?php echo e(route('terms-of-use')); ?>" class="text-white-50 text-decoration-none me-3">Terms of Use</a>
-                    <a href="<?php echo e(route('refund-policy')); ?>" class="text-white-50 text-decoration-none">Refund Policy</a>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="d-inline-flex flex-wrap justify-content-center gap-3">
+                        <a href="<?php echo e(route('privacy-policy')); ?>" class="footer-link fs-6">Privacy Policy</a>
+                        <a href="<?php echo e(route('terms-of-use')); ?>" class="footer-link fs-6">Terms of Use</a>
+                        <a href="<?php echo e(route('refund-policy')); ?>" class="footer-link fs-6">Refund Policy</a>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,8 +1,6 @@
-@extends('layouts.dealer')
+<?php $__env->startSection('title', 'My Profile - SAHI GADI'); ?>
 
-@section('title', 'My Profile - SAHI GADI')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     .profile-header {
         position: relative;
@@ -117,27 +115,29 @@
         border-radius: 3px;
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid py-4">
     
-    @if(session('success'))
+    <?php if(session('success')): ?>
         <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 border-0 border-start border-4 border-success" role="alert">
-            <i class="bi bi-check-circle-fill text-success me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 border-0 border-start border-4 border-danger" role="alert">
-            <i class="bi bi-exclamation-circle-fill text-danger me-2"></i> {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+            <i class="bi bi-check-circle-fill text-success me-2"></i> <?php echo e(session('success')); ?>
 
-    <form action="{{ route('dealer.profile.update') }}" method="POST" enctype="multipart/form-data" id="profileForm">
-        @csrf
-        @method('PUT')
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+    <?php if(session('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 border-0 border-start border-4 border-danger" role="alert">
+            <i class="bi bi-exclamation-circle-fill text-danger me-2"></i> <?php echo e(session('error')); ?>
+
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <form action="<?php echo e(route('dealer.profile.update')); ?>" method="POST" enctype="multipart/form-data" id="profileForm">
+        <?php echo csrf_field(); ?>
+        <?php echo method_field('PUT'); ?>
     </form>
 
     <div class="card mb-4 overflow-hidden">
@@ -145,16 +145,16 @@
             
             <div class="profile-avatar-wrapper mb-4">
                 <div class="position-relative">
-                    <img src="{{ $dealer->profile_image ? Storage::url($dealer->profile_image) : asset('images/default-avatar.png') }}" class="profile-avatar" id="profilePreview" alt="Profile Image">
+                    <img src="<?php echo e($dealer->profile_image ? Storage::url($dealer->profile_image) : asset('images/default-avatar.png')); ?>" class="profile-avatar" id="profilePreview" alt="Profile Image">
                     <label for="profile_image" class="camera-btn" title="Change Profile Picture">
                         <i class="bi bi-camera-fill"></i>
                     </label>
                     <input type="file" name="profile_image" id="profile_image" class="d-none" accept="image/*" onchange="previewProfileImage(this)" form="profileForm">
                 </div>
                 <div class="ms-4 pb-2">
-                    <h3 class="fw-bold mb-1 text-dark">{{ $dealer->name }}</h3>
-                    <p class="text-muted mb-1"><i class="bi bi-buildings me-1"></i> {{ $dealer->company_name ?? 'Independent Dealer' }}</p>
-                    <p class="badge bg-secondary mb-0">ID: {{ $dealer->dealer_unique_id }}</p>
+                    <h3 class="fw-bold mb-1 text-dark"><?php echo e($dealer->name); ?></h3>
+                    <p class="text-muted mb-1"><i class="bi bi-buildings me-1"></i> <?php echo e($dealer->company_name ?? 'Independent Dealer'); ?></p>
+                    <p class="badge bg-secondary mb-0">ID: <?php echo e($dealer->dealer_unique_id); ?></p>
                 </div>
             </div>
 
@@ -180,30 +180,30 @@
                             <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
                                 <h4 class="section-title">Personal Information</h4>
                                 
-                                @php
+                                <?php
                                     $completion = $dealer->calculateProfileCompletion();
                                     $missingFields = $dealer->getMissingProfileFields();
                                     $progressBarColor = $completion < 50 ? 'bg-danger' : ($completion < 75 ? 'bg-warning' : 'bg-success');
-                                @endphp
+                                ?>
 
                                 <div class="mb-4 p-4 rounded-4" style="background-color: #f8f9fa; border: 1px solid #e9ecef;">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <h6 class="fw-bold mb-0 text-dark">Profile Completion</h6>
-                                        <span class="badge {{ $progressBarColor }} rounded-pill fs-6">{{ $completion }}%</span>
+                                        <span class="badge <?php echo e($progressBarColor); ?> rounded-pill fs-6"><?php echo e($completion); ?>%</span>
                                     </div>
                                     <div class="progress mb-3" style="height: 10px; border-radius: 10px;">
-                                        <div class="progress-bar {{ $progressBarColor }} progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ $completion }}%;" aria-valuenow="{{ $completion }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar <?php echo e($progressBarColor); ?> progress-bar-striped progress-bar-animated" role="progressbar" style="width: <?php echo e($completion); ?>%;" aria-valuenow="<?php echo e($completion); ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
-                                    @if($completion < 100)
+                                    <?php if($completion < 100): ?>
                                         <div class="alert alert-warning border-0 rounded-3 mb-0">
                                             <p class="mb-2 fw-semibold text-dark"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>To complete your profile, please provide the following details:</p>
                                             <ul class="mb-0 small text-muted d-flex flex-wrap gap-2 list-unstyled">
-                                                @foreach($missingFields as $field)
-                                                    <li class="bg-white px-2 py-1 rounded border"><i class="bi bi-dot text-warning"></i> {{ $field }}</li>
-                                                @endforeach
+                                                <?php $__currentLoopData = $missingFields; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <li class="bg-white px-2 py-1 rounded border"><i class="bi bi-dot text-warning"></i> <?php echo e($field); ?></li>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                             </ul>
                                         </div>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                                 
                                 <div class="row g-4">
@@ -212,9 +212,23 @@
                                             <label class="form-label fw-semibold text-secondary">Full Name</label>
                                             <div class="input-group">
                                                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
-                                                <input type="text" class="form-control border-start-0 ps-0 @error('name') is-invalid @enderror" name="name" value="{{ old('name', $dealer->name) }}" required form="profileForm">
+                                                <input type="text" class="form-control border-start-0 ps-0 <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="name" value="<?php echo e(old('name', $dealer->name)); ?>" required form="profileForm">
                                             </div>
-                                            @error('name')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -222,9 +236,23 @@
                                             <label class="form-label fw-semibold text-secondary">Company Name</label>
                                             <div class="input-group">
                                                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-building text-muted"></i></span>
-                                                <input type="text" class="form-control border-start-0 ps-0 @error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name', $dealer->company_name) }}" form="profileForm">
+                                                <input type="text" class="form-control border-start-0 ps-0 <?php $__errorArgs = ['company_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="company_name" value="<?php echo e(old('company_name', $dealer->company_name)); ?>" form="profileForm">
                                             </div>
-                                            @error('company_name')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <?php $__errorArgs = ['company_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -232,7 +260,7 @@
                                             <label class="form-label fw-semibold text-secondary">Email Address</label>
                                             <div class="input-group">
                                                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
-                                                <input type="email" class="form-control border-start-0 ps-0 bg-light" value="{{ $dealer->email }}" disabled>
+                                                <input type="email" class="form-control border-start-0 ps-0 bg-light" value="<?php echo e($dealer->email); ?>" disabled>
                                             </div>
                                             <div class="form-text"><i class="bi bi-info-circle"></i> Email cannot be changed.</div>
                                         </div>
@@ -242,50 +270,120 @@
                                             <label class="form-label fw-semibold text-secondary">PAN Number</label>
                                             <div class="input-group">
                                                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-credit-card text-muted"></i></span>
-                                                <input type="text" class="form-control border-start-0 ps-0 text-uppercase @error('pan_number') is-invalid @enderror" name="pan_number" value="{{ old('pan_number', $dealer->pan_number) }}" maxlength="10" form="profileForm">
+                                                <input type="text" class="form-control border-start-0 ps-0 text-uppercase <?php $__errorArgs = ['pan_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="pan_number" value="<?php echo e(old('pan_number', $dealer->pan_number)); ?>" maxlength="10" form="profileForm">
                                             </div>
-                                            @error('pan_number')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <?php $__errorArgs = ['pan_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label class="form-label fw-semibold text-secondary">PAN Document</label>
-                                            <input type="file" class="form-control @error('pan_document_path') is-invalid @enderror" name="pan_document_path" accept=".jpg,.jpeg,.png,.pdf" form="profileForm">
-                                            @if($dealer->pan_document_path)
-                                                <div class="form-text text-success"><i class="bi bi-check-circle-fill"></i> Document uploaded. <a href="{{ Storage::url($dealer->pan_document_path) }}" target="_blank">View File</a></div>
-                                            @endif
-                                            @error('pan_document_path')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <input type="file" class="form-control <?php $__errorArgs = ['pan_document_path'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="pan_document_path" accept=".jpg,.jpeg,.png,.pdf" form="profileForm">
+                                            <?php if($dealer->pan_document_path): ?>
+                                                <div class="form-text text-success"><i class="bi bi-check-circle-fill"></i> Document uploaded. <a href="<?php echo e(Storage::url($dealer->pan_document_path)); ?>" target="_blank">View File</a></div>
+                                            <?php endif; ?>
+                                            <?php $__errorArgs = ['pan_document_path'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label class="form-label fw-semibold text-secondary">KYC Document Type</label>
-                                            <select class="form-select @error('kyc_document_type') is-invalid @enderror" name="kyc_document_type" form="profileForm">
+                                            <select class="form-select <?php $__errorArgs = ['kyc_document_type'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="kyc_document_type" form="profileForm">
                                                 <option value="">Select Document Type</option>
-                                                <option value="Aadhaar" {{ old('kyc_document_type', $dealer->kyc_document_type) == 'Aadhaar' ? 'selected' : '' }}>Aadhaar Card</option>
-                                                <option value="Voter ID" {{ old('kyc_document_type', $dealer->kyc_document_type) == 'Voter ID' ? 'selected' : '' }}>Voter ID</option>
-                                                <option value="Passport" {{ old('kyc_document_type', $dealer->kyc_document_type) == 'Passport' ? 'selected' : '' }}>Passport</option>
-                                                <option value="Driving License" {{ old('kyc_document_type', $dealer->kyc_document_type) == 'Driving License' ? 'selected' : '' }}>Driving License</option>
+                                                <option value="Aadhaar" <?php echo e(old('kyc_document_type', $dealer->kyc_document_type) == 'Aadhaar' ? 'selected' : ''); ?>>Aadhaar Card</option>
+                                                <option value="Voter ID" <?php echo e(old('kyc_document_type', $dealer->kyc_document_type) == 'Voter ID' ? 'selected' : ''); ?>>Voter ID</option>
+                                                <option value="Passport" <?php echo e(old('kyc_document_type', $dealer->kyc_document_type) == 'Passport' ? 'selected' : ''); ?>>Passport</option>
+                                                <option value="Driving License" <?php echo e(old('kyc_document_type', $dealer->kyc_document_type) == 'Driving License' ? 'selected' : ''); ?>>Driving License</option>
                                             </select>
-                                            @error('kyc_document_type')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <?php $__errorArgs = ['kyc_document_type'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label class="form-label fw-semibold text-secondary">KYC Document Number</label>
-                                            <input type="text" class="form-control @error('kyc_document_number') is-invalid @enderror" name="kyc_document_number" value="{{ old('kyc_document_number', $dealer->kyc_document_number) }}" form="profileForm">
-                                            @error('kyc_document_number')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <input type="text" class="form-control <?php $__errorArgs = ['kyc_document_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="kyc_document_number" value="<?php echo e(old('kyc_document_number', $dealer->kyc_document_number)); ?>" form="profileForm">
+                                            <?php $__errorArgs = ['kyc_document_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label class="form-label fw-semibold text-secondary">KYC Document Upload</label>
-                                            <input type="file" class="form-control @error('kyc_document_path') is-invalid @enderror" name="kyc_document_path" accept=".jpg,.jpeg,.png,.pdf" form="profileForm">
-                                            @if($dealer->kyc_document_path)
-                                                <div class="form-text text-success"><i class="bi bi-check-circle-fill"></i> Document uploaded. <a href="{{ Storage::url($dealer->kyc_document_path) }}" target="_blank">View File</a></div>
-                                            @endif
-                                            @error('kyc_document_path')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <input type="file" class="form-control <?php $__errorArgs = ['kyc_document_path'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="kyc_document_path" accept=".jpg,.jpeg,.png,.pdf" form="profileForm">
+                                            <?php if($dealer->kyc_document_path): ?>
+                                                <div class="form-text text-success"><i class="bi bi-check-circle-fill"></i> Document uploaded. <a href="<?php echo e(Storage::url($dealer->kyc_document_path)); ?>" target="_blank">View File</a></div>
+                                            <?php endif; ?>
+                                            <?php $__errorArgs = ['kyc_document_path'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     
@@ -296,29 +394,85 @@
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label class="form-label fw-semibold text-secondary">Full Address</label>
-                                            <input type="text" class="form-control @error('address') is-invalid @enderror" name="address" value="{{ old('address', $dealer->address) }}" placeholder="Street address, locality, landmark" form="profileForm">
-                                            @error('address')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <input type="text" class="form-control <?php $__errorArgs = ['address'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="address" value="<?php echo e(old('address', $dealer->address)); ?>" placeholder="Street address, locality, landmark" form="profileForm">
+                                            <?php $__errorArgs = ['address'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label class="form-label fw-semibold text-secondary">City</label>
-                                            <input type="text" class="form-control @error('city') is-invalid @enderror" name="city" value="{{ old('city', $dealer->city) }}" form="profileForm">
-                                            @error('city')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <input type="text" class="form-control <?php $__errorArgs = ['city'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="city" value="<?php echo e(old('city', $dealer->city)); ?>" form="profileForm">
+                                            <?php $__errorArgs = ['city'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label class="form-label fw-semibold text-secondary">State</label>
-                                            <input type="text" class="form-control @error('state') is-invalid @enderror" name="state" value="{{ old('state', $dealer->state) }}" form="profileForm">
-                                            @error('state')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <input type="text" class="form-control <?php $__errorArgs = ['state'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="state" value="<?php echo e(old('state', $dealer->state)); ?>" form="profileForm">
+                                            <?php $__errorArgs = ['state'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label class="form-label fw-semibold text-secondary">Pincode</label>
-                                            <input type="text" class="form-control @error('pincode') is-invalid @enderror" name="pincode" value="{{ old('pincode', $dealer->pincode) }}" form="profileForm">
-                                            @error('pincode')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                            <input type="text" class="form-control <?php $__errorArgs = ['pincode'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="pincode" value="<?php echo e(old('pincode', $dealer->pincode)); ?>" form="profileForm">
+                                            <?php $__errorArgs = ['pincode'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                 </div>
@@ -342,12 +496,12 @@
                                             <label class="form-label fw-semibold text-secondary">Current Phone Number</label>
                                             <div class="input-group w-50">
                                                 <span class="input-group-text bg-white"><i class="bi bi-telephone text-muted"></i></span>
-                                                <input type="text" class="form-control bg-white" value="{{ $dealer->phone }}" disabled>
+                                                <input type="text" class="form-control bg-white" value="<?php echo e($dealer->phone); ?>" disabled>
                                             </div>
                                         </div>
 
-                                        <form action="{{ route('dealer.profile.verify-phone') }}" method="POST" id="updatePhoneForm">
-                                            @csrf
+                                        <form action="<?php echo e(route('dealer.profile.verify-phone')); ?>" method="POST" id="updatePhoneForm">
+                                            <?php echo csrf_field(); ?>
                                             <div class="mb-3">
                                                 <label class="form-label fw-semibold text-secondary">New Phone Number</label>
                                                 <div class="input-group w-75">
@@ -362,7 +516,7 @@
                                                 <h6 class="fw-bold mb-3">Verify Both Numbers</h6>
                                                 <div class="row g-3">
                                                     <div class="col-md-6">
-                                                        <label class="form-label small fw-bold text-danger">OTP Sent to Current Phone ({{ substr($dealer->phone, 0, 2) . '******' . substr($dealer->phone, -2) }})</label>
+                                                        <label class="form-label small fw-bold text-danger">OTP Sent to Current Phone (<?php echo e(substr($dealer->phone, 0, 2) . '******' . substr($dealer->phone, -2)); ?>)</label>
                                                         <input type="text" name="old_otp" class="form-control border-danger form-control-lg text-center letter-spacing-2" placeholder="------" maxlength="6" required>
                                                     </div>
                                                     
@@ -386,9 +540,9 @@
                                     <div class="card-body p-4">
                                         <h5 class="fw-bold text-dark mb-4"><i class="bi bi-key me-2 text-primary"></i>Change Password</h5>
                                         
-                                        <form action="{{ route('dealer.profile.update-password') }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
+                                        <form action="<?php echo e(route('dealer.profile.update-password')); ?>" method="POST">
+                                            <?php echo csrf_field(); ?>
+                                            <?php echo method_field('PUT'); ?>
                                             
                                             <div class="row g-3">
                                                 <div class="col-12">
@@ -398,8 +552,22 @@
                                                 
                                                 <div class="col-md-6">
                                                     <label class="form-label fw-semibold text-secondary">New Password</label>
-                                                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Min. 8 characters" required>
-                                                    @error('password')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                                    <input type="password" name="password" class="form-control <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" placeholder="Min. 8 characters" required>
+                                                    <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="text-danger small mt-1"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                                 </div>
                                                 
                                                 <div class="col-md-6">
@@ -425,7 +593,7 @@
     </div>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <style>
     .letter-spacing-2 { letter-spacing: 5px; font-weight: 600; }
 </style>
@@ -451,11 +619,11 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Sending...';
 
-        fetch("{{ route('dealer.profile.phone-otp') }}", {
+        fetch("<?php echo e(route('dealer.profile.phone-otp')); ?>", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
             },
             body: JSON.stringify({ new_phone: newPhone })
         })
@@ -481,5 +649,7 @@
         });
     });
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.dealer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\sahigadi-ai\resources\views/dealer/profile/edit.blade.php ENDPATH**/ ?>

@@ -19,7 +19,7 @@ class HomeController extends Controller
             ->approved()
             ->active()
             ->featured()
-            ->limit(4)
+            ->limit(8)
             ->get();
 
         $featuredCustomerListings = CustomerCarListing::with('brand')
@@ -30,10 +30,10 @@ class HomeController extends Controller
                 $q->whereNull('featured_expires_at')
                     ->orWhere('featured_expires_at', '>', now());
             })
-            ->limit(4)
+            ->limit(8)
             ->get();
 
-        $allFeatured = $featuredCars->concat($featuredCustomerListings);
+        $allFeatured = $featuredCars->concat($featuredCustomerListings)->take(8);
 
         $featuredSlugs = $allFeatured->pluck('slug')->toArray();
 

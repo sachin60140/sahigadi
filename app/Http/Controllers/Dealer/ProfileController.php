@@ -22,19 +22,43 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'company_name' => 'nullable|string|max:255',
-            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+            'email' => 'nullable|email|max:255',
+            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'address' => 'nullable|string',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'pincode' => 'nullable|string|max:20',
+            'pan_number' => 'nullable|string|max:20',
+            'pan_document_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'kyc_document_type' => 'nullable|string|max:100',
+            'kyc_document_number' => 'nullable|string|max:100',
+            'kyc_document_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        $data = [
-            'name' => $request->name,
-            'company_name' => $request->company_name
-        ];
+        $data = $request->only([
+            'name', 'company_name', 'email', 'address', 'city', 'state', 'pincode', 
+            'pan_number', 'kyc_document_type', 'kyc_document_number'
+        ]);
 
         if ($request->hasFile('profile_image')) {
             if ($dealer->profile_image) {
                 Storage::disk('public')->delete($dealer->profile_image);
             }
             $data['profile_image'] = $request->file('profile_image')->store('dealers/profiles', 'public');
+        }
+
+        if ($request->hasFile('pan_document_path')) {
+            if ($dealer->pan_document_path) {
+                Storage::disk('public')->delete($dealer->pan_document_path);
+            }
+            $data['pan_document_path'] = $request->file('pan_document_path')->store('dealers/documents', 'public');
+        }
+
+        if ($request->hasFile('kyc_document_path')) {
+            if ($dealer->kyc_document_path) {
+                Storage::disk('public')->delete($dealer->kyc_document_path);
+            }
+            $data['kyc_document_path'] = $request->file('kyc_document_path')->store('dealers/documents', 'public');
         }
 
         $dealer->update($data);

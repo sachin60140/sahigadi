@@ -139,6 +139,17 @@ class CarController extends Controller
 
     public function featured(Car $car)
     {
+        $featuredDealerCars = Car::featured()->count();
+        $featuredCustomerCars = \App\Models\CustomerCarListing::where('is_featured', true)
+            ->where(function ($q) {
+                $q->whereNull('featured_expires_at')
+                    ->orWhere('featured_expires_at', '>', now());
+            })->count();
+            
+        if (($featuredDealerCars + $featuredCustomerCars) >= 8) {
+            return back()->with('error', 'Maximum 8 featured cars allowed across the platform. Please remove a featured car first.');
+        }
+
         $car->update([
             'is_featured' => true,
             'featured_expires_at' => now()->addDays(7),
