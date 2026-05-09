@@ -79,7 +79,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::post('/verify-otp', [CustomerController::class, 'verifyOtp'])->name('verify-otp');
     });
 
-    Route::middleware('auth:customer')->group(function () {
+    Route::middleware(['auth:customer', 'customer.profile.complete'])->group(function () {
         Route::get('/dashboard', [CustomerController::class, 'dashboard'])->name('dashboard');
         Route::post('/send-delete-otp', [CustomerController::class, 'sendDeleteOtp'])->name('listing.delete.otp');
         Route::delete('/listing/{id}', [CustomerController::class, 'deleteListing'])->name('listing.delete');
@@ -97,6 +97,10 @@ Route::prefix('customer')->name('customer.')->group(function () {
 
         Route::post('/payments/phonepe/initiate', [\App\Http\Controllers\Frontend\CustomerPaymentController::class, 'phonepeInitiate'])->name('payments.phonepe.initiate');
         Route::match(['GET', 'POST'], '/payments/phonepe/callback', [\App\Http\Controllers\Frontend\CustomerPaymentController::class, 'phonepeCallback'])->name('payments.phonepe.callback');
+
+        Route::get('/challan-pdf', [\App\Http\Controllers\Frontend\ChallanPdfController::class, 'index'])->name('challan-pdf.index');
+        Route::post('/challan-pdf/search', [\App\Http\Controllers\Frontend\ChallanPdfController::class, 'search'])->name('challan-pdf.search');
+        Route::get('/challan-pdf/history', [\App\Http\Controllers\Frontend\ChallanPdfController::class, 'history'])->name('challan-pdf.history');
 
         Route::post('/logout', [CustomerController::class, 'logout'])->name('logout');
     });
@@ -167,6 +171,10 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
             Route::post('/challan-search/search', [App\Http\Controllers\Dealer\ChallanSearchController::class, 'search'])->name('challan-search.search');
             Route::get('/challan-search/{challanSearch}', [App\Http\Controllers\Dealer\ChallanSearchController::class, 'show'])->name('challan-search.show');
             Route::get('/challan-search/{challanSearch}/pdf', [App\Http\Controllers\Dealer\ChallanSearchController::class, 'exportPdf'])->name('challan-search.pdf');
+
+            Route::get('/challan-pdf', [App\Http\Controllers\Dealer\ChallanPdfController::class, 'index'])->name('challan-pdf.index');
+            Route::post('/challan-pdf/search', [App\Http\Controllers\Dealer\ChallanPdfController::class, 'search'])->name('challan-pdf.search');
+            Route::get('/challan-pdf/history', [App\Http\Controllers\Dealer\ChallanPdfController::class, 'history'])->name('challan-pdf.history');
         });
 
         Route::get('/payments/checkout', [PaymentController::class, 'checkout'])->name('payments.checkout');
@@ -287,6 +295,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/challan-searches/{challanSearch}/pdf', [App\Http\Controllers\Admin\ChallanSearchController::class, 'downloadPdf'])->name('challan-searches.download-pdf');
         Route::get('/challan-searches/export/excel', [App\Http\Controllers\Admin\ChallanSearchController::class, 'exportExcel'])->name('challan-searches.exportExcel');
         Route::get('/challan-searches/export/pdf', [App\Http\Controllers\Admin\ChallanSearchController::class, 'exportPdf'])->name('challan-searches.exportPdf');
+
+        Route::get('/challan-pdf', [\App\Http\Controllers\Admin\ChallanPdfController::class, 'index'])->name('challan-pdf.index');
+        Route::post('/challan-pdf/settings', [\App\Http\Controllers\Admin\ChallanPdfController::class, 'updateSettings'])->name('challan-pdf.settings');
+        Route::get('/challan-pdf/logs', [\App\Http\Controllers\Admin\ChallanPdfController::class, 'logs'])->name('challan-pdf.logs');
+        Route::get('/challan-pdf/export-logs', [\App\Http\Controllers\Admin\ChallanPdfController::class, 'exportLogs'])->name('challan-pdf.export-logs');
 
         Route::get('/payment-settings', [PaymentSettingsController::class, 'index'])->name('payment-settings.index');
         Route::post('/payment-settings', [PaymentSettingsController::class, 'update'])->name('payment-settings.update');

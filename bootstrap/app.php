@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'dealer.approval' => DealerApproval::class,
             'admin.access' => AdminAccess::class,
             'auth' => Authenticate::class,
+            'customer.profile.complete' => \App\Http\Middleware\CheckCustomerProfileCompletion::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'dealer/payments/phonepe/callback',

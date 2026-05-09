@@ -61,6 +61,7 @@
     <div class="section">
         <div class="section-title">Billed To</div>
         <p>
+            <strong>Dealer ID:</strong> {{ $dealer->dealer_unique_id ?? 'N/A' }}<br>
             <strong>Dealer Name:</strong> {{ $dealer->name ?? 'N/A' }}<br>
             <strong>Firm Name:</strong> {{ $dealer->company_name ?? $dealer->firm_name ?? 'N/A' }}<br>
             <strong>Address:</strong> {{ $dealer->address ?? 'N/A' }}<br>

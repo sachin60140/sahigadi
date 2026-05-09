@@ -17,7 +17,10 @@
                     <button class="btn btn-light rounded-circle me-3 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#customerSidebar" aria-controls="customerSidebar">
                         <i class="bi bi-list fs-5"></i>
                     </button>
-                    <h2 class="fw-bold mb-0">My Wallet</h2>
+                    <div>
+                        <h2 class="fw-bold mb-0">My Wallet</h2>
+                        <span class="badge bg-secondary">Customer ID: {{ auth()->guard('customer')->user()->customer_unique_id }}</span>
+                    </div>
                 </div>
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#rechargeModal">
                     <i class="bi bi-plus-circle me-1"></i> Add Money

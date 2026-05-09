@@ -61,6 +61,7 @@
     <div class="section">
         <div class="section-title">Billed To</div>
         <p>
+            <strong>Customer ID:</strong> {{ $customer->customer_unique_id ?? 'N/A' }}<br>
             <strong>Customer Name:</strong> {{ $customer->name ?? 'N/A' }}<br>
             <strong>Company Name:</strong> {{ $customer->company_name ?? 'N/A' }}<br>
             <strong>Address:</strong> {{ $customer->address ?? 'N/A' }}<br>

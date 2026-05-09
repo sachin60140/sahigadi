@@ -68,6 +68,36 @@ class Setting extends Model
         static::set('dealer_challan_charge', $amount, 'number', 'services', 'Charge per e-challan search for dealers');
     }
 
+    public static function isChallanPdfActive(): bool
+    {
+        return (bool) static::get('is_challan_pdf_active', true);
+    }
+
+    public static function setIsChallanPdfActive(bool $isActive): void
+    {
+        static::set('is_challan_pdf_active', $isActive ? '1' : '0', 'boolean', 'services', 'Is Challan PDF Service Active');
+    }
+
+    public static function getChallanPdfCharge(): float
+    {
+        return (float) static::get('challan_pdf_charge', 49);
+    }
+
+    public static function setChallanPdfCharge(float $amount): void
+    {
+        static::set('challan_pdf_charge', $amount, 'number', 'services', 'Charge per Challan PDF search for customers');
+    }
+
+    public static function getDealerChallanPdfCharge(): float
+    {
+        return (float) static::get('dealer_challan_pdf_charge', 29);
+    }
+
+    public static function setDealerChallanPdfCharge(float $amount): void
+    {
+        static::set('dealer_challan_pdf_charge', $amount, 'number', 'services', 'Charge per Challan PDF search for dealers');
+    }
+
     public static function getServiceHistoryCharge(): float
     {
         return (float) static::get('service_history_charge', config('services.service_history_api.charge', 500));

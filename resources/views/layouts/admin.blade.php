@@ -399,7 +399,7 @@
                     </a>
                 </div>
             </div>
-            <div class="nav-item has-submenu {{ request()->routeIs('admin.challan-searches.*') || request()->routeIs('admin.service-tracking.challan-search') ? 'active' : '' }}">
+            <div class="nav-item has-submenu {{ request()->routeIs('admin.challan-searches.*') || request()->routeIs('admin.challan-pdf.*') || request()->routeIs('admin.service-tracking.challan-search') ? 'active' : '' }}">
                 <a href="#" class="nav-link" onclick="toggleSubmenu(this); return false;">
                     <span><i class="bi bi-receipt"></i> E-Challan</span>
                     <i class="bi bi-chevron-right"></i>
@@ -407,6 +407,9 @@
                 <div class="submenu">
                     <a href="{{ route('admin.challan-searches.index') }}" class="nav-link {{ request()->routeIs('admin.challan-searches.index') ? 'active' : '' }}">
                         <i class="bi bi-list"></i> All Searches
+                    </a>
+                    <a href="{{ route('admin.challan-pdf.index') }}" class="nav-link {{ request()->routeIs('admin.challan-pdf.*') ? 'active' : '' }}">
+                        <i class="bi bi-file-earmark-pdf"></i> PDF Service
                     </a>
                     <a href="{{ route('admin.service-tracking.challan-search') }}" class="nav-link {{ request()->routeIs('admin.service-tracking.challan-search') ? 'active' : '' }}">
                         <i class="bi bi-graph-up"></i> Tracking
@@ -480,5 +483,6 @@
         });
     </script>
     @stack('scripts')
+    @include('partials.global_loader')
 </body>
 </html>

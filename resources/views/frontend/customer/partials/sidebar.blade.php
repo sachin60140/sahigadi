@@ -15,7 +15,8 @@
                         </div>
                     @endif
                     <h5 class="fw-bold mb-1">{{ Auth::guard('customer')->user()->name ?? 'User' }}</h5>
-                    <p class="text-muted small mb-3">+91 {{ Auth::guard('customer')->user()->phone }}</p>
+                    <p class="text-muted small mb-1">+91 {{ Auth::guard('customer')->user()->phone }}</p>
+                    <p class="badge bg-secondary mb-3">ID: {{ Auth::guard('customer')->user()->customer_unique_id }}</p>
 
                     @php
                         $walletBalance = \App\Models\CustomerWallet::where('customer_id', Auth::guard('customer')->id())
@@ -64,6 +65,11 @@
                         <li class="nav-item mb-2">
                             <a class="nav-link {{ request()->routeIs('maruti-service-history.*') ? 'active bg-primary text-white' : 'text-dark' }} rounded-3 px-3 py-2" href="{{ route('maruti-service-history.index') }}">
                                 <i class="bi bi-car-front me-2"></i> Maruti Service History
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a class="nav-link {{ request()->routeIs('customer.challan-pdf.*') ? 'active bg-primary text-white' : 'text-dark' }} rounded-3 px-3 py-2" href="{{ route('customer.challan-pdf.index') }}">
+                                <i class="bi bi-file-earmark-pdf me-2"></i> Challan PDF Search
                             </a>
                         </li>
                         <li class="nav-item mt-3 pt-3 border-top">

@@ -4,7 +4,10 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>My Wallet</h2>
+    <div>
+        <h2>My Wallet</h2>
+        <span class="badge bg-secondary">Dealer ID: {{ auth()->guard('dealer')->user()->dealer_unique_id }}</span>
+    </div>
     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#rechargeModal">
         <i class="bi bi-plus-circle"></i> Add Money
     </button>

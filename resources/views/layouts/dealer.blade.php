@@ -102,11 +102,12 @@
                 </div>
                 <div class="offcanvas-body p-0 flex-column">
                     <div class="sidebar-brand text-center d-none d-md-flex flex-column align-items-center">
-                        <div class="bg-primary text-white p-2 rounded-3 mb-2 shadow" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-car-front-fill fs-4"></i>
+                        <div class="bg-primary text-white p-2 rounded-circle mb-2 shadow d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                            <i class="bi bi-shop fs-4"></i>
                         </div>
-                        <h5 class="mb-0">SAHI GADI</h5>
-                        <small class="text-secondary mt-1 fw-medium text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">Dealer Portal</small>
+                        <h5 class="mb-0 fw-bold">{{ Auth::guard('dealer')->user()->name ?? 'Dealer' }}</h5>
+                        <small class="text-muted mt-1">+91 {{ Auth::guard('dealer')->user()->phone }}</small>
+                        <span class="badge bg-secondary mt-2">ID: {{ Auth::guard('dealer')->user()->dealer_unique_id }}</span>
                     </div>
                     <nav class="nav flex-column sidebar-nav w-100">
                     <a href="{{ route('dealer.dashboard') }}" class="{{ request()->routeIs('dealer.dashboard') ? 'active' : '' }}">
@@ -137,6 +138,9 @@
                     </a>
                     <a href="{{ route('dealer.challan-search.index') }}" class="{{ request()->routeIs('dealer.challan-search.*') ? 'active' : '' }}">
                         <i class="bi bi-receipt-cutoff"></i> E-Challans
+                    </a>
+                    <a href="{{ route('dealer.challan-pdf.index') }}" class="{{ request()->routeIs('dealer.challan-pdf.*') ? 'active' : '' }}">
+                        <i class="bi bi-file-earmark-pdf"></i> Challan PDF
                     </a>
                     <a href="{{ route('dealer.service-history.index') }}" class="{{ request()->routeIs('dealer.service-history.*') ? 'active' : '' }}">
                         <i class="bi bi-tools"></i> Mahindra History
@@ -180,5 +184,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
+    @include('partials.global_loader')
 </body>
 </html>

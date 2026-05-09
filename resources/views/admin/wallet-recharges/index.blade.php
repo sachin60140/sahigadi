@@ -21,11 +21,11 @@
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
         <form action="{{ route('admin.wallet-recharges.index') }}" method="GET" class="row g-3 align-items-end">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label for="from_date" class="form-label text-muted small fw-medium">From Date</label>
                 <input type="date" class="form-control" id="from_date" name="from_date" value="{{ request('from_date') }}">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label for="to_date" class="form-label text-muted small fw-medium">To Date</label>
                 <input type="date" class="form-control" id="to_date" name="to_date" value="{{ request('to_date') }}">
             </div>
@@ -39,8 +39,12 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <button type="submit" class="btn btn-primary px-4"><i class="bi bi-search me-1"></i> Filter</button>
-                <a href="{{ route('admin.wallet-recharges.index') }}" class="btn btn-light ms-2">Clear</a>
+                <label for="search" class="form-label text-muted small fw-medium">Search Dealer</label>
+                <input type="text" class="form-control" id="search" name="search" placeholder="ID, Name..." value="{{ request('search') }}">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1 px-2"><i class="bi bi-search me-1"></i> Filter</button>
+                <a href="{{ route('admin.wallet-recharges.index') }}" class="btn btn-light flex-grow-1 px-2 text-center">Clear</a>
             </div>
         </form>
     </div>
@@ -75,6 +79,9 @@
                             </td>
                             <td>
                                 <div class="fw-bold text-primary mb-1">{{ $txn->wallet->dealer->company_name ?? 'N/A' }}</div>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <span class="badge bg-secondary" style="font-size: 0.65rem;">{{ $txn->wallet->dealer->dealer_unique_id ?? 'N/A' }}</span>
+                                </div>
                                 <div class="d-flex align-items-center gap-2 mb-1">
                                     <span class="fw-medium text-dark" style="font-size: 0.85rem;">{{ $txn->wallet->dealer->name ?? 'Unknown Dealer' }}</span>
                                     <small class="text-muted"><i class="bi bi-telephone-fill" style="font-size: 0.7rem;"></i> {{ $txn->wallet->dealer->phone ?? '' }}</small>

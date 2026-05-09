@@ -52,6 +52,11 @@ class Dealer extends Authenticatable
             }
         });
 
+        static::created(function ($dealer) {
+            $dealer->dealer_unique_id = 'DLR' . (10000 + $dealer->id);
+            $dealer->saveQuietly();
+        });
+
         static::updating(function ($dealer) {
             if ($dealer->isDirty('company_name')) {
                 $nameToSlug = !empty($dealer->company_name) ? $dealer->company_name : $dealer->name;

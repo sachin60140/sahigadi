@@ -18,5 +18,8 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+
+        \App\Models\Customer::observe(\App\Observers\CustomerObserver::class);
+        \App\Models\Dealer::observe(\App\Observers\DealerObserver::class);
     }
 }

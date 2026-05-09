@@ -72,6 +72,31 @@
                             <td class="text-success fw-bold">₹{{ number_format($customer->wallet->balance ?? 0, 2) }}</td>
                         </tr>
                         <tr>
+                            <td class="text-muted">Aadhaar Number</td>
+                            <td>{{ $customer->aadhaar_number ?? 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">PAN Number</td>
+                            <td>{{ $customer->pan_number ?? 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Gender</td>
+                            <td>{{ ucfirst($customer->gender ?? 'N/A') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Date of Birth</td>
+                            <td>{{ $customer->dob ? $customer->dob->format('d M Y') : 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Profile Completion</td>
+                            <td>
+                                <div class="progress mb-1" style="height: 6px;">
+                                    <div class="progress-bar {{ $customer->profile_completion_percentage >= 75 ? 'bg-success' : 'bg-warning' }}" role="progressbar" style="width: {{ $customer->profile_completion_percentage }}%;" aria-valuenow="{{ $customer->profile_completion_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <small class="text-muted">{{ $customer->profile_completion_percentage }}% Completed</small>
+                            </td>
+                        </tr>
+                        <tr>
                             <td class="text-muted">Joined On</td>
                             <td>{{ $customer->created_at->format('d M Y') }}</td>
                         </tr>

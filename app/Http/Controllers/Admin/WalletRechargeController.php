@@ -46,6 +46,15 @@ class WalletRechargeController extends Controller
             }
         }
 
+        if ($request->filled('search')) {
+            $query->whereHas('wallet.dealer', function($q) use ($request) {
+                $q->where('dealer_unique_id', 'like', '%'.$request->search.'%')
+                  ->orWhere('name', 'like', '%'.$request->search.'%')
+                  ->orWhere('email', 'like', '%'.$request->search.'%')
+                  ->orWhere('phone', 'like', '%'.$request->search.'%');
+            });
+        }
+
         return $query;
     }
 

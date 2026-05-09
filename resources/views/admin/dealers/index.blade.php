@@ -24,7 +24,7 @@
             </select>
         </div>
         <div class="col-md-6">
-            <input type="text" name="search" class="form-control" placeholder="Search by name, email, phone..." value="{{ request('search') }}">
+            <input type="text" name="search" class="form-control" placeholder="Search by ID, name, email, phone..." value="{{ request('search') }}">
         </div>
         <div class="col-md-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary"><i class="bi bi-search me-2"></i>Filter</button>
@@ -37,6 +37,7 @@
     <table class="table mb-0">
         <thead>
             <tr>
+                <th><i class="bi bi-hash me-1"></i>ID</th>
                 <th><i class="bi bi-person me-1"></i>Name</th>
                 <th><i class="bi bi-envelope me-1"></i>Email</th>
                 <th><i class="bi bi-telephone me-1"></i>Phone</th>
@@ -49,6 +50,7 @@
         <tbody>
             @forelse($dealers as $dealer)
             <tr>
+                <td><span class="badge bg-secondary">{{ $dealer->dealer_unique_id }}</span></td>
                 <td>
                     <strong>{{ $dealer->name }}</strong>
                     @if($dealer->company_name)

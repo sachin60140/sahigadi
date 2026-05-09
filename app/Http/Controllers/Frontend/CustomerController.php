@@ -94,6 +94,14 @@ class CustomerController extends Controller
 
             Auth::guard('customer')->login($customer);
             
+            if ($customer->profile_completion_percentage === 0) {
+                $customer->calculateProfileCompletion();
+            }
+
+            if ($customer->profile_completion_percentage < 75) {
+                return response()->json(['success' => true, 'message' => 'Logged in successfully. Please complete your profile.', 'redirect' => route('customer.profile.edit')]);
+            }
+            
             return response()->json(['success' => true, 'message' => 'Logged in successfully', 'redirect' => route('customer.dashboard')]);
         }
 
@@ -134,6 +142,10 @@ class CustomerController extends Controller
             'gst_number' => 'nullable|string|max:15',
             'company_name' => 'nullable|string|max:255',
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'aadhaar_number' => 'nullable|string|max:20',
+            'pan_number' => 'nullable|string|max:20',
+            'gender' => 'nullable|in:male,female,other',
+            'dob' => 'nullable|date',
         ]);
 
         $data = [
@@ -146,6 +158,10 @@ class CustomerController extends Controller
             'pincode' => $request->pincode,
             'gst_number' => $request->gst_number,
             'company_name' => $request->company_name,
+            'aadhaar_number' => $request->aadhaar_number,
+            'pan_number' => $request->pan_number,
+            'gender' => $request->gender,
+            'dob' => $request->dob,
         ];
 
         if ($request->hasFile('profile_image')) {
@@ -156,6 +172,7 @@ class CustomerController extends Controller
         }
 
         $customer->update($data);
+        $customer->calculateProfileCompletion();
 
         // Send Email Notification
         if ($customer->email) {
@@ -164,6 +181,10 @@ class CustomerController extends Controller
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to send customer self profile update email: ' . $e->getMessage());
             }
+        }
+
+        if ($customer->profile_completion_percentage < 75) {
+            return redirect()->route('customer.profile.edit')->with('error', 'Profile updated, but completion is still below 75%. Please fill missing fields.');
         }
 
         return redirect()->route('customer.dashboard')->with('success', 'Profile updated successfully.');

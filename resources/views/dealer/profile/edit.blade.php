@@ -153,7 +153,8 @@
                 </div>
                 <div class="ms-4 pb-2">
                     <h3 class="fw-bold mb-1 text-dark">{{ $dealer->name }}</h3>
-                    <p class="text-muted mb-0"><i class="bi bi-buildings me-1"></i> {{ $dealer->company_name ?? 'Independent Dealer' }}</p>
+                    <p class="text-muted mb-1"><i class="bi bi-buildings me-1"></i> {{ $dealer->company_name ?? 'Independent Dealer' }}</p>
+                    <p class="badge bg-secondary mb-0">ID: {{ $dealer->dealer_unique_id }}</p>
                 </div>
             </div>
 

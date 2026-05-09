@@ -23,7 +23,8 @@ class DealerController extends Controller
 
         if ($request->has('search') && $request->search) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->search.'%')
+                $q->where('dealer_unique_id', 'like', '%'.$request->search.'%')
+                    ->orWhere('name', 'like', '%'.$request->search.'%')
                     ->orWhere('email', 'like', '%'.$request->search.'%')
                     ->orWhere('phone', 'like', '%'.$request->search.'%');
             });
