@@ -20,7 +20,7 @@
                             <label class="form-label fw-semibold">Mobile Number</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0">+91</span>
-                                <input type="text" name="phone" id="phone" class="form-control border-start-0 ps-0" placeholder="Enter 10-digit number" required pattern="[0-9]{10}">
+                                <input type="text" name="phone" id="phone" class="form-control border-start-0 ps-0" placeholder="Enter 10-digit number" required pattern="[0-9]{10}" inputmode="numeric" autocomplete="tel">
                             </div>
                             <div class="invalid-feedback" id="phoneError"></div>
                         </div>
@@ -34,7 +34,7 @@
                         <input type="hidden" name="phone" id="verifyPhone">
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Enter OTP</label>
-                            <input type="text" name="otp" id="otp" class="form-control text-center letter-spacing-2 fs-4" placeholder="••••••" required pattern="[0-9]{6}" maxlength="6">
+                            <input type="text" name="otp" id="otp" class="form-control text-center letter-spacing-2 fs-4" placeholder="••••••" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
                             <div class="invalid-feedback" id="otpError"></div>
                         </div>
                         <button type="submit" class="btn btn-accent w-100 py-2 fw-bold" id="verifyOtpBtn">
@@ -83,6 +83,26 @@
                 document.getElementById('sendOtpForm').style.display = 'none';
                 document.getElementById('verifyOtpForm').style.display = 'block';
                 document.getElementById('verifyPhone').value = phone;
+                
+                // Auto-focus OTP field
+                setTimeout(() => {
+                    document.getElementById('otp').focus();
+                }, 100);
+
+                // Auto-read OTP from SMS (WebOTP API)
+                if ('OTPCredential' in window) {
+                    const ac = new AbortController();
+                    navigator.credentials.get({
+                        otp: { transport: ['sms'] },
+                        signal: ac.signal
+                    }).then(otp => {
+                        document.getElementById('otp').value = otp.code;
+                        // Auto-submit form
+                        document.getElementById('verifyOtpBtn').click();
+                    }).catch(err => {
+                        console.log('WebOTP API Error:', err);
+                    });
+                }
             } else {
                 alert(data.message || 'Error sending OTP');
                 btn.disabled = false;
@@ -113,7 +133,7 @@
 
         document.getElementById('otp').classList.remove('is-invalid');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Verifying...';
 
         fetch('{{ route("customer.verify-otp") }}', {
             method: 'POST',

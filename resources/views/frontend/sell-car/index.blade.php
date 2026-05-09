@@ -341,7 +341,7 @@
                                         <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <input type="text" id="owner_phone" name="owner_phone" class="form-control @error('owner_phone') is-invalid @enderror" 
-                                                   placeholder="10-digit phone number" value="{{ old('owner_phone') }}" required pattern="[0-9]{10}">
+                                                   placeholder="10-digit phone number" value="{{ old('owner_phone') }}" required pattern="[0-9]{10}" inputmode="numeric" autocomplete="tel">
                                             <button class="btn btn-outline-primary" type="button" id="btnSendOtp">Send OTP</button>
                                         </div>
                                         <div id="phoneHelp" class="form-text text-success d-none"><i class="bi bi-check-circle-fill"></i> Phone Number Verified</div>
@@ -353,7 +353,7 @@
                                     <div class="col-md-6 d-none" id="otpSection">
                                         <label class="form-label fw-semibold">Enter OTP <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <input type="text" id="otp_input" class="form-control" placeholder="6-digit OTP" maxlength="6">
+                                            <input type="text" id="otp_input" class="form-control" placeholder="6-digit OTP" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
                                             <button class="btn btn-primary" type="button" id="btnVerifyOtp">Verify</button>
                                         </div>
                                         <div class="form-text text-muted mt-1" id="otpTimerText">Resend OTP in <span id="timerCount">30</span>s</div>
@@ -678,6 +678,26 @@ function setFeatured(index) {
                     startTimer();
                     otpMessage.textContent = data.message;
                     otpMessage.className = 'small mt-1 text-success';
+                    
+                    // Auto-focus OTP field
+                    setTimeout(() => {
+                        otpInput.focus();
+                    }, 100);
+
+                    // Auto-read OTP from SMS (WebOTP API)
+                    if ('OTPCredential' in window) {
+                        const ac = new AbortController();
+                        navigator.credentials.get({
+                            otp: { transport: ['sms'] },
+                            signal: ac.signal
+                        }).then(otp => {
+                            otpInput.value = otp.code;
+                            // Auto-submit form
+                            btnVerifyOtp.click();
+                        }).catch(err => {
+                            console.log('WebOTP API Error:', err);
+                        });
+                    }
                 } else {
                     btnSendOtp.disabled = false;
                     alert(data.message || 'Failed to send OTP.');
@@ -705,7 +725,7 @@ function setFeatured(index) {
                 }
 
                 btnVerifyOtp.disabled = true;
-                btnVerifyOtp.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                btnVerifyOtp.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
                 fetch("{{ route('sell-car.verify-otp') }}", {
                     method: 'POST',
