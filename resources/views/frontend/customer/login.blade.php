@@ -14,7 +14,7 @@
                         <p class="text-muted">Login with your mobile number</p>
                     </div>
 
-                    <form id="sendOtpForm">
+                    <form id="sendOtpForm" class="no-loader">
                         @csrf
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Mobile Number</label>
@@ -29,7 +29,7 @@
                         </button>
                     </form>
 
-                    <form id="verifyOtpForm" style="display: none;">
+                    <form id="verifyOtpForm" style="display: none;" class="no-loader">
                         @csrf
                         <input type="hidden" name="phone" id="verifyPhone">
                         <div class="mb-4">
