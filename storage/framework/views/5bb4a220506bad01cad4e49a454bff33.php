@@ -62,6 +62,7 @@
                     <strong><?php echo e(Str::limit($listing->title, 30)); ?></strong>
                     <br>
                     <small class="text-muted">
+                        #<?php echo e($listing->unique_id); ?> | 
                         <?php if($listing->brand): ?>
                             <?php echo e($listing->brand->name); ?> |
                         <?php endif; ?>
@@ -83,39 +84,37 @@
                 <td>
                     <?php if($listing->isFeatured()): ?>
                         <span class="badge bg-warning text-dark badge-modern"><i class="bi bi-star-fill me-1"></i>Featured</span>
-                        <form action="<?php echo e(route('admin.customer-listings.remove-featured', $listing->slug)); ?>" method="POST" class="d-inline">
-                            <?php echo csrf_field(); ?>
-                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Remove Featured">
-                                <i class="bi bi-star"></i>
-                            </button>
-                        </form>
+                        <?php if($listing->featured_expires_at): ?>
+                            <br><small class="text-muted">Till: <?php echo e(\Carbon\Carbon::parse($listing->featured_expires_at)->format('d M Y')); ?></small>
+                        <?php endif; ?>
+                        
+                        <?php if($listing->featuredListings()->active()->exists()): ?>
+                            <span class="badge bg-success ms-1" title="Paid Plan Active">User Paid</span>
+                        <?php else: ?>
+                            <form action="<?php echo e(route('admin.customer-listings.remove-featured', $listing->slug)); ?>" method="POST" class="d-inline">
+                                <?php echo csrf_field(); ?>
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Remove Featured">
+                                    <i class="bi bi-star"></i>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                     <?php else: ?>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-star"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <form action="<?php echo e(route('admin.customer-listings.featured', $listing->slug)); ?>" method="POST" class="d-inline">
-                                        <?php echo csrf_field(); ?>
-                                        <input type="hidden" name="days" value="7">
-                                        <button type="submit" class="dropdown-item">7 Days</button>
-                                    </form>
-                                </li>
-                                <li>
-                                    <form action="<?php echo e(route('admin.customer-listings.featured', $listing->slug)); ?>" method="POST" class="d-inline">
-                                        <?php echo csrf_field(); ?>
-                                        <input type="hidden" name="days" value="14">
-                                        <button type="submit" class="dropdown-item">14 Days</button>
-                                    </form>
-                                </li>
-                                <li>
-                                    <form action="<?php echo e(route('admin.customer-listings.featured', $listing->slug)); ?>" method="POST" class="d-inline">
-                                        <?php echo csrf_field(); ?>
-                                        <input type="hidden" name="days" value="30">
-                                        <button type="submit" class="dropdown-item">30 Days</button>
-                                    </form>
-                                </li>
+                                <?php $__empty_2 = true; $__currentLoopData = $featuredPlans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $plan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_2 = false; ?>
+                                    <li>
+                                        <form action="<?php echo e(route('admin.customer-listings.featured', $listing->slug)); ?>" method="POST" class="d-inline">
+                                            <?php echo csrf_field(); ?>
+                                            <input type="hidden" name="days" value="<?php echo e($plan->duration_days); ?>">
+                                            <button type="submit" class="dropdown-item"><?php echo e($plan->name); ?> (<?php echo e($plan->duration_days); ?> Days)</button>
+                                        </form>
+                                    </li>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_2): ?>
+                                    <li><span class="dropdown-item text-muted">No plans available</span></li>
+                                <?php endif; ?>
                             </ul>
                         </div>
                     <?php endif; ?>

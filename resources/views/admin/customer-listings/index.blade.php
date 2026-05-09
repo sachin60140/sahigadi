@@ -64,6 +64,7 @@
                     <strong>{{ Str::limit($listing->title, 30) }}</strong>
                     <br>
                     <small class="text-muted">
+                        #{{ $listing->unique_id }} | 
                         @if($listing->brand)
                             {{ $listing->brand->name }} |
                         @endif
@@ -83,39 +84,37 @@
                 <td>
                     @if($listing->isFeatured())
                         <span class="badge bg-warning text-dark badge-modern"><i class="bi bi-star-fill me-1"></i>Featured</span>
-                        <form action="{{ route('admin.customer-listings.remove-featured', $listing->slug) }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Remove Featured">
-                                <i class="bi bi-star"></i>
-                            </button>
-                        </form>
+                        @if($listing->featured_expires_at)
+                            <br><small class="text-muted">Till: {{ \Carbon\Carbon::parse($listing->featured_expires_at)->format('d M Y') }}</small>
+                        @endif
+                        
+                        @if($listing->featuredListings()->active()->exists())
+                            <span class="badge bg-success ms-1" title="Paid Plan Active">User Paid</span>
+                        @else
+                            <form action="{{ route('admin.customer-listings.remove-featured', $listing->slug) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Remove Featured">
+                                    <i class="bi bi-star"></i>
+                                </button>
+                            </form>
+                        @endif
                     @else
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-star"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <form action="{{ route('admin.customer-listings.featured', $listing->slug) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <input type="hidden" name="days" value="7">
-                                        <button type="submit" class="dropdown-item">7 Days</button>
-                                    </form>
-                                </li>
-                                <li>
-                                    <form action="{{ route('admin.customer-listings.featured', $listing->slug) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <input type="hidden" name="days" value="14">
-                                        <button type="submit" class="dropdown-item">14 Days</button>
-                                    </form>
-                                </li>
-                                <li>
-                                    <form action="{{ route('admin.customer-listings.featured', $listing->slug) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <input type="hidden" name="days" value="30">
-                                        <button type="submit" class="dropdown-item">30 Days</button>
-                                    </form>
-                                </li>
+                                @forelse($featuredPlans as $plan)
+                                    <li>
+                                        <form action="{{ route('admin.customer-listings.featured', $listing->slug) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="days" value="{{ $plan->duration_days }}">
+                                            <button type="submit" class="dropdown-item">{{ $plan->name }} ({{ $plan->duration_days }} Days)</button>
+                                        </form>
+                                    </li>
+                                @empty
+                                    <li><span class="dropdown-item text-muted">No plans available</span></li>
+                                @endforelse
                             </ul>
                         </div>
                     @endif

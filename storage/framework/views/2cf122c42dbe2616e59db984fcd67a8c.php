@@ -76,10 +76,21 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="<?php echo e(route('dealer.cars.edit', $car)); ?>" class="btn btn-sm btn-outline-primary">
+                            <?php if($car->status === 'approved'): ?>
+                                <?php if(!$car->isFeatured()): ?>
+                                    <a href="<?php echo e(route('dealer.cars.featured-plans', $car)); ?>" class="btn btn-sm btn-warning text-dark fw-bold" title="Make Featured">
+                                        <i class="bi bi-star"></i> Feature
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?php echo e(route('dealer.cars.featured-plans', $car)); ?>" class="btn btn-sm btn-outline-warning" title="Extend Featured Plan">
+                                        <i class="bi bi-star-fill"></i> Extend
+                                    </a>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            <a href="<?php echo e(route('dealer.cars.edit', $car)); ?>" class="btn btn-sm btn-outline-primary ms-1">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <form action="<?php echo e(route('dealer.cars.destroy', $car)); ?>" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
+                            <form action="<?php echo e(route('dealer.cars.destroy', $car)); ?>" method="POST" class="d-inline ms-1" onsubmit="return confirm('Are you sure?')">
                                 <?php echo csrf_field(); ?>
                                 <?php echo method_field('DELETE'); ?>
                                 <button type="submit" class="btn btn-sm btn-outline-danger">

@@ -32,9 +32,10 @@ class CarController extends Controller
             $query->where('city', $request->city);
         }
 
+        $featuredPlans = \App\Models\FeaturedPlan::active()->orderBy('duration_days')->get();
         $cars = $query->orderBy('created_at', 'desc')->paginate(20);
 
-        return view('admin.cars.index', compact('cars'));
+        return view('admin.cars.index', compact('cars', 'featuredPlans'));
     }
 
     public function create()
@@ -137,23 +138,38 @@ class CarController extends Controller
         return back()->with('success', 'Car rejected');
     }
 
-    public function featured(Car $car)
+    public function featured(Request $request, Car $car)
     {
-        $featuredDealerCars = Car::featured()->count();
-        $featuredCustomerCars = \App\Models\CustomerCarListing::where('is_featured', true)
-            ->where(function ($q) {
-                $q->whereNull('featured_expires_at')
-                    ->orWhere('featured_expires_at', '>', now());
-            })->count();
-            
-        if (($featuredDealerCars + $featuredCustomerCars) >= 8) {
-            return back()->with('error', 'Maximum 8 featured cars allowed across the platform. Please remove a featured car first.');
-        }
+        $days = $request->input('days', 7);
 
         $car->update([
             'is_featured' => true,
-            'featured_expires_at' => now()->addDays(7),
+            'featured_expires_at' => now()->addDays($days),
         ]);
+
+        $emailDetails = [
+            'car_id' => $car->unique_id,
+            'car_title' => $car->title,
+            'plan_name' => "Admin Assigned ($days Days)",
+            'duration_days' => $days,
+            'amount_paid' => 0,
+            'expires_at' => now()->addDays($days),
+            'action_url' => route('dealer.cars.index')
+        ];
+
+        try {
+            if ($car->dealer && $car->dealer->email) {
+                $emailDetails['is_admin'] = false;
+                $emailDetails['user_name'] = $car->dealer->name;
+                \Illuminate\Support\Facades\Mail::to($car->dealer->email)->send(new \App\Mail\FeaturedPlanSubscribed($emailDetails));
+            }
+
+            $emailDetails['is_admin'] = true;
+            $emailDetails['user_name'] = 'Admin';
+            \Illuminate\Support\Facades\Mail::to('sachin60140@gmail.com')->send(new \App\Mail\FeaturedPlanSubscribed($emailDetails));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send featured plan subscription email: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Car marked as featured');
     }

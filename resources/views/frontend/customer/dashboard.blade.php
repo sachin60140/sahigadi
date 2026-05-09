@@ -63,8 +63,11 @@
                                 @endif
                             </div>
                             <div class="card-body">
-                                <h6 class="card-title fw-bold">{{ Str::limit($listing->title, 30) }}</h6>
-                                <div class="d-flex flex-wrap gap-2 small text-muted mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="card-title fw-bold mb-0">{{ Str::limit($listing->title, 25) }}</h6>
+                                    <span class="badge bg-light text-secondary border small">#{{ $listing->unique_id }}</span>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 small text-muted mb-3 mt-2">
                                     @if($listing->km_driven)
                                     <span><i class="bi bi-speedometer2 me-1"></i>{{ number_format($listing->km_driven) }} km</span>
                                     @endif
@@ -73,25 +76,44 @@
                                 </div>
                                 <h5 class="text-accent fw-bold mb-0">₹{{ number_format($listing->price ?? 0) }}</h5>
                                 
+                                @if($listing->isFeatured() && $listing->featured_expires_at)
+                                    <div class="small text-warning fw-bold mt-2">
+                                        <i class="bi bi-star-fill me-1"></i> Featured till {{ \Carbon\Carbon::parse($listing->featured_expires_at)->format('d M, Y') }}
+                                    </div>
+                                @endif
+                                
                                 @if($listing->status == 'rejected' && $listing->rejection_reason)
                                     <div class="alert alert-danger mt-3 mb-0 py-2 small">
                                         <strong>Reason:</strong> {{ $listing->rejection_reason }}
                                     </div>
                                 @endif
                             </div>
-                            <div class="card-footer bg-white border-0 pt-0 pb-3 d-flex gap-2">
-                                @if($listing->status == 'approved')
-                                    <a href="{{ route('car.detail', $listing->slug) }}" class="btn btn-outline-primary btn-sm flex-grow-1" target="_blank">
-                                        <i class="bi bi-eye"></i> View
-                                    </a>
-                                @else
-                                    <a href="{{ route('customer.listing.edit', $listing->id) }}" class="btn btn-outline-primary btn-sm flex-grow-1">
-                                        <i class="bi bi-pencil"></i> Edit
-                                    </a>
-                                @endif
-                                <button type="button" class="btn btn-outline-danger btn-sm flex-grow-1" onclick="initiateDelete({{ $listing->id }})">
-                                    <i class="bi bi-trash"></i> Delete
-                                </button>
+                            <div class="card-footer bg-white border-0 pt-0 pb-3">
+                                <div class="d-flex flex-column gap-2">
+                                    @if($listing->status == 'approved')
+                                        <div class="d-flex w-100 gap-2">
+                                            <a href="{{ route('car.detail', $listing->slug) }}" class="btn btn-outline-primary btn-sm flex-grow-1" target="_blank">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                            @if(!$listing->isFeatured())
+                                                <a href="{{ route('customer.listing.featured-plans', $listing) }}" class="btn btn-sm btn-warning text-dark fw-bold flex-grow-1">
+                                                    <i class="bi bi-star"></i> Feature
+                                                </a>
+                                            @else
+                                                <a href="{{ route('customer.listing.featured-plans', $listing) }}" class="btn btn-sm btn-outline-warning flex-grow-1">
+                                                    <i class="bi bi-star-fill"></i> Extend
+                                                </a>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <a href="{{ route('customer.listing.edit', $listing->id) }}" class="btn btn-outline-primary btn-sm w-100">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                    @endif
+                                    <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="initiateDelete({{ $listing->id }})">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

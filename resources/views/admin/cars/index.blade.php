@@ -61,7 +61,7 @@
                 </td>
                 <td>
                     <strong>{{ Str::limit($car->title, 25) }}</strong>
-                    <br><small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ $car->city ?? 'N/A' }}</small>
+                    <br><small class="text-muted">#{{ $car->unique_id }}</small>
                 </td>
                 <td>{{ Str::limit($car->dealer->name ?? 'N/A', 20) }}</td>
                 <td class="fw-bold">₹{{ number_format($car->price ?? 0) }}</td>
@@ -86,8 +86,39 @@
                 <td>
                     @if($car->isFeatured())
                         <span class="badge bg-warning text-dark badge-modern"><i class="bi bi-star-fill me-1"></i>Featured</span>
+                        @if($car->featured_expires_at)
+                            <br><small class="text-muted">Till: {{ \Carbon\Carbon::parse($car->featured_expires_at)->format('d M Y') }}</small>
+                        @endif
+                        
+                        @if($car->featuredListings()->active()->exists())
+                            <span class="badge bg-success ms-1" title="Paid Plan Active">User Paid</span>
+                        @else
+                            <form action="{{ route('admin.cars.remove-featured', $car) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-outline-secondary ms-1" title="Remove Featured">
+                                    <i class="bi bi-star"></i>
+                                </button>
+                            </form>
+                        @endif
                     @else
-                        <span class="badge bg-secondary badge-modern"><i class="bi bi-star me-1"></i>No</span>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-star"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                @forelse($featuredPlans as $plan)
+                                    <li>
+                                        <form action="{{ route('admin.cars.featured', $car) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="days" value="{{ $plan->duration_days }}">
+                                            <button type="submit" class="dropdown-item">{{ $plan->name }} ({{ $plan->duration_days }} Days)</button>
+                                        </form>
+                                    </li>
+                                @empty
+                                    <li><span class="dropdown-item text-muted">No plans available</span></li>
+                                @endforelse
+                            </ul>
+                        </div>
                     @endif
                 </td>
                 <td>

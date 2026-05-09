@@ -19,6 +19,7 @@ class HomeController extends Controller
             ->approved()
             ->active()
             ->featured()
+            ->inRandomOrder()
             ->limit(8)
             ->get();
 
@@ -30,10 +31,11 @@ class HomeController extends Controller
                 $q->whereNull('featured_expires_at')
                     ->orWhere('featured_expires_at', '>', now());
             })
+            ->inRandomOrder()
             ->limit(8)
             ->get();
 
-        $allFeatured = $featuredCars->concat($featuredCustomerListings)->take(8);
+        $allFeatured = $featuredCars->concat($featuredCustomerListings)->shuffle()->take(8);
 
         $featuredSlugs = $allFeatured->pluck('slug')->toArray();
 

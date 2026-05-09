@@ -56,6 +56,7 @@
                         </td>
                         <td>
                             <a href="{{ route('dealer.cars.edit', $car) }}">{{ Str::limit($car->title, 30) }}</a>
+                            <br><small class="text-muted">#{{ $car->unique_id }}</small>
                             @if($car->rejection_reason)
                                 <br><small class="text-danger">{{ $car->rejection_reason }}</small>
                             @endif
@@ -73,15 +74,29 @@
                         <td>
                             @if($car->isFeatured())
                                 <span class="badge bg-warning"><i class="bi bi-star-fill"></i> Featured</span>
+                                @if($car->featured_expires_at)
+                                    <br><small class="text-muted">Till: {{ \Carbon\Carbon::parse($car->featured_expires_at)->format('d M Y') }}</small>
+                                @endif
                             @else
                                 <span class="text-muted">No</span>
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('dealer.cars.edit', $car) }}" class="btn btn-sm btn-outline-primary">
+                            @if($car->status === 'approved')
+                                @if(!$car->isFeatured())
+                                    <a href="{{ route('dealer.cars.featured-plans', $car) }}" class="btn btn-sm btn-warning text-dark fw-bold" title="Make Featured">
+                                        <i class="bi bi-star"></i> Feature
+                                    </a>
+                                @else
+                                    <a href="{{ route('dealer.cars.featured-plans', $car) }}" class="btn btn-sm btn-outline-warning" title="Extend Featured Plan">
+                                        <i class="bi bi-star-fill"></i> Extend
+                                    </a>
+                                @endif
+                            @endif
+                            <a href="{{ route('dealer.cars.edit', $car) }}" class="btn btn-sm btn-outline-primary ms-1">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <form action="{{ route('dealer.cars.destroy', $car) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
+                            <form action="{{ route('dealer.cars.destroy', $car) }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('Are you sure?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-outline-danger">

@@ -343,7 +343,10 @@
                 <i class="bi bi-person-badge"></i> Customer Listings
             </a>
             <a href="<?php echo e(route('admin.plans.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.plans.*') ? 'active' : ''); ?>">
-                <i class="bi bi-box-seam-fill"></i> Plans
+                <i class="bi bi-box-seam-fill"></i> Subscription Plans
+            </a>
+            <a href="<?php echo e(route('admin.featured-plans.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.featured-plans.*') ? 'active' : ''); ?>">
+                <i class="bi bi-star-fill text-warning"></i> Featured Plans
             </a>
             <a href="<?php echo e(route('admin.brands.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.brands.*') ? 'active' : ''); ?>">
                 <i class="bi bi-tags-fill"></i> Brands

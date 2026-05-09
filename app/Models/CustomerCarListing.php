@@ -100,4 +100,13 @@ class CustomerCarListing extends Model
     {
         return 'slug';
     }
+
+    public function featuredListings()
+    {
+        return $this->morphMany(FeaturedListing::class, 'listable');
+    }
+    public function getUniqueIdAttribute()
+    {
+        return 'CCAR' . (10000 + $this->id);
+    }
 }

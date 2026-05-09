@@ -43,8 +43,9 @@ class CustomerCarListingController extends Controller
         $query = $this->buildFilterQuery($request);
         $listings = $query->paginate(20);
         $pendingCount = CustomerCarListing::pending()->count();
+        $featuredPlans = \App\Models\FeaturedPlan::active()->orderBy('duration_days')->get();
 
-        return view('admin.customer-listings.index', compact('listings', 'pendingCount'));
+        return view('admin.customer-listings.index', compact('listings', 'pendingCount', 'featuredPlans'));
     }
 
     public function exportExcel(Request $request)
@@ -219,6 +220,33 @@ class CustomerCarListingController extends Controller
             'is_featured' => true,
             'featured_expires_at' => now()->addDays((int) $request->days),
         ]);
+
+        $emailDetails = [
+            'car_id' => $listing->unique_id,
+            'car_title' => $listing->title,
+            'plan_name' => "Admin Assigned (".$request->days." Days)",
+            'duration_days' => $request->days,
+            'amount_paid' => 0,
+            'expires_at' => now()->addDays((int) $request->days),
+            'action_url' => route('customer.dashboard')
+        ];
+
+        try {
+            $email = $listing->owner_email ?: \App\Models\Customer::where('phone', $listing->owner_phone)->value('email');
+            $customerName = $listing->owner_name ?: \App\Models\Customer::where('phone', $listing->owner_phone)->value('name');
+            
+            if ($email) {
+                $emailDetails['is_admin'] = false;
+                $emailDetails['user_name'] = $customerName ?? 'Customer';
+                \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\FeaturedPlanSubscribed($emailDetails));
+            }
+
+            $emailDetails['is_admin'] = true;
+            $emailDetails['user_name'] = 'Admin';
+            \Illuminate\Support\Facades\Mail::to('sachin60140@gmail.com')->send(new \App\Mail\FeaturedPlanSubscribed($emailDetails));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send featured plan subscription email: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Listing marked as featured for '.$request->days.' days');
     }

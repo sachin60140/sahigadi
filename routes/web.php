@@ -102,6 +102,10 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::post('/challan-pdf/search', [\App\Http\Controllers\Frontend\ChallanPdfController::class, 'search'])->name('challan-pdf.search');
         Route::get('/challan-pdf/history', [\App\Http\Controllers\Frontend\ChallanPdfController::class, 'history'])->name('challan-pdf.history');
 
+        // Customer Featured Plans Flow
+        Route::get('/listing/{customerListing}/featured-plans', [\App\Http\Controllers\Customer\FeaturedCarController::class, 'showPlans'])->name('listing.featured-plans');
+        Route::post('/listing/{customerListing}/featured-purchase', [\App\Http\Controllers\Customer\FeaturedCarController::class, 'purchase'])->name('listing.featured-purchase');
+
         Route::post('/logout', [CustomerController::class, 'logout'])->name('logout');
     });
 });
@@ -139,6 +143,10 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
             Route::delete('/cars/{car}/image/{carImage}', [DealerCarController::class, 'deleteImage'])->name('cars.image.delete');
             Route::post('/cars/{car}/image/{carImage}/primary', [DealerCarController::class, 'setPrimaryImage'])->name('cars.image.primary');
             Route::post('/cars/{car}/featured', [DealerCarController::class, 'makeFeatured'])->name('cars.featured');
+
+            // Featured Plans Flow
+            Route::get('/cars/{car}/featured-plans', [\App\Http\Controllers\Dealer\FeaturedCarController::class, 'showPlans'])->name('cars.featured-plans');
+            Route::post('/cars/{car}/featured-purchase', [\App\Http\Controllers\Dealer\FeaturedCarController::class, 'purchase'])->name('cars.featured-purchase');
 
             Route::get('/enquiries', [EnquiryController::class, 'index'])->name('enquiries.index');
             Route::get('/enquiries/{enquiry}', [EnquiryController::class, 'show'])->name('enquiries.show');
@@ -224,6 +232,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/cars/{car}/image/{carImage}/primary', [AdminCarController::class, 'setPrimaryImage'])->name('cars.image.primary');
 
         Route::resource('plans', AdminPlanController::class);
+        Route::resource('featured-plans', \App\Http\Controllers\Admin\FeaturedPlanController::class)->except(['show']);
         Route::resource('brands', BrandController::class);
         
         Route::resource('customers', App\Http\Controllers\Admin\CustomerController::class)->only(['index', 'show', 'edit', 'update']);
