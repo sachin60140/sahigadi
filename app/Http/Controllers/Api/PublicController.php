@@ -75,19 +75,16 @@ class PublicController extends Controller
             ->approved()
             ->active()
             ->orderBy('created_at', 'desc')
-            ->limit(10)
             ->get();
 
         $recentCustomerCars = CustomerCarListing::with(['brand:id,name'])
             ->approved()
             ->active()
             ->orderBy('created_at', 'desc')
-            ->limit(10)
             ->get();
 
         $recentListings = $recentDealerCars->concat($recentCustomerCars)
             ->sortByDesc('created_at')
-            ->take(10)
             ->values();
 
         return response()->json([
