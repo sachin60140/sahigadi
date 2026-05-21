@@ -22,7 +22,6 @@ class PublicController extends Controller
             ->active()
             ->featured()
             ->inRandomOrder()
-            ->limit(8)
             ->get();
 
         $featuredCustomerListings = CustomerCarListing::with(['brand:id,name'])
@@ -34,10 +33,9 @@ class PublicController extends Controller
                     ->orWhere('featured_expires_at', '>', now());
             })
             ->inRandomOrder()
-            ->limit(8)
             ->get();
 
-        $allFeatured = $featuredCars->concat($featuredCustomerListings)->shuffle()->take(8);
+        $allFeatured = $featuredCars->concat($featuredCustomerListings)->shuffle();
 
         // 2. Brands with active car count
         $brands = Brand::active()
