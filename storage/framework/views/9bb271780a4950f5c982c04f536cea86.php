@@ -1,18 +1,16 @@
-@extends('layouts.admin')
+<?php $__env->startSection('title', 'Customer Details'); ?>
 
-@section('title', 'Customer Details')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="top-bar">
     <div>
-        <h4><i class="bi bi-person me-2"></i>{{ $customer->name }}</h4>
-        <small class="text-muted">{{ $customer->email }}</small>
+        <h4><i class="bi bi-person me-2"></i><?php echo e($customer->name); ?></h4>
+        <small class="text-muted"><?php echo e($customer->email); ?></small>
     </div>
     <div class="d-flex gap-2">
-        <a href="{{ route('admin.customers.edit', $customer) }}" class="btn btn-primary">
+        <a href="<?php echo e(route('admin.customers.edit', $customer)); ?>" class="btn btn-primary">
             <i class="bi bi-pencil me-2"></i>Edit Customer
         </a>
-        <a href="{{ route('admin.customers.index') }}" class="btn btn-outline-secondary">
+        <a href="<?php echo e(route('admin.customers.index')); ?>" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-2"></i>Back
         </a>
     </div>
@@ -29,76 +27,76 @@
                     <table class="table table-borderless mb-0">
                         <tr>
                             <td class="text-muted">Name</td>
-                            <td>{{ $customer->name }}</td>
+                            <td><?php echo e($customer->name); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Email</td>
-                            <td>{{ $customer->email }}</td>
+                            <td><?php echo e($customer->email); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Phone</td>
-                            <td>{{ $customer->phone }}</td>
+                            <td><?php echo e($customer->phone); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">WhatsApp</td>
-                            <td>{{ $customer->whatsapp_number ?? 'N/A' }}</td>
+                            <td><?php echo e($customer->whatsapp_number ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Company</td>
-                            <td>{{ $customer->company_name ?? 'N/A' }}</td>
+                            <td><?php echo e($customer->company_name ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">City</td>
-                            <td>{{ $customer->city ?? 'N/A' }}</td>
+                            <td><?php echo e($customer->city ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">State</td>
-                            <td>{{ $customer->state ?? 'N/A' }}</td>
+                            <td><?php echo e($customer->state ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Pincode</td>
-                            <td>{{ $customer->pincode ?? 'N/A' }}</td>
+                            <td><?php echo e($customer->pincode ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Full Address</td>
-                            <td>{{ $customer->address ?? 'N/A' }}</td>
+                            <td><?php echo e($customer->address ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">GST Number</td>
-                            <td>{{ $customer->gst_number ?? 'N/A' }}</td>
+                            <td><?php echo e($customer->gst_number ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Wallet Balance</td>
-                            <td class="text-success fw-bold">₹{{ number_format($customer->wallet->balance ?? 0, 2) }}</td>
+                            <td class="text-success fw-bold">₹<?php echo e(number_format($customer->wallet->balance ?? 0, 2)); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Aadhaar Number</td>
-                            <td>{{ $customer->aadhaar_number ?? 'N/A' }}</td>
+                            <td><?php echo e($customer->aadhaar_number ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">PAN Number</td>
-                            <td>{{ $customer->pan_number ?? 'N/A' }}</td>
+                            <td><?php echo e($customer->pan_number ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Gender</td>
-                            <td>{{ ucfirst($customer->gender ?? 'N/A') }}</td>
+                            <td><?php echo e(ucfirst($customer->gender ?? 'N/A')); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Date of Birth</td>
-                            <td>{{ $customer->dob ? $customer->dob->format('d M Y') : 'N/A' }}</td>
+                            <td><?php echo e($customer->dob ? $customer->dob->format('d M Y') : 'N/A'); ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Profile Completion</td>
                             <td>
                                 <div class="progress mb-1" style="height: 6px;">
-                                    <div class="progress-bar {{ $customer->profile_completion_percentage >= 75 ? 'bg-success' : 'bg-warning' }}" role="progressbar" style="width: {{ $customer->profile_completion_percentage }}%;" aria-valuenow="{{ $customer->profile_completion_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar <?php echo e($customer->profile_completion_percentage >= 75 ? 'bg-success' : 'bg-warning'); ?>" role="progressbar" style="width: <?php echo e($customer->profile_completion_percentage); ?>%;" aria-valuenow="<?php echo e($customer->profile_completion_percentage); ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <small class="text-muted">{{ $customer->profile_completion_percentage }}% Completed</small>
+                                <small class="text-muted"><?php echo e($customer->profile_completion_percentage); ?>% Completed</small>
                             </td>
                         </tr>
                         <tr>
                             <td class="text-muted">Joined On</td>
-                            <td>{{ $customer->created_at->format('d M Y') }}</td>
+                            <td><?php echo e($customer->created_at->format('d M Y')); ?></td>
                         </tr>
                     </table>
                 </div>
@@ -109,10 +107,10 @@
     <div class="col-md-8">
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="mb-0">Car Listings ({{ $customer->listings->count() }})</h5>
+                <h5 class="mb-0">Car Listings (<?php echo e($customer->listings->count()); ?>)</h5>
             </div>
             <div class="card-body">
-                @if($customer->listings->count() > 0)
+                <?php if($customer->listings->count() > 0): ?>
                 <div class="table-responsive">
                     <table class="table table-sm">
                         <thead>
@@ -124,35 +122,35 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($customer->listings as $listing)
+                            <?php $__currentLoopData = $customer->listings; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $listing): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
                                 <td>
-                                    <strong>{{ $listing->brand->name ?? 'Unknown' }} {{ $listing->model }}</strong>
-                                    <br><small class="text-muted">{{ ucfirst($listing->transmission) }} ({{ $listing->fuel_type }})</small>
+                                    <strong><?php echo e($listing->brand->name ?? 'Unknown'); ?> <?php echo e($listing->model); ?></strong>
+                                    <br><small class="text-muted"><?php echo e(ucfirst($listing->transmission)); ?> (<?php echo e($listing->fuel_type); ?>)</small>
                                 </td>
-                                <td>{{ $listing->year }}</td>
-                                <td>₹{{ number_format($listing->price ?? 0) }}</td>
+                                <td><?php echo e($listing->year); ?></td>
+                                <td>₹<?php echo e(number_format($listing->price ?? 0)); ?></td>
                                 <td>
-                                    @if($listing->status === 'approved')
+                                    <?php if($listing->status === 'approved'): ?>
                                         <span class="badge bg-success">Approved</span>
-                                    @elseif($listing->status === 'pending')
+                                    <?php elseif($listing->status === 'pending'): ?>
                                         <span class="badge bg-warning">Pending</span>
-                                    @else
+                                    <?php else: ?>
                                         <span class="badge bg-danger">Rejected</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                             </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
                 </div>
-                @else
+                <?php else: ?>
                 <p class="text-muted mb-0">No cars listed.</p>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
 
-        @if($customer->wallet && $customer->wallet->transactions->count() > 0)
+        <?php if($customer->wallet && $customer->wallet->transactions->count() > 0): ?>
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Recent Wallet Transactions</h5>
@@ -169,28 +167,31 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($customer->wallet->transactions as $txn)
+                            <?php $__currentLoopData = $customer->wallet->transactions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $txn): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
-                                <td>{{ $txn->created_at->format('d M Y, h:i A') }}</td>
+                                <td><?php echo e($txn->created_at->format('d M Y, h:i A')); ?></td>
                                 <td>
-                                    @if($txn->type === 'credit')
+                                    <?php if($txn->type === 'credit'): ?>
                                         <span class="badge bg-success">Credit</span>
-                                    @else
+                                    <?php else: ?>
                                         <span class="badge bg-danger">Debit</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
-                                <td class="{{ $txn->type === 'credit' ? 'text-success' : 'text-danger' }}">
-                                    {{ $txn->type === 'credit' ? '+' : '-' }}₹{{ number_format($txn->amount, 2) }}
+                                <td class="<?php echo e($txn->type === 'credit' ? 'text-success' : 'text-danger'); ?>">
+                                    <?php echo e($txn->type === 'credit' ? '+' : '-'); ?>₹<?php echo e(number_format($txn->amount, 2)); ?>
+
                                 </td>
-                                <td>{{ $txn->remark ?? '-' }}</td>
+                                <td><?php echo e($txn->remark ?? '-'); ?></td>
                             </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\sahigadi-ai\resources\views/admin/customers/show.blade.php ENDPATH**/ ?>

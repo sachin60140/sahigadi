@@ -249,7 +249,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                                 <i class="bi bi-person-fill" style="font-size: 2rem; color: #e94560;"></i>
                             </div>
                             <div>
-                                <h6 class="mb-0">{{ $item->owner_name ?? 'Owner' }}</h6>
+                                <h6 class="mb-0">{{ ($item->customer && $item->customer->name) ? $item->customer->name : ($item->owner_name ?? 'Owner') }}</h6>
                             </div>
                         </div>
                         @if($item->owner_phone)

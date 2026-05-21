@@ -150,7 +150,7 @@ class CarController extends Controller
 
         $customerListing = null;
         if (! $car) {
-            $customerListing = CustomerCarListing::with('brand')
+            $customerListing = CustomerCarListing::with(['brand', 'customer'])
                 ->where('slug', $slug)
                 ->approved()
                 ->active()
@@ -185,7 +185,7 @@ class CarController extends Controller
             'fuel_type' => $item->fuel_type,
             'transmission' => $item->transmission,
             'images' => $allImages,
-            'seller_name' => $isCustomerListing ? ($item->owner_name ?? 'Owner') : ($item->dealer->name ?? 'SAHI GADI'),
+            'seller_name' => $isCustomerListing ? (($item->customer && $item->customer->name) ? $item->customer->name : ($item->owner_name ?? 'Owner')) : ($item->dealer->name ?? 'SAHI GADI'),
             'seller_type' => $isCustomerListing ? 'Person' : 'Organization',
             'url' => route('car.detail', $item->slug),
         ]);

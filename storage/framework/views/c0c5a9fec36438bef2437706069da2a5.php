@@ -53,7 +53,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
 <?php $__env->startSection('twitter_description', $seo['og_description']); ?>
 <?php $__env->startSection('twitter_image', $firstImage); ?>
 
-<?php if (! $__env->hasRenderedOnce('0f53cfeb-5bd9-43b7-ab74-be5caedda222')): $__env->markAsRenderedOnce('0f53cfeb-5bd9-43b7-ab74-be5caedda222'); ?>
+<?php if (! $__env->hasRenderedOnce('d64b231d-959b-4ad0-ae33-08524c646b31')): $__env->markAsRenderedOnce('d64b231d-959b-4ad0-ae33-08524c646b31'); ?>
 <?php $__env->startSection('json_ld'); ?>
 <script type="application/ld+json">
 <?php echo json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>
@@ -251,7 +251,7 @@ $maskedPhone = $actualPhone ? substr($actualPhone, 0, 3) . '****' . substr($actu
                                 <i class="bi bi-person-fill" style="font-size: 2rem; color: #e94560;"></i>
                             </div>
                             <div>
-                                <h6 class="mb-0"><?php echo e($item->owner_name ?? 'Owner'); ?></h6>
+                                <h6 class="mb-0"><?php echo e(($item->customer && $item->customer->name) ? $item->customer->name : ($item->owner_name ?? 'Owner')); ?></h6>
                             </div>
                         </div>
                         <?php if($item->owner_phone): ?>

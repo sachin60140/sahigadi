@@ -69,6 +69,11 @@ class CustomerCarListing extends Model
         return $this->belongsTo(Brand::class);
     }
 
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'owner_phone', 'phone');
+    }
+
     public function scopeApproved($query)
     {
         return $query->where('status', 'approved');
