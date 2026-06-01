@@ -55,4 +55,13 @@ return [
         'charge' => env('SERVICE_HISTORY_CHARGE', 20.00),
     ],
 
+    'smartping' => [
+        'api_url' => env('SMARTPING_API_URL', 'https://pgapi.sparc.smartping.io/fe/api/v1/send'),
+        'username' => env('SMARTPING_USERNAME', 'sarsinfo.trans'),
+        'password' => env('SMARTPING_PASSWORD', '6E5s8aI_'),
+        'sender_id' => env('SMARTPING_SENDER_ID', 'INSARS'),
+        'dlt_content_id' => env('SMARTPING_DLT_CONTENT_ID', '1707177677498830200'),
+        'dlt_principal_id' => env('SMARTPING_DLT_PRINCIPAL_ID', '1701166126846262605'),
+    ],
+
 ];

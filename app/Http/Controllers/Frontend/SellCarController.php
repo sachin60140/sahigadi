@@ -16,7 +16,7 @@ class SellCarController extends Controller
         $fuelTypes = ['petrol' => 'Petrol', 'diesel' => 'Diesel', 'electric' => 'Electric', 'hybrid' => 'Hybrid', 'cng' => 'CNG'];
         $transmissions = ['manual' => 'Manual', 'automatic' => 'Automatic'];
 
-        return view('frontend.sell-car.index', compact('brands', 'fuelTypes', 'transmissions'));
+        return \Inertia\Inertia::render('Public/SellCar', compact('brands', 'fuelTypes', 'transmissions'));
     }
 
     public function store(Request $request)

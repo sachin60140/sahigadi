@@ -26,6 +26,7 @@ use App\Http\Controllers\Frontend\ChallanSearchController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\SellCarController;
 use App\Http\Controllers\Frontend\CustomerController;
+use App\Http\Controllers\Frontend\ContactUnlockController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
 Route::get('/car/{slug}', [CarController::class, 'show'])->name('car.detail');
 Route::post('/car/{slug}/enquiry', [CarController::class, 'enquiry'])->name('car.enquiry');
+
+// Contact Unlock OTP Routes
+Route::post('/otp/send-contact-unlock', [ContactUnlockController::class, 'sendOtp'])->name('otp.send_contact_unlock');
+Route::post('/otp/verify-contact-unlock', [ContactUnlockController::class, 'verifyOtp'])->name('otp.verify_contact_unlock');
 
 // Contact Unlock OTP Routes
 Route::post('/api/enquiry/send-otp', [\App\Http\Controllers\Frontend\EnquiryApiController::class, 'sendOtp'])->name('api.enquiry.send-otp');

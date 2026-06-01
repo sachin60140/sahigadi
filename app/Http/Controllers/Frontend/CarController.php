@@ -10,114 +10,94 @@ use App\Models\Dealer;
 use App\Models\Enquiry;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CarController extends Controller
 {
     public function __construct(protected SeoService $seoService) {}
 
-    public function index(Request $request)
+    protected function mapSafeCarPayload($car)
     {
-        $query = Car::with(['dealer', 'brand', 'images'])
-            ->approved()
-            ->active();
+        return [
+            'id' => $car->id,
+            'slug' => $car->slug,
+            'title' => $car->title,
+            'brand' => $car->brand ? ['id' => $car->brand->id, 'name' => $car->brand->name, 'slug' => $car->brand->slug] : null,
+            'model' => $car->model,
+            'variant' => $car->variant,
+            'year' => $car->year,
+            'fuel_type' => $car->fuel_type,
+            'transmission' => $car->transmission,
+            'km_driven' => $car->km_driven,
+            'price' => $car->price,
+            'city' => $car->city,
+            'is_featured' => $car->is_featured,
+            'is_verified' => isset($car->dealer_id) ? true : ($car->is_verified ?? false),
+            'image_url' => $car instanceof Car ? $this->getFirstImage($car, null) : $this->getFirstImage(null, $car),
+        ];
+    }
 
-        if ($request->filled('keyword')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', '%'.$request->keyword.'%')
-                    ->orWhere('model', 'like', '%'.$request->keyword.'%');
-            });
-        }
+    protected function mergeAndPaginate($carQuery, $customerListingQuery, $perPage = 12, $request)
+    {
+        // Get all matching results
+        $cars = $carQuery->get();
+        $customerListings = $customerListingQuery->get();
 
-        if ($request->filled('city')) {
-            $query->where('city', $request->city);
-        }
-
-        if ($request->filled('brand')) {
-            $query->where('brand_id', $request->brand);
-        }
-
-        if ($request->filled('fuel_type')) {
-            $query->where('fuel_type', $request->fuel_type);
-        }
-
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        }
-
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
-        }
-
-        if ($request->filled('transmission')) {
-            $query->where('transmission', $request->transmission);
-        }
-
-        if ($request->filled('min_km')) {
-            $query->where('km_driven', '>=', $request->min_km);
-        }
-
-        if ($request->filled('max_km')) {
-            $query->where('km_driven', '<=', $request->max_km);
-        }
-
-        $customerListingQuery = CustomerCarListing::with('brand')
-            ->approved()
-            ->active()
-            ->when($request->filled('keyword'), function ($q) use ($request) {
-                $q->where(function ($q2) use ($request) {
-                    $q2->where('title', 'like', '%'.$request->keyword.'%')
-                        ->orWhere('model', 'like', '%'.$request->keyword.'%');
-                });
-            })
-            ->when($request->filled('city'), function ($q) use ($request) {
-                $q->where('city', $request->city);
-            })
-            ->when($request->filled('brand'), function ($q) use ($request) {
-                $q->where('brand_id', $request->brand);
-            })
-            ->when($request->filled('fuel_type'), function ($q) use ($request) {
-                $q->where('fuel_type', $request->fuel_type);
-            })
-            ->when($request->filled('min_price'), function ($q) use ($request) {
-                $q->where('price', '>=', $request->min_price);
-            })
-            ->when($request->filled('max_price'), function ($q) use ($request) {
-                $q->where('price', '<=', $request->max_price);
-            })
-            ->when($request->filled('transmission'), function ($q) use ($request) {
-                $q->where('transmission', $request->transmission);
-            });
+        // Merge and sort
+        $allCars = $cars->concat($customerListings);
 
         if ($request->has('sort')) {
             switch ($request->sort) {
                 case 'price_low':
-                    $query->orderBy('price', 'asc');
-                    $customerListingQuery->orderBy('price', 'asc');
+                    $allCars = $allCars->sortBy('price')->values();
                     break;
                 case 'price_high':
-                    $query->orderBy('price', 'desc');
-                    $customerListingQuery->orderBy('price', 'desc');
+                    $allCars = $allCars->sortByDesc('price')->values();
                     break;
                 case 'newest':
-                    $query->orderBy('created_at', 'desc');
-                    $customerListingQuery->orderBy('created_at', 'desc');
+                    $allCars = $allCars->sortByDesc('created_at')->values();
                     break;
                 case 'km_low':
-                    $query->orderBy('km_driven', 'asc');
-                    $customerListingQuery->orderBy('km_driven', 'asc');
+                    $allCars = $allCars->sortBy('km_driven')->values();
                     break;
                 case 'relevance':
                 default:
-                    $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
-                    $customerListingQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
+                    $allCars = $allCars->sortByDesc('created_at')->sortByDesc('is_featured')->values();
             }
         } else {
-            $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
-            $customerListingQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
+            $allCars = $allCars->sortByDesc('created_at')->sortByDesc('is_featured')->values();
         }
 
-        $cars = $query->paginate(12);
-        $customerListings = $customerListingQuery->get();
+        // Apply mapSafeCarPayload
+        $safeCars = $allCars->map(fn($car) => $this->mapSafeCarPayload($car));
+
+        // Paginate manually
+        $page = $request->get('page', 1);
+        $total = $safeCars->count();
+        $results = $safeCars->slice(($page - 1) * $perPage, $perPage)->values();
+
+        $paginator = new LengthAwarePaginator($results, $total, $perPage, $page, [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]);
+
+        return $paginator;
+    }
+
+
+    public function index(Request $request)
+    {
+        $carQuery = Car::with(['brand', 'images'])
+            ->approved()
+            ->active();
+
+        $customerListingQuery = CustomerCarListing::with('brand')
+            ->approved()
+            ->active();
+
+        $this->applyFilters($carQuery, $customerListingQuery, $request);
+
+        $carsPaginated = $this->mergeAndPaginate($carQuery, $customerListingQuery, 12, $request);
 
         $brands = Brand::active()->orderBy('name')->get();
         
@@ -131,13 +111,78 @@ class CarController extends Controller
             ->values();
 
         $ogImage = null;
-        if ($cars->isNotEmpty()) {
-            $ogImage = $this->getFirstImage($cars->first(), null);
-        } elseif ($customerListings->isNotEmpty()) {
-            $ogImage = $this->getFirstImage(null, $customerListings->first());
+        if ($carsPaginated->count() > 0) {
+            $ogImage = $carsPaginated->first()['image_url'] ?? null;
         }
 
-        return view('frontend.cars.index', compact('cars', 'customerListings', 'brands', 'cities', 'ogImage'));
+        return \Inertia\Inertia::render('Public/Cars/Index', [
+            'cars' => $carsPaginated,
+            'brands' => $brands,
+            'cities' => $cities,
+            'ogImage' => $ogImage,
+            'fuelTypes' => ['Petrol', 'Diesel', 'CNG', 'Electric'],
+            'transmissions' => ['Manual', 'Automatic'],
+            'budgetOptions' => [
+                ['label' => 'Under 3 Lakh', 'value' => '300000'],
+                ['label' => 'Under 5 Lakh', 'value' => '500000'],
+                ['label' => 'Under 7 Lakh', 'value' => '700000'],
+                ['label' => 'Under 10 Lakh', 'value' => '1000000'],
+                ['label' => 'Under 15 Lakh', 'value' => '1500000'],
+            ],
+            'sortOptions' => [
+                ['label' => 'Relevance', 'value' => 'relevance'],
+                ['label' => 'Price: Low to High', 'value' => 'price_low'],
+                ['label' => 'Price: High to Low', 'value' => 'price_high'],
+                ['label' => 'Newest First', 'value' => 'newest'],
+                ['label' => 'KM: Low to High', 'value' => 'km_low'],
+            ],
+            'filters' => $request->only(['keyword', 'city', 'brand', 'fuel_type', 'min_price', 'max_price', 'transmission', 'sort'])
+        ]);
+    }
+
+    protected function applyFilters($carQuery, $customerListingQuery, $request)
+    {
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $carQuery->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                  ->orWhere('model', 'like', "%{$keyword}%");
+            });
+            $customerListingQuery->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                  ->orWhere('model', 'like', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('city')) {
+            $carQuery->where('city', $request->city);
+            $customerListingQuery->where('city', $request->city);
+        }
+
+        if ($request->filled('brand')) {
+            $carQuery->where('brand_id', $request->brand);
+            $customerListingQuery->where('brand_id', $request->brand);
+        }
+
+        if ($request->filled('fuel_type')) {
+            $carQuery->where('fuel_type', $request->fuel_type);
+            $customerListingQuery->where('fuel_type', $request->fuel_type);
+        }
+
+        if ($request->filled('min_price')) {
+            $carQuery->where('price', '>=', $request->min_price);
+            $customerListingQuery->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->filled('max_price')) {
+            $carQuery->where('price', '<=', $request->max_price);
+            $customerListingQuery->where('price', '<=', $request->max_price);
+        }
+
+        if ($request->filled('transmission')) {
+            $carQuery->where('transmission', $request->transmission);
+            $customerListingQuery->where('transmission', $request->transmission);
+        }
     }
 
     public function show(string $slug)
@@ -215,17 +260,64 @@ class CarController extends Controller
             ->limit(4)
             ->get();
 
-        return view('frontend.cars.show', array_merge(
-            compact('car', 'customerListing', 'relatedCars'),
-            [
-                'seo' => $seoData,
-                'firstImage' => $firstImage,
-                'allImages' => $allImages,
-                'isCustomerListing' => $isCustomerListing,
-                'structuredData' => $structuredData,
-                'breadcrumbSchema' => $breadcrumbSchema,
-            ]
-        ));
+        $safeRelatedCars = $relatedCars->map(function ($relatedCar) {
+            return $this->mapSafeCarPayload($relatedCar);
+        })->values()->toArray();
+
+        $sellerPublicProfile = [
+            'display_name' => $isCustomerListing 
+                ? (($item->customer && $item->customer->name) ? $item->customer->name : ($item->owner_name ?? 'Owner')) 
+                : ($item->dealer->name ?? 'SAHI GADI'),
+            'type' => $isCustomerListing ? 'Owner' : 'Dealer',
+            'city' => $item->city,
+            'is_verified' => $item->is_verified ?? true,
+            'member_since' => $isCustomerListing 
+                ? ($item->customer->created_at ?? $item->created_at)->format('Y')
+                : ($item->dealer->created_at ?? $item->created_at)->format('Y'),
+            'masked_mobile' => $isCustomerListing 
+                ? substr($item->owner_phone ?? $item->customer->phone ?? '0000000000', 0, 3) . '****' . substr($item->owner_phone ?? $item->customer->phone ?? '0000000000', -3)
+                : substr($item->dealer->phone ?? '0000000000', 0, 3) . '****' . substr($item->dealer->phone ?? '0000000000', -3),
+        ];
+
+        // Ensure registration number is masked
+        $regNumber = $item->registration_number ?? $item->reg_number ?? '';
+        $maskedReg = $regNumber ? substr($regNumber, 0, 4) . '****' . substr($regNumber, -4) : null;
+
+        $safeCarDetail = [
+            'id' => $item->id,
+            'slug' => $item->slug,
+            'title' => $item->title,
+            'brand' => $item->brand->name ?? '',
+            'model' => $item->model,
+            'variant' => $item->variant,
+            'year' => $item->year,
+            'fuel_type' => $item->fuel_type,
+            'transmission' => $item->transmission,
+            'km_driven' => $item->km_driven,
+            'price' => $item->price,
+            'city' => $item->city,
+            'state' => $item->state ?? null,
+            'image_urls' => $allImages,
+            'main_image_url' => $firstImage,
+            'is_verified' => $item->is_verified ?? true,
+            'description' => $item->description,
+            'ownership' => $item->ownership ?? 'First',
+            'registration_number_masked' => $maskedReg,
+            'insurance_status' => $item->insurance_status ?? 'Valid',
+            'color' => $item->color ?? null,
+            'body_type' => $item->body_type ?? null,
+            'engine' => $item->engine ?? null,
+            'isCustomerListing' => $isCustomerListing,
+            'seller_public_profile' => $sellerPublicProfile,
+        ];
+
+        return \Inertia\Inertia::render('Public/Cars/Show', [
+            'car' => $safeCarDetail,
+            'relatedCars' => $safeRelatedCars,
+            'seo' => $seoData,
+            'structuredData' => $structuredData,
+            'breadcrumbSchema' => $breadcrumbSchema,
+        ]);
     }
 
     protected function getFirstImage(?Car $car, ?CustomerCarListing $customerListing): string
@@ -281,7 +373,7 @@ class CarController extends Controller
     {
         $cityName = ucwords(str_replace('-', ' ', $city));
 
-        $carQuery = Car::with(['dealer', 'brand', 'images'])
+        $carQuery = Car::with(['brand', 'images'])
             ->approved()
             ->active()
             ->where('city', 'like', '%'.$cityName.'%');
@@ -291,42 +383,45 @@ class CarController extends Controller
             ->active()
             ->where('city', 'like', '%'.$cityName.'%');
 
-        if ($request->filled('brand')) {
-            $carQuery->where('brand_id', $request->brand);
-            $customerListingQuery->where('brand_id', $request->brand);
-        }
+        $this->applyFilters($carQuery, $customerListingQuery, $request);
 
-        if ($request->filled('min_price')) {
-            $carQuery->where('price', '>=', $request->min_price);
-            $customerListingQuery->where('price', '>=', $request->min_price);
-        }
-
-        if ($request->filled('max_price')) {
-            $carQuery->where('price', '<=', $request->max_price);
-            $customerListingQuery->where('price', '<=', $request->max_price);
-        }
-
-        $cars = $carQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc')->get();
-        $customerListings = $customerListingQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc')->get();
-
-        $allCars = $cars->concat($customerListings)->sortByDesc('created_at')->values();
-
+        $carsPaginated = $this->mergeAndPaginate($carQuery, $customerListingQuery, 12, $request);
         $brands = Brand::active()->orderBy('name')->get();
 
         $seoTitle = "Used Cars in {$cityName} - Best Deals on Second Hand Cars";
         $seoDescription = "Buy verified used cars in {$cityName}. Best price deals, easy financing, doorstep delivery. Find your perfect second hand vehicle.";
 
         $ogImage = null;
-        if ($allCars->isNotEmpty()) {
-            $first = $allCars->first();
-            if ($first instanceof \App\Models\Car) {
-                $ogImage = $this->getFirstImage($first, null);
-            } else {
-                $ogImage = $this->getFirstImage(null, $first);
-            }
+        if ($carsPaginated->count() > 0) {
+            $ogImage = $carsPaginated->first()['image_url'] ?? null;
         }
 
-        return view('frontend.cars.city', compact('allCars', 'brands', 'city', 'cityName', 'seoTitle', 'seoDescription', 'ogImage'));
+        return \Inertia\Inertia::render('Public/Cars/Index', [
+            'cars' => $carsPaginated,
+            'brands' => $brands, 
+            'cities' => [$cityName], // For the filter pre-select
+            'cityName' => $cityName, 
+            'seoTitle' => $seoTitle, 
+            'seoDescription' => $seoDescription, 
+            'ogImage' => $ogImage,
+            'fuelTypes' => ['Petrol', 'Diesel', 'CNG', 'Electric'],
+            'transmissions' => ['Manual', 'Automatic'],
+            'budgetOptions' => [
+                ['label' => 'Under 3 Lakh', 'value' => '300000'],
+                ['label' => 'Under 5 Lakh', 'value' => '500000'],
+                ['label' => 'Under 7 Lakh', 'value' => '700000'],
+                ['label' => 'Under 10 Lakh', 'value' => '1000000'],
+                ['label' => 'Under 15 Lakh', 'value' => '1500000'],
+            ],
+            'sortOptions' => [
+                ['label' => 'Relevance', 'value' => 'relevance'],
+                ['label' => 'Price: Low to High', 'value' => 'price_low'],
+                ['label' => 'Price: High to Low', 'value' => 'price_high'],
+                ['label' => 'Newest First', 'value' => 'newest'],
+                ['label' => 'KM: Low to High', 'value' => 'km_low'],
+            ],
+            'filters' => array_merge($request->only(['keyword', 'brand', 'fuel_type', 'min_price', 'max_price', 'transmission', 'sort']), ['city' => $cityName])
+        ]);
     }
 
     public function byBrand(Request $request, string $brand, ?string $city = null)
@@ -335,7 +430,7 @@ class CarController extends Controller
         $brandName = $brandModel->name;
         $cityName = $city ? ucwords(str_replace('-', ' ', $city)) : null;
 
-        $carQuery = Car::with(['dealer', 'brand', 'images'])
+        $carQuery = Car::with(['brand', 'images'])
             ->approved()
             ->active()
             ->where('brand_id', $brandModel->id);
@@ -350,20 +445,9 @@ class CarController extends Controller
             $customerListingQuery->where('city', 'like', '%'.$cityName.'%');
         }
 
-        if ($request->filled('min_price')) {
-            $carQuery->where('price', '>=', $request->min_price);
-            $customerListingQuery->where('price', '>=', $request->min_price);
-        }
+        $this->applyFilters($carQuery, $customerListingQuery, $request);
 
-        if ($request->filled('max_price')) {
-            $carQuery->where('price', '<=', $request->max_price);
-            $customerListingQuery->where('price', '<=', $request->max_price);
-        }
-
-        $cars = $carQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc')->get();
-        $customerListings = $customerListingQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc')->get();
-
-        $allCars = $cars->concat($customerListings)->sortByDesc('created_at')->values();
+        $carsPaginated = $this->mergeAndPaginate($carQuery, $customerListingQuery, 12, $request);
 
         if ($cityName) {
             $seoTitle = "Used {$brandName} Cars in {$cityName} - Best Deals on Second Hand Cars";
@@ -374,24 +458,36 @@ class CarController extends Controller
         }
 
         $ogImage = null;
-        if ($allCars->isNotEmpty()) {
-            $first = $allCars->first();
-            if ($first instanceof \App\Models\Car) {
-                $ogImage = $this->getFirstImage($first, null);
-            } else {
-                $ogImage = $this->getFirstImage(null, $first);
-            }
+        if ($carsPaginated->count() > 0) {
+            $ogImage = $carsPaginated->first()['image_url'] ?? null;
         }
 
-        return view('frontend.cars.brand', [
-            'allCars' => $allCars,
-            'brand' => $brand,
+        return \Inertia\Inertia::render('Public/Cars/Index', [
+            'cars' => $carsPaginated,
+            'brands' => [$brandModel], 
+            'cities' => $cityName ? [$cityName] : [], 
             'brandName' => $brandName,
-            'city' => $city,
             'cityName' => $cityName,
             'seoTitle' => $seoTitle,
             'seoDescription' => $seoDescription,
             'ogImage' => $ogImage,
+            'fuelTypes' => ['Petrol', 'Diesel', 'CNG', 'Electric'],
+            'transmissions' => ['Manual', 'Automatic'],
+            'budgetOptions' => [
+                ['label' => 'Under 3 Lakh', 'value' => '300000'],
+                ['label' => 'Under 5 Lakh', 'value' => '500000'],
+                ['label' => 'Under 7 Lakh', 'value' => '700000'],
+                ['label' => 'Under 10 Lakh', 'value' => '1000000'],
+                ['label' => 'Under 15 Lakh', 'value' => '1500000'],
+            ],
+            'sortOptions' => [
+                ['label' => 'Relevance', 'value' => 'relevance'],
+                ['label' => 'Price: Low to High', 'value' => 'price_low'],
+                ['label' => 'Price: High to Low', 'value' => 'price_high'],
+                ['label' => 'Newest First', 'value' => 'newest'],
+                ['label' => 'KM: Low to High', 'value' => 'km_low'],
+            ],
+            'filters' => array_merge($request->only(['keyword', 'fuel_type', 'min_price', 'max_price', 'transmission', 'sort']), ['brand' => $brandModel->id, 'city' => $cityName ?? ''])
         ]);
     }
 

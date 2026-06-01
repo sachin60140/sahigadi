@@ -14,7 +14,7 @@ class CustomerController extends Controller
 {
     public function showLogin()
     {
-        return view('frontend.customer.login');
+        return \Inertia\Inertia::render('Public/Customer/Login');
     }
 
     public function sendOtp(Request $request)
