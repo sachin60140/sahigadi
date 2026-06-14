@@ -80,11 +80,14 @@ const title = computed(() => {
     return props.car.title || `${brandName} ${model}`.trim() || 'Used Car';
 });
 
-const imageUrl = computed(() => props.car.image_url || '/images/car-placeholder.webp');
+const fallbackImage = '/images/og-image.png';
+const imageUrl = computed(() => props.car.image_url || fallbackImage);
 
 const handleImageError = (event: Event) => {
     const target = event.target as HTMLImageElement;
-    target.src = '/images/car-placeholder.webp';
+    if (!target.src.endsWith(fallbackImage)) {
+        target.src = fallbackImage;
+    }
 };
 
 const isVerified = computed(() => Boolean(props.car.is_verified));

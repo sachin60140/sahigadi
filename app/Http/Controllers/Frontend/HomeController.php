@@ -137,8 +137,9 @@ class HomeController extends Controller
         $itemListElement = [];
 
         foreach ($allFeatured as $index => $item) {
-            $image = $item instanceof Car ? ($item->primaryImage()?->url ?? asset('images/default-car.jpg')) :
-                     (isset($item->images[0]) ? asset('storage/'.$item->images[0]) : asset('images/default-car.jpg'));
+            $image = $item instanceof Car
+                ? ($item->primaryImage()?->url ?? asset('images/og-image.png'))
+                : ($this->resolvePublicImageUrl($this->firstCustomerImage($item)) ?? asset('images/og-image.png'));
 
             $itemListElement[] = [
                 '@type' => 'ListItem',
@@ -191,10 +192,33 @@ class HomeController extends Controller
             'is_featured' => $car->is_featured,
             'is_verified' => isset($car->dealer_id) ? true : ($car->is_verified ?? false),
             // Map the primary image out safely
-            'image_url' => $car instanceof Car ? ($car->primaryImage()?->url ?? '/images/default-car.jpg') : 
-                (is_string($car->images) ? 
-                    (json_decode($car->images)[0] ?? '/images/default-car.jpg') : 
-                    ($car->images[0] ?? '/images/default-car.jpg')),
+            'image_url' => $car instanceof Car
+                ? ($car->primaryImage()?->url ?? asset('images/og-image.png'))
+                : ($this->resolvePublicImageUrl($this->firstCustomerImage($car)) ?? asset('images/og-image.png')),
         ];
+    }
+
+    protected function firstCustomerImage(CustomerCarListing $listing): ?string
+    {
+        $images = is_string($listing->images)
+            ? json_decode($listing->images, true)
+            : $listing->images;
+
+        return is_array($images) ? ($images[0] ?? null) : null;
+    }
+
+    protected function resolvePublicImageUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
+        }
+
+        $path = ltrim(str_replace('\\', '/', $path), '/');
+
+        return asset(str_starts_with($path, 'storage/') ? $path : 'storage/'.$path);
     }
 }

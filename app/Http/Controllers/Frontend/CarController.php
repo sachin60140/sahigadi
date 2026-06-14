@@ -322,51 +322,54 @@ class CarController extends Controller
 
     protected function getFirstImage(?Car $car, ?CustomerCarListing $customerListing): string
     {
-        $path = null;
-        if ($car && $car->image_url) {
-            $path = $car->images->first()->image_path ?? null;
-        } elseif ($customerListing) {
-            $images = json_decode($customerListing->images ?? '[]', true);
-            $path = count($images) > 0 ? $images[0] : null;
-        }
-
-        if ($path && !filter_var($path, FILTER_VALIDATE_URL)) {
-            return route('og.image.generate', ['path' => $path]);
-        }
-
-        // Fallback for URLs or missing
         if ($car) {
-            return $car->image_url ?? asset('images/default-car.jpg');
+            return $car->image_url ?? asset('images/og-image.png');
         }
 
         if ($customerListing) {
             $images = json_decode($customerListing->images ?? '[]', true);
-            return count($images) > 0 ? asset('storage/'.$images[0]) : asset('images/default-car.jpg');
+            return $this->resolvePublicImageUrl($images[0] ?? null) ?? asset('images/og-image.png');
         }
 
-        return asset('images/default-car.jpg');
+        return asset('images/og-image.png');
     }
 
     protected function getAllImages(?Car $car, ?CustomerCarListing $customerListing): array
     {
         if ($car) {
-            return $car->images->map(function ($img) {
-                $path = $img->image_path;
-                if (filter_var($path, FILTER_VALIDATE_URL)) {
-                    return $path;
-                }
-
-                return asset('storage/'.$path);
-            })->toArray();
+            return $car->images
+                ->map(fn ($image) => $this->resolvePublicImageUrl($image->image_path))
+                ->filter()
+                ->values()
+                ->toArray();
         }
 
         if ($customerListing) {
             $images = json_decode($customerListing->images ?? '[]', true);
 
-            return array_map(fn ($img) => asset('storage/'.$img), $images);
+            return collect($images)
+                ->map(fn ($image) => $this->resolvePublicImageUrl($image))
+                ->filter()
+                ->values()
+                ->toArray();
         }
 
         return [];
+    }
+
+    protected function resolvePublicImageUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
+        }
+
+        $path = ltrim(str_replace('\\', '/', $path), '/');
+
+        return asset(str_starts_with($path, 'storage/') ? $path : 'storage/'.$path);
     }
 
     public function byCity(string $city, Request $request)
