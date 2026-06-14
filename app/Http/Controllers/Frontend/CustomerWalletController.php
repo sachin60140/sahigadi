@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CustomerWalletTransaction;
 use App\Models\Setting;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Inertia\Inertia;
 
 class CustomerWalletController extends Controller
 {
@@ -17,7 +18,26 @@ class CustomerWalletController extends Controller
         $transactions = $wallet->transactions()->orderBy('created_at', 'desc')->paginate(20);
         $minRechargeAmount = Setting::getCustomerMinimumWalletRechargeAmount();
 
-        return view('frontend.customer.wallet.index', compact('balance', 'transactions', 'minRechargeAmount'));
+        return Inertia::render('Customer/Wallet/Index', [
+            'balance' => (float) $balance,
+            'transactions' => $transactions->through(fn (CustomerWalletTransaction $transaction) => [
+                'id' => $transaction->id,
+                'type' => $transaction->type,
+                'amount' => (float) $transaction->amount,
+                'remark' => $transaction->remark,
+                'reference_id' => $transaction->reference_id,
+                'created_at' => optional($transaction->created_at)->format('d M Y, h:i A'),
+                'receipt_url' => $transaction->type === 'credit'
+                    && str_contains(strtolower((string) $transaction->remark), 'recharge via')
+                        ? route('customer.wallet.receipt', $transaction->id)
+                        : null,
+            ]),
+            'minRechargeAmount' => (float) $minRechargeAmount,
+            'openRecharge' => (bool) session('open_recharge_modal', false),
+            'actions' => [
+                'checkout' => route('customer.payments.checkout'),
+            ],
+        ]);
     }
 
     public function add()

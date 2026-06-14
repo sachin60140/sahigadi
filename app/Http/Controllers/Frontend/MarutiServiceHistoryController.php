@@ -8,6 +8,7 @@ use App\Services\CustomerMarutiServiceHistoryService;
 use App\Services\RazorpayService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MarutiServiceHistoryController extends Controller
 {
@@ -34,7 +35,38 @@ class MarutiServiceHistoryController extends Controller
                 ->get();
         }
 
-        return view('frontend.maruti-service-history.index', compact('charge', 'history'));
+        return Inertia::render('Public/Services/Lookup', [
+            'service' => [
+                'key' => 'maruti-service-history',
+                'eyebrow' => 'Authorized service records',
+                'title' => 'Maruti service history',
+                'description' => 'Review authorized Maruti visits, dealer details, mileage and bill history in one report.',
+                'numberField' => 'vehicle_number',
+                'numberLabel' => 'Vehicle registration number',
+                'placeholder' => 'e.g. DL01AB1234',
+                'submitLabel' => 'Search Maruti history',
+                'actionUrl' => route('maruti-service-history.search'),
+                'charge' => (float) $charge,
+                'requiresGuestDetails' => ! auth('customer')->check(),
+                'customerAuthenticated' => auth('customer')->check(),
+                'seoTitle' => 'Maruti Service History - SAHI GADI',
+                'seoDescription' => 'Search Maruti service history online with SAHI GADI. Review authorized service visits, bill details and mileage checkpoints.',
+                'canonical' => route('maruti-service-history.index'),
+                'features' => [
+                    'Authorized Maruti service visits',
+                    'Parts, labour and total bill amounts',
+                    'Dealer and mileage checkpoints',
+                ],
+            ],
+            'history' => $history->map(fn (CustomerMarutiServiceHistory $record) => [
+                'id' => $record->id,
+                'number' => $record->vehicle_number,
+                'is_success' => $record->is_success,
+                'created_at' => $record->created_at?->toIso8601String(),
+                'view_url' => $record->is_success ? route('maruti-service-history.show', $record) : null,
+                'pdf_url' => $record->is_success ? route('maruti-service-history.pdf', $record) : null,
+            ])->values(),
+        ]);
     }
 
     public function search(Request $request)
@@ -105,12 +137,12 @@ class MarutiServiceHistoryController extends Controller
                 $transaction->update(['remark' => $transaction->remark . ' (Refunded)']);
             }
 
-            return view('frontend.maruti-service-history.result', [
-                'marutiServiceHistory' => $result['data'] ?? null,
-                'cached' => $result['cached'] ?? false,
-                'success' => $result['success'],
-                'message' => $result['message'],
-            ]);
+            return $this->renderResult(
+                $result['data'] ?? null,
+                $result['cached'] ?? false,
+                $result['success'],
+                $result['message']
+            );
         }
 
         // For non-logged-in users, continue with Razorpay
@@ -132,12 +164,16 @@ class MarutiServiceHistoryController extends Controller
             ],
         ]);
 
-        return view('frontend.maruti-service-history.payment', [
+        return Inertia::render('Public/Services/Payment', [
             'orderId' => $order['order_id'],
-            'amount' => $order['amount'],
+            'amount' => (float) $order['amount'],
             'keyId' => $this->razorpayService->getKeyId(),
             'vehicleNumber' => $vehicleNumber,
             'customerName' => $customerInfo['name'],
+            'reportLabel' => 'Maruti Service History Report',
+            'description' => 'Maruti Service History Report - '.$vehicleNumber,
+            'callbackUrl' => route('maruti-service-history.callback'),
+            'cancelUrl' => route('maruti-service-history.index'),
         ]);
     }
 
@@ -155,6 +191,10 @@ class MarutiServiceHistoryController extends Controller
 
         if (empty($razorpayOrderId) || empty($razorpayPaymentId) || empty($razorpaySignature)) {
             return redirect()->route('maruti-service-history.index')->with('error', 'Payment was not completed');
+        }
+
+        if (! hash_equals((string) $pending['order_id'], (string) $razorpayOrderId)) {
+            return redirect()->route('maruti-service-history.index')->with('error', 'Payment order does not match this search');
         }
 
         if (! $this->razorpayService->verifySignature($razorpayOrderId, $razorpayPaymentId, $razorpaySignature)) {
@@ -179,19 +219,24 @@ class MarutiServiceHistoryController extends Controller
 
         session()->forget('maruti_service_history_pending');
 
-        return view('frontend.maruti-service-history.result', [
-            'marutiServiceHistory' => $result['data'],
-            'cached' => $result['cached'] ?? false,
-            'success' => $result['success'],
-            'message' => $result['message'],
-        ]);
+        return $this->renderResult(
+            $result['data'] ?? null,
+            $result['cached'] ?? false,
+            $result['success'],
+            $result['message']
+        );
     }
 
     public function show(CustomerMarutiServiceHistory $marutiServiceHistory)
     {
         $marutiServiceHistory->load('records');
 
-        return view('frontend.maruti-service-history.show', compact('marutiServiceHistory'));
+        return $this->renderResult(
+            $marutiServiceHistory,
+            false,
+            $marutiServiceHistory->is_success,
+            $marutiServiceHistory->error_message
+        );
     }
 
     public function downloadPdf(CustomerMarutiServiceHistory $marutiServiceHistory)
@@ -202,5 +247,26 @@ class MarutiServiceHistoryController extends Controller
         $pdf->setPaper('A4', 'landscape');
 
         return $pdf->download('maruti-service-history-'.$marutiServiceHistory->vehicle_number.'.pdf');
+    }
+
+    private function renderResult(
+        ?CustomerMarutiServiceHistory $serviceHistory,
+        bool $cached,
+        ?bool $success = null,
+        ?string $message = null
+    ) {
+        return Inertia::render('Public/Services/ServiceResult', [
+            'report' => $serviceHistory,
+            'cached' => $cached,
+            'success' => $success ?? (bool) $serviceHistory?->is_success,
+            'message' => $message,
+            'variant' => 'maruti',
+            'serviceTitle' => 'Maruti Service History',
+            'indexUrl' => route('maruti-service-history.index'),
+            'pdfUrl' => $serviceHistory?->is_success
+                ? route('maruti-service-history.pdf', $serviceHistory)
+                : null,
+            'freshSearchUrl' => route('maruti-service-history.search'),
+        ]);
     }
 }

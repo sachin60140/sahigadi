@@ -1,23 +1,24 @@
 <template>
-    <section v-if="cars && cars.length > 0" class="py-16 md:py-24 bg-[#F8FAFC]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
+    <section v-if="cars && cars.length > 0" class="bg-slate-50 py-14 md:py-20">
+        <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+            <div class="mb-9 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-[#071226] tracking-tight">Featured Cars</h2>
-                    <p class="mt-2 text-gray-500 font-medium">Handpicked quality cars for you</p>
+                    <p class="mb-2 text-sm font-black uppercase tracking-[0.16em] text-teal-700">Editor's picks</p>
+                    <h2 class="text-3xl font-black tracking-normal text-slate-950 md:text-4xl">Featured Cars</h2>
+                    <p class="mt-2 max-w-2xl text-base font-medium text-slate-500">Handpicked verified cars with strong value, trusted sellers, and clear pricing.</p>
                 </div>
-                <Link href="/cars" class="inline-flex items-center text-[#071226] font-bold bg-white border border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-2.5 rounded-full transition-all shadow-sm">
+                <Link href="/cars" class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-black text-slate-800 shadow-sm transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700">
                     View All Cars
-                    <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    <svg class="ml-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                 </Link>
             </div>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 <CarCard v-for="car in cars" :key="car.id" :car="car" />
             </div>
             
-            <div class="mt-10 text-center sm:hidden">
-                <Link href="/cars" class="inline-flex justify-center items-center w-full text-white font-bold bg-[#071226] hover:bg-[#0B1F3A] px-6 py-3.5 rounded-xl transition-all shadow-md">
+            <div class="mt-8 text-center sm:hidden">
+                <Link href="/cars" class="inline-flex w-full items-center justify-center rounded-lg bg-slate-950 px-6 py-3.5 font-black text-white shadow-md transition hover:bg-teal-700">
                     View All Featured Cars
                 </Link>
             </div>

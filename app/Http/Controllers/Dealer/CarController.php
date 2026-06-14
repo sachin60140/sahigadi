@@ -9,6 +9,7 @@ use App\Models\CarImage;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class CarController extends Controller
 {
@@ -21,17 +22,32 @@ class CarController extends Controller
         $dealer = auth('dealer')->user();
         $query = $dealer->cars()->with('images');
 
-        if ($request->has('status') && $request->status !== 'all') {
+        if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
         }
 
-        if ($request->has('search') && $request->search) {
+        if ($request->filled('search')) {
             $query->where('title', 'like', '%'.$request->search.'%');
         }
 
-        $cars = $query->orderBy('created_at', 'desc')->paginate(15);
+        $cars = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
 
-        return view('dealer.cars.index', compact('cars'));
+        return Inertia::render('Dealer/Cars/Index', [
+            'cars' => $cars->through(fn (Car $car) => $this->mapCar($car)),
+            'filters' => [
+                'status' => (string) $request->query('status', 'all'),
+                'search' => (string) $request->query('search', ''),
+            ],
+            'stats' => [
+                'total' => $dealer->cars()->count(),
+                'approved' => $dealer->cars()->where('status', 'approved')->count(),
+                'pending' => $dealer->cars()->where('status', 'pending')->count(),
+                'rejected' => $dealer->cars()->where('status', 'rejected')->count(),
+            ],
+            'actions' => [
+                'create' => route('dealer.cars.create'),
+            ],
+        ]);
     }
 
     public function create()
@@ -40,7 +56,13 @@ class CarController extends Controller
         $fuelTypes = ['petrol' => 'Petrol', 'diesel' => 'Diesel', 'electric' => 'Electric', 'hybrid' => 'Hybrid', 'cng' => 'CNG'];
         $transmissions = ['manual' => 'Manual', 'automatic' => 'Automatic'];
 
-        return view('dealer.cars.create', compact('brands', 'fuelTypes', 'transmissions'));
+        return Inertia::render('Dealer/Cars/Create', [
+            ...$this->formOptions($brands, $fuelTypes, $transmissions),
+            'actions' => [
+                'store' => route('dealer.cars.store'),
+                'index' => route('dealer.cars.index'),
+            ],
+        ]);
     }
 
     public function store(Request $request)
@@ -136,11 +158,46 @@ class CarController extends Controller
     public function edit(Car $car)
     {
         $this->authorizeCarAccess($car);
+        $car->load('images');
         $brands = Brand::active()->orderBy('name')->get();
         $fuelTypes = ['petrol' => 'Petrol', 'diesel' => 'Diesel', 'electric' => 'Electric', 'hybrid' => 'Hybrid', 'cng' => 'CNG'];
         $transmissions = ['manual' => 'Manual', 'automatic' => 'Automatic'];
 
-        return view('dealer.cars.edit', compact('car', 'brands', 'fuelTypes', 'transmissions'));
+        return Inertia::render('Dealer/Cars/Edit', [
+            ...$this->formOptions($brands, $fuelTypes, $transmissions),
+            'car' => [
+                'id' => $car->id,
+                'title' => $car->title,
+                'brand_id' => $car->brand_id,
+                'model' => $car->model,
+                'year' => $car->year,
+                'fuel_type' => $car->fuel_type,
+                'transmission' => $car->transmission,
+                'km_driven' => $car->km_driven,
+                'price' => (float) ($car->price ?? 0),
+                'description' => $car->description,
+                'city' => $car->city,
+                'latitude' => $car->latitude,
+                'longitude' => $car->longitude,
+                'registration_number' => $car->registration_number,
+                'owners' => $car->owners,
+                'status' => $car->status,
+                'rejection_reason' => $car->rejection_reason,
+                'images' => $car->images->map(fn (CarImage $image) => [
+                    'id' => $image->id,
+                    'url' => $image->url,
+                    'is_primary' => (bool) $image->is_primary,
+                    'actions' => [
+                        'primary' => route('dealer.cars.image.primary', [$car, $image]),
+                        'delete' => route('dealer.cars.image.delete', [$car, $image]),
+                    ],
+                ]),
+            ],
+            'actions' => [
+                'update' => route('dealer.cars.update', $car),
+                'index' => route('dealer.cars.index'),
+            ],
+        ]);
     }
 
     public function update(Request $request, Car $car)
@@ -261,5 +318,43 @@ class CarController extends Controller
         if ($car->dealer_id !== auth('dealer')->id()) {
             abort(403);
         }
+    }
+
+    private function formOptions($brands, array $fuelTypes, array $transmissions): array
+    {
+        return [
+            'brands' => $brands->map(fn (Brand $brand) => [
+                'id' => $brand->id,
+                'name' => $brand->name,
+            ]),
+            'fuelTypes' => collect($fuelTypes)->map(fn ($label, $value) => [
+                'value' => $value,
+                'label' => $label,
+            ])->values(),
+            'transmissions' => collect($transmissions)->map(fn ($label, $value) => [
+                'value' => $value,
+                'label' => $label,
+            ])->values(),
+        ];
+    }
+
+    private function mapCar(Car $car): array
+    {
+        return [
+            'id' => $car->id,
+            'unique_id' => $car->unique_id,
+            'title' => $car->title,
+            'image_url' => $car->image_url,
+            'price' => (float) ($car->price ?? 0),
+            'status' => $car->status,
+            'rejection_reason' => $car->rejection_reason,
+            'is_featured' => $car->isFeatured(),
+            'featured_expires_at' => optional($car->featured_expires_at)->format('d M Y'),
+            'actions' => [
+                'edit' => route('dealer.cars.edit', $car),
+                'delete' => route('dealer.cars.destroy', $car),
+                'feature' => route('dealer.cars.featured-plans', $car),
+            ],
+        ];
     }
 }

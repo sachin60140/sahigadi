@@ -1,12 +1,13 @@
-<template>
+﻿<template>
     <Head>
         <title>Login / Register - SahiGadi</title>
-        <meta name="description" content="Login or register to manage your used car listings on SahiGadi." />
+        <meta head-key="description" name="description" content="Login or register to manage your used car listings on SahiGadi." />
+        <meta head-key="robots" name="robots" content="noindex, nofollow" />
     </Head>
 
     <PublicLayout>
         <div class="bg-gray-50 min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div class="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-2xl shadow-xl border border-gray-100">
+            <div class="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-lg shadow-xl border border-gray-100">
                 
                 <div class="text-center">
                     <h2 class="mt-2 text-3xl font-extrabold text-gray-900">

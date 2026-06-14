@@ -29,6 +29,8 @@ class SellCarController extends Controller
             ]);
         }
 
+
+
         $request->validate([
             'title' => 'required|string|max:255',
             'brand_id' => 'nullable|exists:brands,id',
@@ -54,7 +56,9 @@ class SellCarController extends Controller
         ]);
 
         if (!auth('customer')->check() && session('sell_car_phone_verified') !== $request->owner_phone) {
-            return redirect()->back()->withInput()->with('error', 'Please verify your phone number via OTP before submitting the listing.');
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'owner_phone' => 'Please verify your mobile number with OTP before submitting your car.',
+            ]);
         }
 
         if ($request->hasFile('images')) {

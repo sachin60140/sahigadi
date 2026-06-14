@@ -1,75 +1,62 @@
 <template>
-    <div class="bg-white p-6 space-y-6">
+    <div class="space-y-6 bg-white p-5">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h2 class="text-lg font-bold text-slate-900">Filters</h2>
-            <button @click="$emit('clear')" class="text-sm font-medium text-[#E30613] hover:text-red-700">Clear All</button>
+            <div>
+                <h2 class="text-lg font-black text-slate-950">Filters</h2>
+                <p class="mt-1 text-xs font-semibold text-slate-500">Refine cars by your buying intent</p>
+            </div>
+            <button type="button" class="rounded-md px-2 py-1 text-sm font-black text-orange-600 transition hover:bg-orange-50 hover:text-orange-700" @click="$emit('clear')">
+                Clear
+            </button>
         </div>
 
-        <!-- Keyword Search -->
-        <div class="space-y-2">
-            <label class="text-sm font-semibold text-slate-700">Search</label>
-            <input type="text" v-model="localFilters.keyword" @change="updateFilters" placeholder="Search by model or variant..." class="w-full rounded-xl border-slate-300 focus:border-[#071226] focus:ring-[#071226] text-sm py-2.5" />
-        </div>
+        <FilterField label="Search">
+            <input
+                v-model="localFilters.keyword"
+                type="search"
+                placeholder="Model, variant, keyword..."
+                class="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-100"
+                @input="updateFilters"
+            />
+        </FilterField>
 
-        <!-- City -->
-        <div class="space-y-2">
-            <label class="text-sm font-semibold text-slate-700">City</label>
-            <select v-model="localFilters.city" @change="updateFilters" class="w-full rounded-xl border-slate-300 focus:border-[#071226] focus:ring-[#071226] text-sm py-2.5">
+        <FilterField label="City">
+            <select v-model="localFilters.city" class="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-100" @change="updateFilters">
                 <option value="">All Cities</option>
                 <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
             </select>
-        </div>
+        </FilterField>
 
-        <!-- Brand -->
-        <div class="space-y-2">
-            <label class="text-sm font-semibold text-slate-700">Brand</label>
-            <select v-model="localFilters.brand" @change="updateFilters" class="w-full rounded-xl border-slate-300 focus:border-[#071226] focus:ring-[#071226] text-sm py-2.5">
+        <FilterField label="Brand">
+            <select v-model="localFilters.brand" class="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-100" @change="updateFilters">
                 <option value="">All Brands</option>
                 <option v-for="brand in brands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
             </select>
-        </div>
+        </FilterField>
 
-        <!-- Budget -->
-        <div class="space-y-2">
-            <label class="text-sm font-semibold text-slate-700">Max Budget</label>
-            <select v-model="localFilters.max_price" @change="updateFilters" class="w-full rounded-xl border-slate-300 focus:border-[#071226] focus:ring-[#071226] text-sm py-2.5">
+        <FilterField label="Max Budget">
+            <select v-model="localFilters.max_price" class="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-100" @change="updateFilters">
                 <option value="">Any Budget</option>
                 <option v-for="opt in budgetOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
-        </div>
+        </FilterField>
 
-        <!-- Fuel Type -->
-        <div class="space-y-2">
-            <label class="text-sm font-semibold text-slate-700">Fuel Type</label>
-            <div class="space-y-2.5 mt-2">
-                <label v-for="fuel in fuelTypes" :key="fuel" class="flex items-center space-x-3">
-                    <input type="radio" v-model="localFilters.fuel_type" :value="fuel" @change="updateFilters" class="w-4 h-4 text-[#071226] border-slate-300 focus:ring-[#071226]">
-                    <span class="text-sm text-slate-600 font-medium">{{ fuel }}</span>
-                </label>
-                <label class="flex items-center space-x-3">
-                    <input type="radio" v-model="localFilters.fuel_type" value="" @change="updateFilters" class="w-4 h-4 text-[#071226] border-slate-300 focus:ring-[#071226]">
-                    <span class="text-sm text-slate-600 font-medium">Any</span>
-                </label>
+        <FilterField label="Fuel Type">
+            <div class="grid grid-cols-2 gap-2">
+                <FilterRadio label="Any" value="" v-model="localFilters.fuel_type" @change="updateFilters" />
+                <FilterRadio v-for="fuel in fuelTypes" :key="fuel" :label="fuel" :value="normalizeOption(fuel)" v-model="localFilters.fuel_type" @change="updateFilters" />
             </div>
-        </div>
+        </FilterField>
 
-        <!-- Transmission -->
-        <div class="space-y-2">
-            <label class="text-sm font-semibold text-slate-700">Transmission</label>
-            <div class="space-y-2.5 mt-2">
-                <label v-for="trans in transmissions" :key="trans" class="flex items-center space-x-3">
-                    <input type="radio" v-model="localFilters.transmission" :value="trans" @change="updateFilters" class="w-4 h-4 text-[#071226] border-slate-300 focus:ring-[#071226]">
-                    <span class="text-sm text-slate-600 font-medium">{{ trans }}</span>
-                </label>
-                <label class="flex items-center space-x-3">
-                    <input type="radio" v-model="localFilters.transmission" value="" @change="updateFilters" class="w-4 h-4 text-[#071226] border-slate-300 focus:ring-[#071226]">
-                    <span class="text-sm text-slate-600 font-medium">Any</span>
-                </label>
+        <FilterField label="Transmission">
+            <div class="grid grid-cols-2 gap-2">
+                <FilterRadio label="Any" value="" v-model="localFilters.transmission" @change="updateFilters" />
+                <FilterRadio v-for="trans in transmissions" :key="trans" :label="trans" :value="normalizeOption(trans)" v-model="localFilters.transmission" @change="updateFilters" />
             </div>
-        </div>
+        </FilterField>
 
-        <div class="pt-4 border-t border-slate-100">
-            <button @click="updateFilters" class="w-full h-12 rounded-xl bg-[#071226] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#0B1F3A] transition-colors flex items-center justify-center">
+        <div class="border-t border-slate-100 pt-4">
+            <button type="button" class="flex h-12 w-full items-center justify-center rounded-lg bg-slate-950 px-4 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-700" @click="updateFilters">
                 Apply Filters
             </button>
         </div>
@@ -77,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { defineComponent, h, ref, watch } from 'vue';
 
 const props = defineProps<{
     filters: any;
@@ -97,7 +84,7 @@ const localFilters = ref({
     max_price: props.filters.max_price || '',
     fuel_type: props.filters.fuel_type || '',
     transmission: props.filters.transmission || '',
-    sort: props.filters.sort || ''
+    sort: props.filters.sort || '',
 });
 
 watch(() => props.filters, (newFilters) => {
@@ -108,11 +95,54 @@ watch(() => props.filters, (newFilters) => {
         max_price: newFilters.max_price || '',
         fuel_type: newFilters.fuel_type || '',
         transmission: newFilters.transmission || '',
-        sort: newFilters.sort || ''
+        sort: newFilters.sort || '',
     };
 }, { deep: true });
 
 const updateFilters = () => {
     emit('update', localFilters.value);
 };
+
+const normalizeOption = (value: string) => value.toLowerCase();
+
+const FilterField = defineComponent({
+    props: {
+        label: { type: String, required: true },
+    },
+    setup(props, { slots }) {
+        return () => h('div', { class: 'space-y-2' }, [
+            h('label', { class: 'text-sm font-black text-slate-800' }, props.label),
+            slots.default?.(),
+        ]);
+    },
+});
+
+const FilterRadio = defineComponent({
+    props: {
+        label: { type: String, required: true },
+        value: { type: String, required: true },
+        modelValue: { type: String, default: '' },
+    },
+    emits: ['update:modelValue', 'change'],
+    setup(props, { emit }) {
+        return () => h('label', {
+            class: [
+                'flex min-h-10 cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-center text-xs font-black transition',
+                props.modelValue === props.value ? 'border-teal-600 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50',
+            ],
+        }, [
+            h('input', {
+                type: 'radio',
+                class: 'sr-only',
+                value: props.value,
+                checked: props.modelValue === props.value,
+                onChange: () => {
+                    emit('update:modelValue', props.value);
+                    emit('change');
+                },
+            }),
+            props.label,
+        ]);
+    },
+});
 </script>

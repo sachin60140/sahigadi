@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FeaturedPlan extends Model
 {
@@ -25,5 +26,10 @@ class FeaturedPlan extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function featuredListings(): HasMany
+    {
+        return $this->hasMany(FeaturedListing::class);
     }
 }

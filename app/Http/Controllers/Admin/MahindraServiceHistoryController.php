@@ -6,46 +6,35 @@ use App\Http\Controllers\Controller;
 use App\Models\CustomerMahindraServiceHistory;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MahindraServiceHistoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = CustomerMahindraServiceHistory::query();
+        $filters = $this->filters($request);
+        $searches = $this->applyFilters(CustomerMahindraServiceHistory::withCount('records'), $request)->latest()->paginate(20)->withQueryString();
 
-        if ($request->filled('search')) {
-            $query->where('vehicle_number', 'like', '%'.strtoupper($request->search).'%')
-                  ->orWhere('customer_name', 'like', '%'.$request->search.'%')
-                  ->orWhere('customer_phone', 'like', '%'.$request->search.'%');
-        }
-
-        if ($request->filled('status')) {
-            $query->where('is_success', $request->status == 'success');
-        }
-
-        if ($request->filled('from_date')) {
-            $query->whereDate('created_at', '>=', $request->from_date);
-        }
-
-        if ($request->filled('to_date')) {
-            $query->whereDate('created_at', '<=', $request->to_date);
-        }
-
-        $searches = $query->orderBy('created_at', 'desc')->paginate(20);
-        $charge = Setting::getMahindraServiceHistoryCharge();
-
-        $totalRevenue = CustomerMahindraServiceHistory::where('is_success', true)
-            ->when($request->filled('from_date'), fn ($q) => $q->whereDate('created_at', '>=', $request->from_date))
-            ->when($request->filled('to_date'), fn ($q) => $q->whereDate('created_at', '<=', $request->to_date))
-            ->sum('paid_amount');
-
-        return view('admin.mahindra-service-histories.index', compact('searches', 'charge', 'totalRevenue'));
+        return Inertia::render('Admin/ProviderServiceHistories/Index', [
+            'page' => ['title' => 'Mahindra Customer Service History', 'heading' => 'Monitor customer-paid Mahindra service lookups.', 'description' => 'Review customer identity, workshop record counts, payments and API outcomes.', 'channel' => 'customer', 'filterUrl' => route('admin.mahindra-service-histories.index')],
+            'searches' => $searches->through(fn (CustomerMahindraServiceHistory $search) => $this->mapSearch($search)),
+            'dealers' => [], 'filters' => $filters,
+            'stats' => ['total' => CustomerMahindraServiceHistory::count(), 'successful' => CustomerMahindraServiceHistory::where('is_success', true)->count(), 'failed' => CustomerMahindraServiceHistory::where('is_success', false)->count(), 'revenue' => (float) CustomerMahindraServiceHistory::where('is_success', true)->sum('paid_amount'), 'charge' => (float) Setting::getMahindraServiceHistoryCharge()],
+            'actions' => ['exportExcel' => route('admin.mahindra-service-histories.exportExcel', array_filter($filters)), 'exportPdf' => route('admin.mahindra-service-histories.exportPdf', array_filter($filters))],
+        ]);
     }
 
     public function show(CustomerMahindraServiceHistory $mahindraServiceHistory)
     {
         $mahindraServiceHistory->load('records');
-        return view('admin.mahindra-service-histories.show', compact('mahindraServiceHistory'));
+        return Inertia::render('Admin/ProviderServiceHistories/Show', [
+            'page' => ['title' => 'Mahindra Customer Service Details', 'provider' => 'Mahindra', 'channel' => 'customer'],
+            'search' => array_merge($this->mapSearch($mahindraServiceHistory), [
+                'customer_email' => $mahindraServiceHistory->customer_email, 'payment_id' => $mahindraServiceHistory->razorpay_payment_id,
+                'records' => $mahindraServiceHistory->records->map(fn ($record) => $this->mapRecord($record))->values(),
+                'actions' => ['back' => route('admin.mahindra-service-histories.index'), 'pdf' => route('admin.mahindra-service-histories.downloadPdf', $mahindraServiceHistory)],
+            ]),
+        ]);
     }
 
     public function settings(Request $request)
@@ -68,29 +57,16 @@ class MahindraServiceHistoryController extends Controller
         $successfulSearches = CustomerMahindraServiceHistory::where('is_success', true)->count();
         $totalRevenue = CustomerMahindraServiceHistory::where('is_success', true)->sum('paid_amount');
 
-        return view('admin.mahindra-service-histories.settings', compact('charge', 'dealerCharge', 'totalSearches', 'successfulSearches', 'totalRevenue'));
+        return Inertia::render('Admin/ServiceHistories/Settings', [
+            'serviceName' => 'Mahindra Service History', 'charges' => ['customer' => (float) $charge, 'dealer' => (float) $dealerCharge],
+            'stats' => ['total' => $totalSearches, 'successful' => $successfulSearches, 'revenue' => (float) $totalRevenue],
+            'actions' => ['update' => route('admin.mahindra-service-histories.settings')],
+        ]);
     }
 
     public function exportExcel(Request $request)
     {
-        $query = CustomerMahindraServiceHistory::query();
-
-        if ($request->filled('search')) {
-            $query->where('vehicle_number', 'like', '%'.strtoupper($request->search).'%')
-                  ->orWhere('customer_name', 'like', '%'.$request->search.'%')
-                  ->orWhere('customer_phone', 'like', '%'.$request->search.'%');
-        }
-        if ($request->filled('status')) {
-            $query->where('is_success', $request->status == 'success');
-        }
-        if ($request->filled('from_date')) {
-            $query->whereDate('created_at', '>=', $request->from_date);
-        }
-        if ($request->filled('to_date')) {
-            $query->whereDate('created_at', '<=', $request->to_date);
-        }
-
-        $searches = $query->orderBy('created_at', 'desc')->get();
+        $searches = $this->applyFilters(CustomerMahindraServiceHistory::query(), $request)->latest()->get();
 
         $filename = 'mahindra-customer-service-histories-'.now()->format('Y-m-d').'.csv';
         $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="'.$filename.'"'];
@@ -117,22 +93,7 @@ class MahindraServiceHistoryController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $query = CustomerMahindraServiceHistory::query();
-
-        if ($request->filled('search')) {
-            $query->where('vehicle_number', 'like', '%'.strtoupper($request->search).'%');
-        }
-        if ($request->filled('status')) {
-            $query->where('is_success', $request->status == 'success');
-        }
-        if ($request->filled('from_date')) {
-            $query->whereDate('created_at', '>=', $request->from_date);
-        }
-        if ($request->filled('to_date')) {
-            $query->whereDate('created_at', '<=', $request->to_date);
-        }
-
-        $searches = $query->orderBy('created_at', 'desc')->get();
+        $searches = $this->applyFilters(CustomerMahindraServiceHistory::query(), $request)->latest()->get();
         $totalRevenue = $searches->where('is_success', true)->sum('paid_amount');
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.mahindra-service-histories.pdf', compact('searches', 'totalRevenue'));
@@ -147,5 +108,32 @@ class MahindraServiceHistoryController extends Controller
         $pdf->setPaper('A4', 'landscape');
 
         return $pdf->download('mahindra-service-history-'.$mahindraServiceHistory->vehicle_number.'.pdf');
+    }
+
+    private function applyFilters($query, Request $request)
+    {
+        if ($request->filled('search')) {
+            $term = (string) $request->search;
+            $query->where(fn ($q) => $q->where('vehicle_number', 'like', '%'.strtoupper($term).'%')->orWhere('customer_name', 'like', '%'.$term.'%')->orWhere('customer_phone', 'like', '%'.$term.'%'));
+        }
+        if ($request->filled('status')) $query->where('is_success', $request->status === 'success');
+        if ($request->filled('from_date')) $query->whereDate('created_at', '>=', $request->from_date);
+        if ($request->filled('to_date')) $query->whereDate('created_at', '<=', $request->to_date);
+        return $query;
+    }
+
+    private function filters(Request $request): array
+    {
+        return ['search' => (string) $request->query('search', ''), 'dealer_id' => '', 'status' => (string) $request->query('status', ''), 'from_date' => (string) $request->query('from_date', ''), 'to_date' => (string) $request->query('to_date', '')];
+    }
+
+    private function mapSearch(CustomerMahindraServiceHistory $search): array
+    {
+        return ['id' => $search->id, 'vehicle_number' => $search->vehicle_number, 'service_count' => (int) ($search->records_count ?? $search->records()->count()), 'amount' => (float) ($search->paid_amount ?? 0), 'is_success' => (bool) $search->is_success, 'error_message' => $search->error_message, 'created_at' => optional($search->created_at)->format('d M Y, h:i A'), 'subject_name' => $search->customer_name ?: 'Guest customer', 'subject_phone' => $search->customer_phone, 'actions' => ['show' => route('admin.mahindra-service-histories.show', $search), 'pdf' => route('admin.mahindra-service-histories.downloadPdf', $search)]];
+    }
+
+    private function mapRecord($record): array
+    {
+        return ['date' => optional($record->svc_date)->format('d M Y'), 'category' => $record->service_cate, 'work_type' => $record->work_type, 'dealer_name' => $record->dealer_name, 'location' => $record->dealer_address, 'job_card' => $record->register_no, 'ro_no' => $record->repair_order_no, 'bill_no' => $record->repair_order_bill_no, 'bill_date' => optional($record->repair_order_bill_date)->format('d M Y'), 'assistant' => $record->service_assistant_name, 'part_amount' => (float) ($record->part_amount ?? 0), 'labour_amount' => (float) ($record->labour_amount ?? 0), 'total_amount' => (float) ($record->total_amount ?? 0), 'mileage' => $record->mileage, 'status' => $record->status];
     }
 }

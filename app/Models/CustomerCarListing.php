@@ -28,6 +28,7 @@ class CustomerCarListing extends Model
         'owners',
         'owner_name',
         'owner_phone',
+        'owner_email',
         'whatsapp_number',
         'status',
         'rejection_reason',

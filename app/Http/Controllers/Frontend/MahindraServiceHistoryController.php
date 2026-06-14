@@ -8,6 +8,7 @@ use App\Services\CustomerMahindraServiceHistoryService;
 use App\Services\RazorpayService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MahindraServiceHistoryController extends Controller
 {
@@ -34,7 +35,38 @@ class MahindraServiceHistoryController extends Controller
                 ->get();
         }
 
-        return view('frontend.mahindra-service-history.index', compact('charge', 'history'));
+        return Inertia::render('Public/Services/Lookup', [
+            'service' => [
+                'key' => 'mahindra-service-history',
+                'eyebrow' => 'Authorized service records',
+                'title' => 'Mahindra service history',
+                'description' => 'Review authorized Mahindra visits, workshop details, mileage and bill history in one report.',
+                'numberField' => 'vehicle_number',
+                'numberLabel' => 'Vehicle registration number',
+                'placeholder' => 'e.g. BR01AB1234',
+                'submitLabel' => 'Search Mahindra history',
+                'actionUrl' => route('mahindra-service-history.search'),
+                'charge' => (float) $charge,
+                'requiresGuestDetails' => ! auth('customer')->check(),
+                'customerAuthenticated' => auth('customer')->check(),
+                'seoTitle' => 'Mahindra Service History - SAHI GADI',
+                'seoDescription' => 'Search Mahindra service history online with SAHI GADI. Review authorized service visits, bill details and mileage checkpoints.',
+                'canonical' => route('mahindra-service-history.index'),
+                'features' => [
+                    'Authorized Mahindra service visits',
+                    'Workshop, job card and bill details',
+                    'Mileage and work-status checkpoints',
+                ],
+            ],
+            'history' => $history->map(fn (CustomerMahindraServiceHistory $record) => [
+                'id' => $record->id,
+                'number' => $record->vehicle_number,
+                'is_success' => $record->is_success,
+                'created_at' => $record->created_at?->toIso8601String(),
+                'view_url' => $record->is_success ? route('mahindra-service-history.show', $record) : null,
+                'pdf_url' => $record->is_success ? route('mahindra-service-history.pdf', $record) : null,
+            ])->values(),
+        ]);
     }
 
     public function search(Request $request)
@@ -105,12 +137,12 @@ class MahindraServiceHistoryController extends Controller
                 $transaction->update(['remark' => $transaction->remark . ' (Refunded)']);
             }
 
-            return view('frontend.mahindra-service-history.result', [
-                'mahindraServiceHistory' => $result['data'] ?? null,
-                'cached' => $result['cached'] ?? false,
-                'success' => $result['success'],
-                'message' => $result['message'],
-            ]);
+            return $this->renderResult(
+                $result['data'] ?? null,
+                $result['cached'] ?? false,
+                $result['success'],
+                $result['message']
+            );
         }
 
         // For non-logged-in users, continue with Razorpay
@@ -132,12 +164,16 @@ class MahindraServiceHistoryController extends Controller
             ],
         ]);
 
-        return view('frontend.mahindra-service-history.payment', [
+        return Inertia::render('Public/Services/Payment', [
             'orderId' => $order['order_id'],
-            'amount' => $order['amount'],
+            'amount' => (float) $order['amount'],
             'keyId' => $this->razorpayService->getKeyId(),
             'vehicleNumber' => $vehicleNumber,
             'customerName' => $customerInfo['name'],
+            'reportLabel' => 'Mahindra Service History Report',
+            'description' => 'Mahindra Service History Report - '.$vehicleNumber,
+            'callbackUrl' => route('mahindra-service-history.callback'),
+            'cancelUrl' => route('mahindra-service-history.index'),
         ]);
     }
 
@@ -155,6 +191,10 @@ class MahindraServiceHistoryController extends Controller
 
         if (empty($razorpayOrderId) || empty($razorpayPaymentId) || empty($razorpaySignature)) {
             return redirect()->route('mahindra-service-history.index')->with('error', 'Payment was not completed');
+        }
+
+        if (! hash_equals((string) $pending['order_id'], (string) $razorpayOrderId)) {
+            return redirect()->route('mahindra-service-history.index')->with('error', 'Payment order does not match this search');
         }
 
         if (! $this->razorpayService->verifySignature($razorpayOrderId, $razorpayPaymentId, $razorpaySignature)) {
@@ -179,19 +219,24 @@ class MahindraServiceHistoryController extends Controller
 
         session()->forget('mahindra_service_history_pending');
 
-        return view('frontend.mahindra-service-history.result', [
-            'mahindraServiceHistory' => $result['data'],
-            'cached' => $result['cached'] ?? false,
-            'success' => $result['success'],
-            'message' => $result['message'],
-        ]);
+        return $this->renderResult(
+            $result['data'] ?? null,
+            $result['cached'] ?? false,
+            $result['success'],
+            $result['message']
+        );
     }
 
     public function show(CustomerMahindraServiceHistory $mahindraServiceHistory)
     {
         $mahindraServiceHistory->load('records');
 
-        return view('frontend.mahindra-service-history.show', compact('mahindraServiceHistory'));
+        return $this->renderResult(
+            $mahindraServiceHistory,
+            false,
+            $mahindraServiceHistory->is_success,
+            $mahindraServiceHistory->error_message
+        );
     }
 
     public function downloadPdf(CustomerMahindraServiceHistory $mahindraServiceHistory)
@@ -202,5 +247,26 @@ class MahindraServiceHistoryController extends Controller
         $pdf->setPaper('A4', 'landscape');
 
         return $pdf->download('mahindra-service-history-'.$mahindraServiceHistory->vehicle_number.'.pdf');
+    }
+
+    private function renderResult(
+        ?CustomerMahindraServiceHistory $serviceHistory,
+        bool $cached,
+        ?bool $success = null,
+        ?string $message = null
+    ) {
+        return Inertia::render('Public/Services/ServiceResult', [
+            'report' => $serviceHistory,
+            'cached' => $cached,
+            'success' => $success ?? (bool) $serviceHistory?->is_success,
+            'message' => $message,
+            'variant' => 'mahindra',
+            'serviceTitle' => 'Mahindra Service History',
+            'indexUrl' => route('mahindra-service-history.index'),
+            'pdfUrl' => $serviceHistory?->is_success
+                ? route('mahindra-service-history.pdf', $serviceHistory)
+                : null,
+            'freshSearchUrl' => route('mahindra-service-history.search'),
+        ]);
     }
 }

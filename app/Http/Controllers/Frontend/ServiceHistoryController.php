@@ -8,6 +8,7 @@ use App\Services\CustomerServiceHistoryService;
 use App\Services\RazorpayService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ServiceHistoryController extends Controller
 {
@@ -27,7 +28,31 @@ class ServiceHistoryController extends Controller
     {
         $charge = $this->serviceHistoryService->getCharge();
 
-        return view('frontend.service-history.index', compact('charge'));
+        return Inertia::render('Public/Services/Lookup', [
+            'service' => [
+                'key' => 'service-history',
+                'eyebrow' => 'Maintenance intelligence',
+                'title' => 'Vehicle service history report',
+                'description' => 'Review authorized service visits, mileage checkpoints and billed work before making a decision.',
+                'numberField' => 'vehicle_number',
+                'numberLabel' => 'Vehicle registration number',
+                'placeholder' => 'e.g. BR01AB1234',
+                'submitLabel' => 'Search service history',
+                'actionUrl' => route('service-history.search'),
+                'charge' => (float) $charge,
+                'requiresGuestDetails' => true,
+                'customerAuthenticated' => false,
+                'seoTitle' => 'Vehicle Service History Report Online - SAHI GADI',
+                'seoDescription' => 'Search vehicle service history online with SAHI GADI. Review service records, mileage and report details before buying a used car.',
+                'canonical' => route('service-history.index'),
+                'features' => [
+                    'Authorized service-center visits',
+                    'Mileage and work-type checkpoints',
+                    'Bill amounts and downloadable report',
+                ],
+            ],
+            'history' => [],
+        ]);
     }
 
     public function search(Request $request)
@@ -51,10 +76,7 @@ class ServiceHistoryController extends Controller
         if ($cached) {
             $cached->load('records');
 
-            return view('frontend.service-history.result', [
-                'serviceHistory' => $cached,
-                'cached' => true,
-            ]);
+            return $this->renderResult($cached, true);
         }
 
         $charge = $this->serviceHistoryService->getCharge();
@@ -77,12 +99,16 @@ class ServiceHistoryController extends Controller
             ],
         ]);
 
-        return view('frontend.service-history.payment', [
+        return Inertia::render('Public/Services/Payment', [
             'orderId' => $order['order_id'],
-            'amount' => $order['amount'],
+            'amount' => (float) $order['amount'],
             'keyId' => $this->razorpayService->getKeyId(),
             'vehicleNumber' => $vehicleNumber,
             'customerName' => $customerInfo['name'],
+            'reportLabel' => 'Service History Report',
+            'description' => 'Service History Report - '.$vehicleNumber,
+            'callbackUrl' => route('service-history.callback'),
+            'cancelUrl' => route('service-history.index'),
         ]);
     }
 
@@ -97,6 +123,14 @@ class ServiceHistoryController extends Controller
         $razorpayOrderId = $request->razorpay_order_id;
         $razorpayPaymentId = $request->razorpay_payment_id;
         $razorpaySignature = $request->razorpay_signature;
+
+        if (empty($razorpayOrderId) || empty($razorpayPaymentId) || empty($razorpaySignature)) {
+            return redirect()->route('service-history.index')->with('error', 'Payment was not completed');
+        }
+
+        if (! hash_equals((string) $pending['order_id'], (string) $razorpayOrderId)) {
+            return redirect()->route('service-history.index')->with('error', 'Payment order does not match this search');
+        }
 
         if (! $this->razorpayService->verifySignature($razorpayOrderId, $razorpayPaymentId, $razorpaySignature)) {
             return redirect()->route('service-history.index')->with('error', 'Payment verification failed');
@@ -120,19 +154,24 @@ class ServiceHistoryController extends Controller
 
         session()->forget('service_history_pending');
 
-        return view('frontend.service-history.result', [
-            'serviceHistory' => $result['data'],
-            'cached' => $result['cached'] ?? false,
-            'success' => $result['success'],
-            'message' => $result['message'],
-        ]);
+        return $this->renderResult(
+            $result['data'] ?? null,
+            $result['cached'] ?? false,
+            $result['success'],
+            $result['message']
+        );
     }
 
     public function show(CustomerServiceHistory $serviceHistory)
     {
         $serviceHistory->load('records');
 
-        return view('frontend.service-history.show', compact('serviceHistory'));
+        return $this->renderResult(
+            $serviceHistory,
+            false,
+            $serviceHistory->is_success,
+            $serviceHistory->error_message
+        );
     }
 
     public function downloadPdf(CustomerServiceHistory $serviceHistory)
@@ -143,5 +182,26 @@ class ServiceHistoryController extends Controller
         $pdf->setPaper('A4', 'portrait');
 
         return $pdf->download('service-history-'.$serviceHistory->vehicle_number.'.pdf');
+    }
+
+    private function renderResult(
+        ?CustomerServiceHistory $serviceHistory,
+        bool $cached,
+        ?bool $success = null,
+        ?string $message = null
+    ) {
+        return Inertia::render('Public/Services/ServiceResult', [
+            'report' => $serviceHistory,
+            'cached' => $cached,
+            'success' => $success ?? (bool) $serviceHistory?->is_success,
+            'message' => $message,
+            'variant' => 'generic',
+            'serviceTitle' => 'Vehicle Service History',
+            'indexUrl' => route('service-history.index'),
+            'pdfUrl' => $serviceHistory?->is_success
+                ? route('service-history.download-pdf', $serviceHistory)
+                : null,
+            'freshSearchUrl' => route('service-history.search'),
+        ]);
     }
 }

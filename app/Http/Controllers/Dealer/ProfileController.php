@@ -6,13 +6,41 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Dealer;
+use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
     public function edit()
     {
         $dealer = auth('dealer')->user();
-        return view('dealer.profile.edit', compact('dealer'));
+
+        return Inertia::render('Dealer/Profile/Edit', [
+            'dealer' => [
+                'name' => $dealer->name,
+                'company_name' => $dealer->company_name,
+                'email' => $dealer->email,
+                'phone' => $dealer->phone,
+                'dealer_unique_id' => $dealer->dealer_unique_id,
+                'profile_image_url' => $dealer->profile_image ? Storage::url($dealer->profile_image) : asset('images/default-avatar.png'),
+                'address' => $dealer->address,
+                'city' => $dealer->city,
+                'state' => $dealer->state,
+                'pincode' => $dealer->pincode,
+                'pan_number' => $dealer->pan_number,
+                'pan_document_url' => $dealer->pan_document_path ? Storage::url($dealer->pan_document_path) : null,
+                'kyc_document_type' => $dealer->kyc_document_type,
+                'kyc_document_number' => $dealer->kyc_document_number,
+                'kyc_document_url' => $dealer->kyc_document_path ? Storage::url($dealer->kyc_document_path) : null,
+                'completion' => $dealer->calculateProfileCompletion(),
+                'missing_fields' => $dealer->getMissingProfileFields(),
+            ],
+            'actions' => [
+                'update' => route('dealer.profile.update'),
+                'sendOtp' => route('dealer.profile.phone-otp'),
+                'verifyPhone' => route('dealer.profile.verify-phone'),
+                'updatePassword' => route('dealer.profile.update-password'),
+            ],
+        ]);
     }
 
     public function update(Request $request)

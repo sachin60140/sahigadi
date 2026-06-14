@@ -8,52 +8,55 @@ use App\Models\Dealer;
 use App\Models\Setting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ChallanSearchController extends Controller
 {
     public function index(Request $request)
     {
-        $query = AdminChallanSearch::with('dealer');
+        $filters = $this->filters($request);
+        $searches = $this->applyFilters(AdminChallanSearch::with('dealer'), $request)
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
 
-        if ($request->filled('search')) {
-            $query->where('vehicle_number', 'like', '%'.strtoupper($request->search).'%');
-        }
-
-        if ($request->filled('dealer_id')) {
-            $query->where('dealer_id', $request->dealer_id);
-        }
-
-        if ($request->filled('status')) {
-            if ($request->status == 'success') {
-                $query->where('is_success', true);
-            } else {
-                $query->where('is_success', false);
-            }
-        }
-
-        if ($request->filled('from_date')) {
-            $query->whereDate('created_at', '>=', $request->from_date);
-        }
-
-        if ($request->filled('to_date')) {
-            $query->whereDate('created_at', '<=', $request->to_date);
-        }
-
-        $searches = $query->orderBy('created_at', 'desc')->paginate(20);
-        $dealers = Dealer::orderBy('name')->get();
-        $charge = Setting::getChallanCharge();
-
-        $totalRevenue = AdminChallanSearch::where('is_success', true)
-            ->when($request->filled('from_date'), fn ($q) => $q->whereDate('created_at', '>=', $request->from_date))
-            ->when($request->filled('to_date'), fn ($q) => $q->whereDate('created_at', '<=', $request->to_date))
-            ->sum('charge_amount');
-
-        return view('admin.challan-searches.index', compact('searches', 'dealers', 'charge', 'totalRevenue'));
+        return Inertia::render('Admin/ChallanSearches/Index', [
+            'searches' => $searches->through(fn (AdminChallanSearch $search) => $this->mapSearch($search)),
+            'dealers' => Dealer::orderBy('name')->get()->map(fn (Dealer $dealer) => [
+                'id' => $dealer->id,
+                'name' => $dealer->company_name ?: $dealer->name,
+            ])->values(),
+            'filters' => $filters,
+            'stats' => [
+                'total' => AdminChallanSearch::count(),
+                'successful' => AdminChallanSearch::where('is_success', true)->count(),
+                'failed' => AdminChallanSearch::where('is_success', false)->count(),
+                'revenue' => (float) AdminChallanSearch::where('is_success', true)->sum('charge_amount'),
+                'fine_amount' => (float) AdminChallanSearch::where('is_success', true)->sum('total_amount'),
+                'charge' => (float) Setting::getDealerChallanCharge(),
+            ],
+            'actions' => [
+                'settings' => route('admin.challan-searches.settings'),
+                'combinedLedger' => route('admin.service-tracking.challan-search'),
+                'exportExcel' => route('admin.challan-searches.exportExcel', array_filter($filters)),
+                'exportPdf' => route('admin.challan-searches.exportPdf', array_filter($filters)),
+            ],
+        ]);
     }
 
     public function show(AdminChallanSearch $challanSearch)
     {
-        return view('admin.challan-searches.show', compact('challanSearch'));
+        $challanSearch->load('dealer');
+
+        return Inertia::render('Admin/ChallanSearches/Show', [
+            'search' => array_merge($this->mapSearch($challanSearch), [
+                'challans' => $challanSearch->challan_data ?? [],
+                'actions' => [
+                    'back' => route('admin.challan-searches.index'),
+                    'pdf' => route('admin.challan-searches.download-pdf', $challanSearch),
+                ],
+            ]),
+        ]);
     }
 
     public function downloadPdf(AdminChallanSearch $challanSearch)
@@ -83,30 +86,28 @@ class ChallanSearchController extends Controller
         $successfulSearches = AdminChallanSearch::where('is_success', true)->count();
         $totalRevenue = AdminChallanSearch::where('is_success', true)->sum('charge_amount');
 
-        return view('admin.challan-searches.settings', compact('charge', 'dealerCharge', 'totalSearches', 'successfulSearches', 'totalRevenue'));
+        return Inertia::render('Admin/ChallanSearches/Settings', [
+            'charges' => [
+                'customer' => (float) $charge,
+                'dealer' => (float) $dealerCharge,
+            ],
+            'stats' => [
+                'total' => $totalSearches,
+                'successful' => $successfulSearches,
+                'revenue' => (float) $totalRevenue,
+            ],
+            'actions' => [
+                'update' => route('admin.challan-searches.settings'),
+                'back' => route('admin.challan-searches.index'),
+            ],
+        ]);
     }
 
     public function exportExcel(Request $request)
     {
-        $query = AdminChallanSearch::with('dealer');
-
-        if ($request->filled('search')) {
-            $query->where('vehicle_number', 'like', '%'.strtoupper($request->search).'%');
-        }
-        if ($request->filled('dealer_id')) {
-            $query->where('dealer_id', $request->dealer_id);
-        }
-        if ($request->filled('status')) {
-            $query->where('is_success', $request->status == 'success');
-        }
-        if ($request->filled('from_date')) {
-            $query->whereDate('created_at', '>=', $request->from_date);
-        }
-        if ($request->filled('to_date')) {
-            $query->whereDate('created_at', '<=', $request->to_date);
-        }
-
-        $searches = $query->orderBy('created_at', 'desc')->get();
+        $searches = $this->applyFilters(AdminChallanSearch::with('dealer'), $request)
+            ->latest()
+            ->get();
 
         $filename = 'e-challan-searches-'.now()->format('Y-m-d').'.csv';
         $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="'.$filename.'"'];
@@ -133,16 +134,27 @@ class ChallanSearchController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $query = AdminChallanSearch::with('dealer');
+        $searches = $this->applyFilters(AdminChallanSearch::with('dealer'), $request)
+            ->latest()
+            ->get();
 
+        $totalRevenue = $searches->where('is_success', true)->sum('total_amount');
+
+        $pdf = Pdf::loadView('admin.challan-searches.pdf', compact('searches', 'totalRevenue'));
+
+        return $pdf->download('e-challan-searches-'.now()->format('Y-m-d').'.pdf');
+    }
+
+    private function applyFilters($query, Request $request)
+    {
         if ($request->filled('search')) {
-            $query->where('vehicle_number', 'like', '%'.strtoupper($request->search).'%');
+            $query->where('vehicle_number', 'like', '%'.strtoupper((string) $request->search).'%');
         }
         if ($request->filled('dealer_id')) {
             $query->where('dealer_id', $request->dealer_id);
         }
         if ($request->filled('status')) {
-            $query->where('is_success', $request->status == 'success');
+            $query->where('is_success', $request->status === 'success');
         }
         if ($request->filled('from_date')) {
             $query->whereDate('created_at', '>=', $request->from_date);
@@ -151,12 +163,50 @@ class ChallanSearchController extends Controller
             $query->whereDate('created_at', '<=', $request->to_date);
         }
 
-        $searches = $query->orderBy('created_at', 'desc')->get();
+        return $query;
+    }
 
-        $totalRevenue = $searches->where('is_success', true)->sum('total_amount');
+    private function filters(Request $request): array
+    {
+        return [
+            'search' => (string) $request->query('search', ''),
+            'dealer_id' => (string) $request->query('dealer_id', ''),
+            'status' => (string) $request->query('status', ''),
+            'from_date' => (string) $request->query('from_date', ''),
+            'to_date' => (string) $request->query('to_date', ''),
+        ];
+    }
 
-        $pdf = Pdf::loadView('admin.challan-searches.pdf', compact('searches', 'totalRevenue'));
+    private function mapSearch(AdminChallanSearch $search): array
+    {
+        return [
+            'id' => $search->id,
+            'vehicle_number' => $search->vehicle_number,
+            'challan_count' => (int) ($search->challan_count ?? 0),
+            'total_amount' => (float) ($search->total_amount ?? 0),
+            'charge_amount' => (float) ($search->charge_amount ?? 0),
+            'is_success' => (bool) $search->is_success,
+            'error_message' => $search->error_message,
+            'created_at' => $this->formatDateTime($search->created_at),
+            'dealer' => $search->dealer ? [
+                'name' => $search->dealer->company_name ?: $search->dealer->name,
+                'phone' => $search->dealer->phone,
+                'show_url' => route('admin.dealers.show', $search->dealer),
+            ] : null,
+            'actions' => [
+                'show' => route('admin.challan-searches.show', $search),
+                'pdf' => route('admin.challan-searches.download-pdf', $search),
+            ],
+        ];
+    }
 
-        return $pdf->download('e-challan-searches-'.now()->format('Y-m-d').'.pdf');
+    private function formatDateTime($value): ?string
+    {
+        if (! $value) return null;
+        try {
+            return \Carbon\Carbon::parse($value)->format('d M Y, h:i A');
+        } catch (\Throwable) {
+            return (string) $value;
+        }
     }
 }

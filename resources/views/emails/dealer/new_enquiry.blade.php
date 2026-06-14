@@ -1,4 +1,4 @@
-<x-mail::message>
+﻿<x-mail::message>
 # You have a new Lead!
 
 Hi {{ $enquiry->dealer->name ?? 'Dealer' }},
@@ -23,3 +23,4 @@ View in Dashboard
 Thanks,<br>
 {{ config('app.name') }}
 </x-mail::message>
+

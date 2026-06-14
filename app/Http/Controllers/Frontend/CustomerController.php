@@ -9,12 +9,18 @@ use App\Models\CustomerCarListing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Inertia\Inertia;
 
 class CustomerController extends Controller
 {
     public function showLogin()
     {
-        return \Inertia\Inertia::render('Public/Customer/Login');
+        return Inertia::render('Auth/CustomerLogin', [
+            'actions' => [
+                'sendOtp' => route('customer.send-otp'),
+                'verifyOtp' => route('customer.verify-otp'),
+            ],
+        ]);
     }
 
     public function sendOtp(Request $request)
@@ -118,13 +124,52 @@ class CustomerController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('frontend.customer.dashboard', compact('customer', 'listings'));
+        return Inertia::render('Customer/Dashboard', [
+            'customer' => $this->mapCustomer($customer),
+            'listings' => $listings->map(fn (CustomerCarListing $listing) => $this->mapListing($listing)),
+            'stats' => [
+                'total' => $listings->count(),
+                'approved' => $listings->where('status', 'approved')->count(),
+                'pending' => $listings->where('status', 'pending')->count(),
+                'featured' => $listings->filter(fn (CustomerCarListing $listing) => $listing->isFeatured())->count(),
+            ],
+            'actions' => [
+                'sellCar' => route('sell-car.index'),
+                'sendDeleteOtp' => route('customer.listing.delete.otp'),
+            ],
+        ]);
     }
 
     public function editProfile()
     {
         $customer = Auth::guard('customer')->user();
-        return view('frontend.customer.profile', compact('customer'));
+
+        if ((int) $customer->profile_completion_percentage === 0) {
+            $customer->calculateProfileCompletion();
+            $customer->refresh();
+        }
+
+        return Inertia::render('Customer/Profile/Edit', [
+            'customer' => [
+                ...$this->mapCustomer($customer),
+                'whatsapp_number' => $customer->whatsapp_number,
+                'address' => $customer->address,
+                'city' => $customer->city,
+                'state' => $customer->state,
+                'pincode' => $customer->pincode,
+                'gst_number' => $customer->gst_number,
+                'company_name' => $customer->company_name,
+                'aadhaar_number' => $customer->aadhaar_number,
+                'pan_number' => $customer->pan_number,
+                'gender' => $customer->gender,
+                'dob' => optional($customer->dob)->format('Y-m-d'),
+                'missing_fields' => $customer->getMissingProfileFields(),
+            ],
+            'actions' => [
+                'update' => route('customer.profile.update'),
+                'dashboard' => route('customer.dashboard'),
+            ],
+        ]);
     }
 
     public function updateProfile(Request $request)
@@ -290,7 +335,40 @@ class CustomerController extends Controller
         $fuelTypes = ['petrol' => 'Petrol', 'diesel' => 'Diesel', 'electric' => 'Electric', 'hybrid' => 'Hybrid', 'cng' => 'CNG'];
         $transmissions = ['manual' => 'Manual', 'automatic' => 'Automatic'];
 
-        return view('frontend.customer.edit-listing', compact('listing', 'brands', 'fuelTypes', 'transmissions'));
+        return Inertia::render('Customer/Listings/Edit', [
+            'listing' => [
+                'id' => $listing->id,
+                'unique_id' => $listing->unique_id,
+                'title' => $listing->title,
+                'brand_id' => $listing->brand_id,
+                'model' => $listing->model,
+                'year' => $listing->year,
+                'fuel_type' => $listing->fuel_type,
+                'transmission' => $listing->transmission,
+                'km_driven' => $listing->km_driven,
+                'price' => (float) ($listing->price ?? 0),
+                'city' => $listing->city,
+                'registration_number' => $listing->registration_number,
+                'owners' => $listing->owners,
+                'owner_email' => $listing->owner_email ?: $customer->email,
+                'whatsapp_number' => $listing->whatsapp_number ?: $customer->whatsapp_number ?: $customer->phone,
+                'latitude' => $listing->latitude,
+                'longitude' => $listing->longitude,
+                'images' => collect(json_decode($listing->images ?: '[]', true))
+                    ->filter()
+                    ->map(fn (string $path) => asset('storage/'.$path))
+                    ->values(),
+            ],
+            'options' => [
+                'brands' => $brands->map(fn (Brand $brand) => ['id' => $brand->id, 'name' => $brand->name]),
+                'fuelTypes' => collect($fuelTypes)->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values(),
+                'transmissions' => collect($transmissions)->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values(),
+            ],
+            'actions' => [
+                'update' => route('customer.listing.update', $listing->id),
+                'dashboard' => route('customer.dashboard'),
+            ],
+        ]);
     }
 
     public function updateListing(Request $request, $id)
@@ -316,6 +394,11 @@ class CustomerController extends Controller
             'city' => 'nullable|string|max:100',
             'registration_number' => 'nullable|string|max:20',
             'owners' => 'nullable|integer|min:1|max:10',
+            'owner_email' => 'nullable|email|max:255',
+            'whatsapp_number' => 'nullable|string|max:20',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'images' => 'nullable|array|min:5|max:10',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -382,5 +465,50 @@ class CustomerController extends Controller
     {
         Auth::guard('customer')->logout();
         return redirect()->route('home');
+    }
+
+    private function mapCustomer(Customer $customer): array
+    {
+        return [
+            'id' => $customer->id,
+            'name' => $customer->name,
+            'email' => $customer->email,
+            'phone' => $customer->phone,
+            'customer_unique_id' => $customer->customer_unique_id,
+            'profile_image_url' => $customer->profile_image ? asset('storage/'.$customer->profile_image) : null,
+            'profile_completion_percentage' => (int) $customer->profile_completion_percentage,
+        ];
+    }
+
+    private function mapListing(CustomerCarListing $listing): array
+    {
+        $images = collect(json_decode($listing->images ?: '[]', true))
+            ->filter()
+            ->map(fn (string $path) => asset('storage/'.$path))
+            ->values();
+
+        return [
+            'id' => $listing->id,
+            'unique_id' => $listing->unique_id,
+            'title' => $listing->title,
+            'brand' => $listing->brand?->name,
+            'model' => $listing->model,
+            'year' => $listing->year,
+            'fuel_type' => $listing->fuel_type,
+            'transmission' => $listing->transmission,
+            'km_driven' => $listing->km_driven,
+            'price' => (float) ($listing->price ?? 0),
+            'city' => $listing->city,
+            'registration_number' => $listing->registration_number,
+            'status' => $listing->status,
+            'rejection_reason' => $listing->rejection_reason,
+            'image_url' => $images->first(),
+            'is_featured' => $listing->isFeatured(),
+            'featured_expires_at' => optional($listing->featured_expires_at)->format('d M Y'),
+            'view_url' => $listing->status === 'approved' ? route('car.detail', $listing->slug) : null,
+            'edit_url' => route('customer.listing.edit', $listing->id),
+            'feature_url' => route('customer.listing.featured-plans', $listing),
+            'delete_url' => route('customer.listing.delete', $listing->id),
+        ];
     }
 }

@@ -9,6 +9,7 @@ use App\Services\CustomerVehicleSearchService;
 use App\Services\RazorpayService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class VehicleSearchController extends Controller
 {
@@ -35,7 +36,38 @@ class VehicleSearchController extends Controller
                 ->get();
         }
 
-        return view('frontend.vehicle-search.index', compact('charge', 'history'));
+        return Inertia::render('Public/Services/Lookup', [
+            'service' => [
+                'key' => 'vehicle-search',
+                'eyebrow' => 'Vehicle verification',
+                'title' => 'Vahan details and RC search',
+                'description' => 'Check registration, ownership, insurance and vehicle details before you buy.',
+                'numberField' => 'registration_number',
+                'numberLabel' => 'Vehicle registration number',
+                'placeholder' => 'e.g. BR01AB1234',
+                'submitLabel' => 'Search vehicle details',
+                'actionUrl' => route('vehicle-search.search'),
+                'charge' => (float) $charge,
+                'requiresGuestDetails' => ! auth('customer')->check(),
+                'customerAuthenticated' => auth('customer')->check(),
+                'seoTitle' => 'Vahan Details (RC Search) - SAHI GADI',
+                'seoDescription' => 'Check Vahan RC details online with SAHI GADI. Search vehicle registration, owner, fitness and insurance information before buying a used car.',
+                'canonical' => route('vehicle-search.index'),
+                'features' => [
+                    'Registration and ownership information',
+                    'Insurance and fitness checkpoints',
+                    'Downloadable report history for customers',
+                ],
+            ],
+            'history' => $history->map(fn (CustomerVehicleSearch $record) => [
+                'id' => $record->id,
+                'number' => $record->registration_number,
+                'is_success' => $record->is_success,
+                'created_at' => $record->created_at?->toIso8601String(),
+                'view_url' => $record->is_success ? route('vehicle-search.show', $record) : null,
+                'pdf_url' => $record->is_success ? route('vehicle-search.pdf', $record) : null,
+            ])->values(),
+        ]);
     }
 
     public function search(Request $request)
@@ -70,11 +102,13 @@ class VehicleSearchController extends Controller
 
         $cached = CustomerVehicleSearch::checkCache($registrationNumber);
         if ($cached) {
-            return view('frontend.vehicle-search.result', [
+            return Inertia::render('Public/Services/VehicleResult', [
                 'vehicleSearch' => $cached,
                 'cached' => true,
                 'success' => true,
                 'message' => 'Found in cache',
+                'indexUrl' => route('vehicle-search.index'),
+                'pdfUrl' => route('vehicle-search.pdf', $cached),
             ]);
         }
 
@@ -113,11 +147,15 @@ class VehicleSearchController extends Controller
                 $transaction->update(['remark' => $transaction->remark . ' (Refunded)']);
             }
 
-            return view('frontend.vehicle-search.result', [
+            return Inertia::render('Public/Services/VehicleResult', [
                 'vehicleSearch' => $result['data'] ?? null,
                 'cached' => $result['cached'] ?? false,
                 'success' => $result['success'],
                 'message' => $result['message'],
+                'indexUrl' => route('vehicle-search.index'),
+                'pdfUrl' => isset($result['data']) && $result['data']
+                    ? route('vehicle-search.pdf', $result['data'])
+                    : null,
             ]);
         }
 
@@ -140,12 +178,16 @@ class VehicleSearchController extends Controller
             ],
         ]);
 
-        return view('frontend.vehicle-search.payment', [
+        return Inertia::render('Public/Services/Payment', [
             'orderId' => $order['order_id'],
-            'amount' => $order['amount'],
+            'amount' => (float) $order['amount'],
             'keyId' => $this->razorpayService->getKeyId(),
-            'registrationNumber' => $registrationNumber,
+            'vehicleNumber' => $registrationNumber,
             'customerName' => $customerInfo['name'],
+            'reportLabel' => 'RC Search Report',
+            'description' => 'RC Search - '.$registrationNumber,
+            'callbackUrl' => route('vehicle-search.callback'),
+            'cancelUrl' => route('vehicle-search.index'),
         ]);
     }
 
@@ -163,6 +205,10 @@ class VehicleSearchController extends Controller
 
         if (empty($razorpayOrderId) || empty($razorpayPaymentId) || empty($razorpaySignature)) {
             return redirect()->route('vehicle-search.index')->with('error', 'Payment was not completed');
+        }
+
+        if (! hash_equals((string) $pending['order_id'], (string) $razorpayOrderId)) {
+            return redirect()->route('vehicle-search.index')->with('error', 'Payment order does not match this search');
         }
 
         if (! $this->razorpayService->verifySignature($razorpayOrderId, $razorpayPaymentId, $razorpaySignature)) {
@@ -183,17 +229,28 @@ class VehicleSearchController extends Controller
 
         session()->forget('vehicle_search_pending');
 
-        return view('frontend.vehicle-search.result', [
-            'vehicleSearch' => $result['data'],
+        return Inertia::render('Public/Services/VehicleResult', [
+            'vehicleSearch' => $result['data'] ?? null,
             'cached' => $result['cached'] ?? false,
             'success' => $result['success'],
             'message' => $result['message'],
+            'indexUrl' => route('vehicle-search.index'),
+            'pdfUrl' => isset($result['data']) && $result['data']
+                ? route('vehicle-search.pdf', $result['data'])
+                : null,
         ]);
     }
 
     public function show(CustomerVehicleSearch $vehicleSearch)
     {
-        return view('frontend.vehicle-search.show', compact('vehicleSearch'));
+        return Inertia::render('Public/Services/VehicleResult', [
+            'vehicleSearch' => $vehicleSearch,
+            'cached' => false,
+            'success' => $vehicleSearch->is_success,
+            'message' => $vehicleSearch->error_message,
+            'indexUrl' => route('vehicle-search.index'),
+            'pdfUrl' => $vehicleSearch->is_success ? route('vehicle-search.pdf', $vehicleSearch) : null,
+        ]);
     }
 
     public function downloadPdf(CustomerVehicleSearch $vehicleSearch)

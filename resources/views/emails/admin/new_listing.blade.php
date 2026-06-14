@@ -1,4 +1,4 @@
-<x-mail::message>
+﻿<x-mail::message>
 # New Car Listing Requires Approval
 
 A new car listing has been submitted and is waiting for your review.
@@ -17,3 +17,4 @@ View Listings
 Thanks,<br>
 {{ config('app.name') }}
 </x-mail::message>
+

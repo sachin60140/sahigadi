@@ -519,17 +519,24 @@ class CarController extends Controller
         return redirect()->back()->with('success', 'Enquiry submitted successfully! The dealer will contact you soon.');
     }
 
-    public function dealerCatalog(string $dealerSlug)
+    public function dealerCatalog(Request $request, string $dealerSlug)
     {
         $dealer = Dealer::where('slug', $dealerSlug)->firstOrFail();
 
-        $cars = Car::with(['dealer', 'brand', 'images'])
+        $carsQuery = Car::with(['dealer', 'brand', 'images'])
             ->where('dealer_id', $dealer->id)
             ->approved()
-            ->active()
-            ->orderBy('is_featured', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
+            ->active();
+
+        match ($request->get('sort')) {
+            'newest' => $carsQuery->orderBy('created_at', 'desc'),
+            'price_low' => $carsQuery->orderBy('price', 'asc'),
+            'price_high' => $carsQuery->orderBy('price', 'desc'),
+            'km_low' => $carsQuery->orderBy('km_driven', 'asc'),
+            default => $carsQuery->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc'),
+        };
+
+        $cars = $carsQuery->paginate(12)->withQueryString();
 
         $seoTitle = "{$dealer->name} - Car Listings | SAHI GADI";
         $seoDescription = "Browse all pre-owned cars from {$dealer->name}. View {$cars->total()} verified listings with photos, prices, and dealer details.";
@@ -539,7 +546,33 @@ class CarController extends Controller
             $ogImage = $this->getFirstImage($cars->first(), null);
         }
 
-        return view('frontend.cars.dealer-catalog', compact('dealer', 'cars', 'seoTitle', 'seoDescription', 'ogImage'));
+        $safeCars = $cars->through(fn ($car) => $this->mapSafeCarPayload($car));
+
+        return \Inertia\Inertia::render('Public/DealerCatalog', [
+            'dealer' => [
+                'id' => $dealer->id,
+                'name' => $dealer->name,
+                'company_name' => $dealer->company_name,
+                'slug' => $dealer->slug,
+                'phone' => $dealer->phone,
+                'email' => $dealer->email,
+                'city' => $dealer->city,
+                'gst_verified' => (bool) $dealer->gst_verified,
+                'email_verified' => (bool) $dealer->email_verified_at,
+            ],
+            'cars' => $safeCars,
+            'seoTitle' => $seoTitle,
+            'seoDescription' => $seoDescription,
+            'ogImage' => $ogImage,
+            'filters' => $request->only(['sort']),
+            'sortOptions' => [
+                ['label' => 'Relevance', 'value' => 'relevance'],
+                ['label' => 'Newest First', 'value' => 'newest'],
+                ['label' => 'Price: Low to High', 'value' => 'price_low'],
+                ['label' => 'Price: High to Low', 'value' => 'price_high'],
+                ['label' => 'KM: Low to High', 'value' => 'km_low'],
+            ],
+        ]);
     }
 
     public function verifiedDealers()
@@ -557,6 +590,22 @@ class CarController extends Controller
         $seoTitle = 'Verified Dealers | SAHI GADI';
         $seoDescription = 'Browse verified car dealers with authentic listings. Find trusted dealers with quality pre-owned cars.';
 
-        return view('frontend.cars.verified-dealers', compact('dealers', 'seoTitle', 'seoDescription'));
+        $safeDealers = $dealers->through(fn ($dealer) => [
+            'id' => $dealer->id,
+            'name' => $dealer->name,
+            'company_name' => $dealer->company_name,
+            'city' => $dealer->city,
+            'phone' => $dealer->phone,
+            'slug' => $dealer->slug,
+            'gst_verified' => (bool) $dealer->gst_verified,
+            'email_verified' => (bool) $dealer->email_verified_at,
+            'approved_cars_count' => $dealer->approved_cars_count ?? 0,
+        ]);
+
+        return \Inertia\Inertia::render('Public/VerifiedDealers', [
+            'dealers' => $safeDealers,
+            'seoTitle' => $seoTitle,
+            'seoDescription' => $seoDescription,
+        ]);
     }
 }

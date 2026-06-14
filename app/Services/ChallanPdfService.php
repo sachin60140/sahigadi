@@ -30,7 +30,9 @@ class ChallanPdfService
             : Setting::getDealerChallanPdfCharge();
 
         // 3. Check wallet balance
-        if ($user->wallet->balance < $chargeAmount) {
+        $wallet = $user->wallet;
+
+        if (! $wallet || $wallet->balance < $chargeAmount) {
             return [
                 'success' => false, 
                 'message' => 'Low Balance', 
@@ -81,15 +83,15 @@ class ChallanPdfService
                 $searchLog->charge_amount = $chargeAmount;
                 
                 // Deduct from wallet
-                $user->wallet->balance -= $chargeAmount;
-                $user->wallet->save();
+                $wallet->balance -= $chargeAmount;
+                $wallet->save();
                 
                 // Add wallet transaction record
-                $user->wallet->transactions()->create([
+                $wallet->transactions()->create([
                     'amount' => $chargeAmount,
                     'type' => 'debit',
-                    'description' => "Challan PDF search for {$vehicleNumber}",
-                    'reference_id' => null, // or add logic for reference
+                    'remark' => "Challan PDF search for {$vehicleNumber}",
+                    'reference_type' => 'challan_pdf_search',
                 ]);
             } else {
                 $searchLog->charge_amount = 0; // No deduction on failure

@@ -1,13 +1,13 @@
 <template>
-    <div v-if="links.length > 3" class="flex flex-wrap -mb-1 mt-8 justify-center gap-1">
+    <div v-if="links.length > 3" class="mt-8 flex flex-wrap justify-center gap-2">
         <template v-for="(link, key) in links" :key="key">
-            <div v-if="link.url === null" 
-                 class="px-4 py-2 text-sm leading-4 text-gray-400 border rounded-md" 
+            <div v-if="link.url === null"
+                 class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold leading-4 text-slate-400 sm:px-4"
                  v-html="link.label">
             </div>
-            <Link v-else 
-                  class="px-4 py-2 text-sm leading-4 border rounded-md hover:bg-[#071226] hover:text-white focus:border-[#071226] focus:text-[#071226] transition-colors"
-                  :class="{ 'bg-[#071226] text-white': link.active }"
+            <Link v-else
+                  class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold leading-4 transition hover:bg-teal-700 hover:text-white focus:border-teal-700 focus:text-teal-700 sm:px-4"
+                  :class="{ 'bg-teal-700 text-white border-teal-700': link.active }"
                   :href="link.url"
                   :only="['cars']"
                   v-html="link.label">

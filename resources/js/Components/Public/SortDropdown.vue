@@ -1,11 +1,11 @@
 <template>
-    <div class="flex items-center space-x-2">
-        <label for="sort" class="text-sm font-medium text-gray-700 whitespace-nowrap">Sort by:</label>
+    <div class="flex w-full items-center gap-2 md:w-auto">
+        <label for="sort" class="whitespace-nowrap text-sm font-black text-slate-700">Sort</label>
         <select 
             id="sort" 
             :value="modelValue"
             @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
-            class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-[#071226] sm:text-sm sm:leading-6"
+            class="block h-11 w-full rounded-lg border border-slate-200 bg-slate-50 pl-3 pr-9 text-sm font-semibold text-slate-800 outline-none transition focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-100 md:w-56"
         >
             <option v-for="opt in options" :key="opt.value" :value="opt.value">
                 {{ opt.label }}

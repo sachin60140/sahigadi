@@ -1,4 +1,4 @@
-<x-mail::message>
+﻿<x-mail::message>
 # Your Car Listing is Received!
 
 Hi there,
@@ -19,3 +19,4 @@ Visit SAHI GADI
 Thanks,<br>
 {{ config('app.name') }}
 </x-mail::message>
+

@@ -37,7 +37,41 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
+            'auth' => [
+                'admin' => fn () => $request->user('admin') ? [
+                    'id' => $request->user('admin')->id,
+                    'name' => $request->user('admin')->name,
+                    'email' => $request->user('admin')->email,
+                ] : null,
+                'dealer' => fn () => $request->user('dealer') ? [
+                    'id' => $request->user('dealer')->id,
+                    'name' => $request->user('dealer')->name,
+                    'email' => $request->user('dealer')->email,
+                    'phone' => $request->user('dealer')->phone,
+                    'company_name' => $request->user('dealer')->company_name,
+                    'dealer_unique_id' => $request->user('dealer')->dealer_unique_id,
+                    'status' => $request->user('dealer')->status,
+                    'slug' => $request->user('dealer')->slug,
+                    'new_enquiries' => $request->user('dealer')->enquiries()->where('status', 'new')->count(),
+                ] : null,
+                'customer' => fn () => $request->user('customer') ? [
+                    'id' => $request->user('customer')->id,
+                    'name' => $request->user('customer')->name,
+                    'email' => $request->user('customer')->email,
+                    'phone' => $request->user('customer')->phone,
+                    'customer_unique_id' => $request->user('customer')->customer_unique_id,
+                    'profile_image_url' => $request->user('customer')->profile_image
+                        ? asset('storage/'.$request->user('customer')->profile_image)
+                        : null,
+                    'profile_completion_percentage' => (int) $request->user('customer')->profile_completion_percentage,
+                    'wallet_balance' => (float) ($request->user('customer')->wallet?->balance ?? 0),
+                    'listing_count' => $request->user('customer')->listings()->count(),
+                ] : null,
+            ],
         ];
     }
 }

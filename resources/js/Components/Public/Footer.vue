@@ -1,51 +1,83 @@
 <template>
-    <footer class="bg-[#071226] text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
-                <div>
-                    <h3 class="text-3xl font-black tracking-tight leading-none mb-1">
-                        SAHI<span class="text-[#E30613]">GADI</span>
-                    </h3>
-                    <p class="text-[0.65rem] font-bold text-gray-400 tracking-widest uppercase mb-6">
-                        Verified. Trusted. Drive Ahead.
-                    </p>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Verified used cars in Bihar. Buy, sell, and verify pre-owned cars with confidence at the best market prices.
-                    </p>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><Link href="/" class="hover:text-white transition">Home</Link></li>
-                        <li><Link href="/cars" class="hover:text-white transition">Buy a Car</Link></li>
-                        <li><Link href="/sell-your-car" class="hover:text-white transition">Sell Your Car</Link></li>
-                        <li><Link href="/verified-dealers" class="hover:text-white transition">Verified Dealers</Link></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Support</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="/contact" class="hover:text-white transition">Contact Us</a></li>
-                        <li><a href="/privacy-policy" class="hover:text-white transition">Privacy Policy</a></li>
-                        <li><a href="/terms-of-use" class="hover:text-white transition">Terms of Use</a></li>
-                        <li><a href="/refund-policy" class="hover:text-white transition">Refund Policy</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li>Support: info@sahigadi.com</li>
-                        <li>Location: Muzaffarpur, Bihar</li>
-                    </ul>
+    <footer class="border-t border-slate-200 bg-[#f8fbff] text-slate-800">
+        <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+            <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+                <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wide text-teal-700">SahiGadi marketplace</p>
+                        <h2 class="mt-2 max-w-2xl text-2xl font-black leading-tight text-slate-950 sm:text-3xl">
+                            Browse, sell, and connect with trusted car sellers from one place.
+                        </h2>
+                        <p class="mt-3 max-w-2xl text-sm font-medium leading-7 text-slate-600">
+                            A light, transparent used-car experience for buyers, sellers, and dealers across Bihar.
+                        </p>
+                    </div>
+                    <div class="flex flex-col gap-3 sm:flex-row lg:justify-end">
+                        <Link href="/cars" class="inline-flex items-center justify-center rounded-lg bg-teal-700 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-800">
+                            Browse Cars
+                        </Link>
+                        <Link href="/sell-your-car" class="inline-flex items-center justify-center rounded-lg border border-orange-200 bg-orange-50 px-5 py-3 text-sm font-black text-orange-700 transition hover:border-orange-300 hover:bg-white">
+                            Sell Your Car
+                        </Link>
+                    </div>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-12 pt-8 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center">
+
+            <div class="grid gap-8 py-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.85fr_0.9fr_1fr]">
+                <div>
+                    <Link href="/" class="inline-flex items-center gap-3">
+                        <span class="grid h-11 w-11 place-items-center rounded-lg bg-teal-700 text-white shadow-sm">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17h8m-9 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm17 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM5 17H3l2-6h14l2 6h-2M7 11l1.7-4.4A2 2 0 0 1 10.56 5h2.88a2 2 0 0 1 1.86 1.26L17 11" />
+                            </svg>
+                        </span>
+                        <span>
+                            <span class="block text-2xl font-black tracking-normal text-slate-950">SAHI<span class="text-orange-500">GADI</span></span>
+                            <span class="mt-1 block text-[0.62rem] font-bold uppercase tracking-[0.18em] text-slate-500">Verified used cars</span>
+                        </span>
+                    </Link>
+                    <p class="mt-5 max-w-sm text-sm font-medium leading-7 text-slate-600">
+                        Verified used cars, dealer catalogs, and owner listings for smarter buying decisions across Bihar.
+                    </p>
+                    <div class="mt-5 flex flex-wrap gap-2">
+                        <span v-for="badge in trustBadges" :key="badge" class="rounded-md border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-black text-teal-700">
+                            {{ badge }}
+                        </span>
+                    </div>
+                </div>
+
+                <FooterColumn title="Marketplace" :links="marketplaceLinks" />
+                <FooterColumn title="Popular Cities" :links="cityLinks" />
+
+                <div>
+                    <h2 class="text-sm font-black uppercase tracking-wide text-slate-950">Contact</h2>
+                    <div class="mt-5 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                        <ul class="space-y-3 text-sm font-medium text-slate-600">
+                            <li class="flex gap-2">
+                                <span class="mt-1 h-2 w-2 rounded-full bg-teal-600"></span>
+                                <span>Awani Enterprises, A-5, Sector 65, Noida, UP</span>
+                            </li>
+                            <li>
+                                <a href="mailto:support@sahigadi.com" class="transition hover:text-teal-700">support@sahigadi.com</a>
+                            </li>
+                            <li>
+                                <a href="tel:+919818823408" class="transition hover:text-teal-700">+91 98188 23408</a>
+                            </li>
+                        </ul>
+                        <Link href="/dealer/register" class="mt-5 inline-flex w-full justify-center rounded-lg bg-teal-700 px-4 py-3 text-sm font-black text-white transition hover:bg-teal-800">
+                            Register Dealer
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4 border-t border-slate-200 pt-6 text-sm font-semibold text-slate-500 md:flex-row md:items-center md:justify-between">
                 <p>&copy; {{ new Date().getFullYear() }} SahiGadi. All rights reserved.</p>
-                <div class="mt-4 md:mt-0 flex space-x-4">
-                    <a href="#" class="text-gray-500 hover:text-white transition">
-                        <span class="sr-only">Facebook</span>
-                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" /></svg>
-                    </a>
+                <div class="flex flex-wrap gap-x-5 gap-y-2">
+                    <a href="/privacy-policy" class="transition hover:text-teal-700">Privacy Policy</a>
+                    <a href="/terms-of-use" class="transition hover:text-teal-700">Terms of Use</a>
+                    <a href="/refund-policy" class="transition hover:text-teal-700">Refund Policy</a>
+                    <a href="/sitemap.xml" class="transition hover:text-teal-700">Sitemap</a>
                 </div>
             </div>
         </div>
@@ -53,5 +85,48 @@
 </template>
 
 <script setup lang="ts">
+import { defineComponent, h } from 'vue';
 import { Link } from '@inertiajs/vue3';
+
+const trustBadges = ['Verified listings', 'Seller network', 'Dealer network'];
+const fullPageRoutes = new Set(['/privacy-policy', '/terms-of-use', '/refund-policy']);
+
+const marketplaceLinks = [
+    { label: 'Buy Used Cars', href: '/cars' },
+    { label: 'Sell Your Car', href: '/sell-your-car' },
+    { label: 'Verified Dealers', href: '/verified-dealers' },
+    { label: 'Contact Support', href: '/contact' },
+];
+
+const cityLinks = [
+    { label: 'Used Cars in Patna', href: '/used-cars-in-patna' },
+    { label: 'Used Cars in Muzaffarpur', href: '/used-cars-in-muzaffarpur' },
+    { label: 'Used Cars in Darbhanga', href: '/used-cars-in-darbhanga' },
+    { label: 'Used Cars in Gaya', href: '/used-cars-in-gaya' },
+];
+
+const FooterColumn = defineComponent({
+    props: {
+        title: { type: String, required: true },
+        links: { type: Array as () => Array<{ label: string; href: string }>, required: true },
+    },
+    setup(props) {
+        return () => h('div', [
+            h('h2', { class: 'text-sm font-black uppercase tracking-wide text-slate-950' }, props.title),
+            h('ul', { class: 'mt-5 space-y-3 text-sm font-semibold text-slate-600' },
+                props.links.map((link) => {
+                    const isFullPageRoute = fullPageRoutes.has(link.href);
+
+                    return h('li', [
+                        h(
+                            isFullPageRoute ? 'a' : Link,
+                            { href: link.href, class: 'transition hover:text-teal-700' },
+                            isFullPageRoute ? link.label : () => link.label
+                        ),
+                    ]);
+                })
+            ),
+        ]);
+    },
+});
 </script>

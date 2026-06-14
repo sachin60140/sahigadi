@@ -58,7 +58,7 @@ class ChallanSearchService
                 'success' => false,
                 'cached' => false,
                 'data' => null,
-                'message' => 'Insufficient wallet balance. Required: ₹'.number_format($this->chargePerSearch, 2),
+                'message' => 'Insufficient wallet balance. Required: Rs '.number_format($this->chargePerSearch, 2),
             ];
         }
 
@@ -105,7 +105,7 @@ class ChallanSearchService
                 'wallet_id' => $wallet->id,
                 'type' => 'debit',
                 'amount' => $this->chargePerSearch,
-                'description' => 'E-Challan search for '.$vehicleNum,
+                'remark' => 'E-Challan search for '.$vehicleNum,
                 'reference_id' => $challanSearch->id,
                 'reference_type' => 'challan_search',
             ]);

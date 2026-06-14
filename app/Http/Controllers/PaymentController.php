@@ -11,6 +11,9 @@ use App\Services\WalletService;
 use App\Services\PhonePeService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class PaymentController extends Controller
 {
@@ -23,16 +26,51 @@ class PaymentController extends Controller
 
     public function checkout(Request $request)
     {
-        $type = $request->type;
-        $amount = $request->amount;
-        
-        if ($type === 'wallet_recharge' && $request->has('recharge_amount')) {
+        $request->validate([
+            'type' => 'required|in:wallet_recharge,plan_purchase,featured_listing',
+            'recharge_amount' => 'required_if:type,wallet_recharge|numeric|min:0',
+            'plan_id' => 'required_if:type,plan_purchase|integer',
+            'car_id' => 'required_if:type,featured_listing|integer',
+            'days' => 'required_if:type,featured_listing|integer|in:7,14,30',
+        ]);
+
+        $type = $request->string('type')->toString();
+        $dealer = auth('dealer')->user();
+        $amount = 0.0;
+        $planId = null;
+        $carId = null;
+        $days = null;
+
+        if ($type === 'wallet_recharge') {
             $minRechargeAmount = Setting::getMinimumWalletRechargeAmount();
-            $rechargeAmount = max($minRechargeAmount, (float) $request->recharge_amount);
+            $rechargeAmount = (float) $request->input('recharge_amount', $minRechargeAmount);
+
+            if ($rechargeAmount < $minRechargeAmount) {
+                throw ValidationException::withMessages([
+                    'recharge_amount' => "The minimum recharge amount is Rs {$minRechargeAmount}.",
+                ]);
+            }
+
             $amount = round($rechargeAmount * 1.18, 2);
+        } elseif ($type === 'plan_purchase') {
+            $plan = Plan::active()->findOrFail($request->integer('plan_id'));
+            $planId = $plan->id;
+            $amount = (float) $plan->price;
+        } else {
+            $car = CarModel::query()
+                ->whereKey($request->integer('car_id'))
+                ->where('dealer_id', $dealer->id)
+                ->firstOrFail();
+
+            $carId = $car->id;
+            $days = $request->integer('days');
+            $amount = match ($days) {
+                7 => 99.0,
+                14 => 179.0,
+                30 => 299.0,
+            };
         }
 
-        $dealer = auth('dealer')->user();
         $balance = $this->walletService->getBalance($dealer->id);
 
         if ($type === 'plan_purchase' || $type === 'featured_listing') {
@@ -57,6 +95,21 @@ class PaymentController extends Controller
             ]);
         }
 
+        $paymentInfo = [
+            'dealer_id' => $dealer->id,
+            'type' => $type,
+            'amount' => (float) $amount,
+            'plan_id' => $planId,
+            'car_id' => $carId,
+            'days' => $days,
+        ];
+        $paymentIntent = (string) Str::uuid();
+        session()->put("dealer_payment_intents.{$paymentIntent}", $paymentInfo);
+
+        if ($orderData) {
+            session()->put("dealer_razorpay_orders.{$orderData['order_id']}", $paymentInfo);
+        }
+
         $typeLabel = match ($type) {
             'wallet_recharge' => 'Wallet Recharge',
             'plan_purchase' => 'Plan Purchase',
@@ -64,17 +117,29 @@ class PaymentController extends Controller
             default => 'Payment',
         };
 
-        return view('dealer.payments.checkout', [
+        return Inertia::render('Dealer/Payments/Checkout', [
             'order' => $orderData,
             'type' => $type,
-            'amount' => $amount,
+            'amount' => (float) $amount,
             'typeLabel' => $typeLabel,
             'keyId' => $this->razorpayService->getKeyId(),
-            'planId' => $request->plan_id,
-            'carId' => $request->car_id,
-            'days' => $request->days,
+            'planId' => $planId,
+            'carId' => $carId,
+            'days' => $days,
             'isRazorpayActive' => $isRazorpayActive,
             'isPhonePeActive' => $isPhonePeActive,
+            'paymentIntent' => $paymentIntent,
+            'dealer' => [
+                'name' => $dealer->name,
+                'email' => $dealer->email,
+            ],
+            'csrfToken' => csrf_token(),
+            'actions' => [
+                'success' => route('dealer.payments.success'),
+                'failed' => route('dealer.payments.failed'),
+                'phonepe' => route('dealer.payments.phonepe.initiate'),
+                'wallet' => route('dealer.wallet.index'),
+            ],
         ]);
     }
 
@@ -117,29 +182,45 @@ class PaymentController extends Controller
     public function success(Request $request)
     {
         try {
+            $request->validate([
+                'razorpay_order_id' => 'required|string',
+                'razorpay_payment_id' => 'required|string',
+                'razorpay_signature' => 'required|string',
+            ]);
+
             $dealer = auth('dealer')->user();
+            $sessionKey = "dealer_razorpay_orders.{$request->razorpay_order_id}";
+            $paymentInfo = session()->get($sessionKey);
+
+            if (! $paymentInfo || (int) $paymentInfo['dealer_id'] !== (int) $dealer->id) {
+                throw new Exception('This payment session is invalid or has expired.');
+            }
 
             $payment = $this->razorpayService->processPayment(
                 $dealer,
                 $request->razorpay_order_id,
                 $request->razorpay_payment_id,
                 $request->razorpay_signature,
-                $request->amount / 100,
-                $request->type,
+                (float) $paymentInfo['amount'],
+                $paymentInfo['type'],
                 $request->reference_id ?? null
             );
 
-            if ($request->type === 'plan_purchase' && $request->plan_id) {
-                $plan = Plan::find($request->plan_id);
+            if ($paymentInfo['type'] === 'plan_purchase' && $paymentInfo['plan_id']) {
+                $plan = Plan::active()->find($paymentInfo['plan_id']);
                 if ($plan) {
                     $this->subscriptionService->purchasePlan($dealer, $plan);
                 }
             }
 
-            if ($request->type === 'featured_listing' && $request->car_id) {
-                $car = CarModel::find($request->car_id);
+            if ($paymentInfo['type'] === 'featured_listing' && $paymentInfo['car_id']) {
+                $car = CarModel::query()
+                    ->whereKey($paymentInfo['car_id'])
+                    ->where('dealer_id', $dealer->id)
+                    ->first();
+
                 if ($car) {
-                    $days = $request->days ?? 7;
+                    $days = $paymentInfo['days'] ?? 7;
                     $car->update([
                         'is_featured' => true,
                         'featured_expires_at' => now()->addDays($days),
@@ -147,7 +228,19 @@ class PaymentController extends Controller
                 }
             }
 
-            return redirect()->route('dealer.wallet.index')->with('success', 'Payment successful! Amount credited to wallet.');
+            session()->forget($sessionKey);
+
+            $redirectRoute = match ($paymentInfo['type']) {
+                'plan_purchase' => 'dealer.plans.index',
+                'featured_listing' => 'dealer.cars.index',
+                default => 'dealer.wallet.index',
+            };
+
+            $message = $paymentInfo['type'] === 'wallet_recharge'
+                ? 'Payment successful! Your wallet has been credited.'
+                : 'Payment successful!';
+
+            return redirect()->route($redirectRoute)->with('success', $message);
         } catch (Exception $e) {
             return redirect()->route('dealer.wallet.index')->with('error', $e->getMessage());
         }
@@ -161,9 +254,20 @@ class PaymentController extends Controller
     public function phonepeInitiate(Request $request)
     {
         try {
+            $request->validate([
+                'intent' => 'required|uuid',
+            ]);
+
             $dealer = auth('dealer')->user();
-            $type = $request->type;
-            $amount = $request->amount;
+            $intentKey = "dealer_payment_intents.{$request->intent}";
+            $paymentInfo = session()->get($intentKey);
+
+            if (! $paymentInfo || (int) $paymentInfo['dealer_id'] !== (int) $dealer->id) {
+                throw new Exception('This payment session is invalid or has expired.');
+            }
+
+            $type = $paymentInfo['type'];
+            $amount = (float) $paymentInfo['amount'];
             $transactionId = 'PP_' . time() . '_' . $dealer->id;
 
             // Store temporary info in session for callback
@@ -171,14 +275,16 @@ class PaymentController extends Controller
                 'transaction_id' => $transactionId,
                 'type' => $type,
                 'amount' => $amount,
-                'plan_id' => $request->plan_id,
-                'car_id' => $request->car_id,
-                'days' => $request->days,
+                'plan_id' => $paymentInfo['plan_id'],
+                'car_id' => $paymentInfo['car_id'],
+                'days' => $paymentInfo['days'],
             ]);
 
             $response = $this->phonepeService->createPayment($amount, $transactionId, ['dealer_id' => $dealer->id]);
 
             if ($response['success']) {
+                session()->forget($intentKey);
+
                 return redirect()->away($response['redirect_url']);
             }
 
@@ -215,7 +321,10 @@ class PaymentController extends Controller
                 }
 
                 if ($paymentInfo['type'] === 'featured_listing' && $paymentInfo['car_id']) {
-                    $car = CarModel::find($paymentInfo['car_id']);
+                    $car = CarModel::query()
+                        ->whereKey($paymentInfo['car_id'])
+                        ->where('dealer_id', $dealer->id)
+                        ->first();
                     if ($car) {
                         $days = $paymentInfo['days'] ?? 7;
                         $car->update([
@@ -293,7 +402,7 @@ class PaymentController extends Controller
                                 $payment = $this->phonepeService->processPayment(
                                     $dealer,
                                     $transactionId,
-                                    (float) ($amount / 100),
+                                    (float) $paymentLink->amount,
                                     'custom_payment_link'
                                 );
                                 

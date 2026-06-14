@@ -24,24 +24,13 @@ use App\Http\Controllers\Dealer\WalletController;
 use App\Http\Controllers\Frontend\CarController;
 use App\Http\Controllers\Frontend\ChallanSearchController;
 use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\OpenGraphImageController;
 use App\Http\Controllers\Frontend\SellCarController;
 use App\Http\Controllers\Frontend\CustomerController;
 use App\Http\Controllers\Frontend\ContactUnlockController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
-
-// TEMPORARY MIGRATE ROUTE
-Route::get('/run-live-migration', function () {
-    try {
-        Artisan::call('migrate', ['--force' => true]);
-        Artisan::call('optimize:clear');
-        return "Migration and cache clear completed successfully! <br><br> " . nl2br(Artisan::output());
-    } catch (\Exception $e) {
-        return "Error: " . $e->getMessage();
-    }
-});
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -220,7 +209,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/change-password', [AdminDashboardController::class, 'changePassword']);
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-        Route::resource('dealers', DealerController::class);
+        Route::resource('dealers', DealerController::class)->except(['destroy']);
         Route::post('/dealers/{dealer}/approve', [DealerController::class, 'approve'])->name('dealers.approve');
         Route::post('/dealers/{dealer}/reject', [DealerController::class, 'reject'])->name('dealers.reject');
         Route::post('/dealers/{dealer}/toggle-status', [DealerController::class, 'toggleStatus'])->name('dealers.toggle-status');
@@ -238,9 +227,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/cars/{car}/image/{carImage}', [AdminCarController::class, 'deleteImage'])->name('cars.image.delete');
         Route::post('/cars/{car}/image/{carImage}/primary', [AdminCarController::class, 'setPrimaryImage'])->name('cars.image.primary');
 
-        Route::resource('plans', AdminPlanController::class);
+        Route::resource('plans', AdminPlanController::class)->except(['show']);
         Route::resource('featured-plans', \App\Http\Controllers\Admin\FeaturedPlanController::class)->except(['show']);
-        Route::resource('brands', BrandController::class);
+        Route::resource('brands', BrandController::class)->except(['show']);
         
         Route::resource('customers', App\Http\Controllers\Admin\CustomerController::class)->only(['index', 'show', 'edit', 'update']);
 
@@ -354,26 +343,30 @@ Route::post('/pay-link/{payment_link}/checkout', [\App\Http\Controllers\Frontend
 Route::match(['GET', 'POST'], '/pay-link/phonepe/callback', [\App\Http\Controllers\Frontend\PaymentLinkController::class, 'phonepeCallback'])->name('pay.link.phonepe.callback');
 
 Route::get('/page/{page}', function ($page) {
-    return view('frontend.pages.'.$page);
+    $routes = [
+        'contact' => 'contact',
+        'privacy-policy' => 'privacy-policy',
+        'terms-of-use' => 'terms-of-use',
+        'refund-policy' => 'refund-policy',
+    ];
+
+    abort_unless(isset($routes[$page]), 404);
+
+    return redirect()->route($routes[$page]);
 })->name('page');
 
 Route::get('/contact', function () {
-    return view('frontend.pages.contact');
+    return \Inertia\Inertia::render('Public/Contact', [
+        'seoTitle' => 'Contact SahiGadi - Used Car Support in Bihar',
+        'seoDescription' => 'Contact SahiGadi for used car buying help, selling support, dealer onboarding, listing questions and marketplace assistance across Bihar.',
+    ]);
 })->name('contact');
 
 Route::post('/contact', [\App\Http\Controllers\Frontend\ContactController::class, 'store']);
 
-Route::get('/privacy-policy', function () {
-    return view('frontend.pages.privacy-policy');
-})->name('privacy-policy');
-
-Route::get('/terms-of-use', function () {
-    return view('frontend.pages.terms-of-use');
-})->name('terms-of-use');
-
-Route::get('/refund-policy', function () {
-    return view('frontend.pages.refund-policy');
-})->name('refund-policy');
+Route::get('/privacy-policy', [\App\Http\Controllers\Frontend\LegalPageController::class, 'privacy'])->name('privacy-policy');
+Route::get('/terms-of-use', [\App\Http\Controllers\Frontend\LegalPageController::class, 'terms'])->name('terms-of-use');
+Route::get('/refund-policy', [\App\Http\Controllers\Frontend\LegalPageController::class, 'refunds'])->name('refund-policy');
 
 Route::get('/service-history', [App\Http\Controllers\Frontend\ServiceHistoryController::class, 'index'])->name('service-history.index');
 Route::post('/service-history/search', [App\Http\Controllers\Frontend\ServiceHistoryController::class, 'search'])->name('service-history.search');
@@ -410,106 +403,4 @@ Route::get('/mahindra-service-history/{mahindraServiceHistory}/pdf', [App\Http\C
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
-// Temporary route to run migrations on Hostinger Shared Hosting
-Route::get('/run-migrations', function () {
-    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-    return "Migrations executed successfully! Result: " . \Illuminate\Support\Facades\Artisan::output();
-});
-
-// Temporary route to optimize existing images
-Route::get('/optimize-images', function () {
-    $directories = ['customer-listings', 'dealer-listings', 'cars', 'customer-cars'];
-    $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
-    
-    $count = 0;
-    $output = "";
-    foreach ($directories as $dir) {
-        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($dir)) {
-            $files = \Illuminate\Support\Facades\Storage::disk('public')->files($dir);
-            foreach ($files as $file) {
-                if (preg_match('/\.(jpg|jpeg|png)$/i', $file)) {
-                    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($file);
-                    $size = filesize($fullPath);
-                    
-                    if ($size > 250000) {
-                        try {
-                            $image = $manager->read($fullPath);
-                            $width = $image->width();
-                            
-                            if ($width > 800) {
-                                $image->scaleDown(width: 800);
-                                $image->save($fullPath, quality: 75);
-                                $output .= "Optimized: {$file} <br>";
-                                $count++;
-                            }
-                        } catch (\Exception $e) {
-                            $output .= "Failed to optimize {$file}: " . $e->getMessage() . "<br>";
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    return "Successfully optimized {$count} images! <br><br>" . $output;
-});
-
-// Dynamic OpenGraph Image Resizer (WhatsApp / Facebook compatibility)
-Route::get('/og-image', function (\Illuminate\Http\Request $request) {
-    $path = $request->get('path');
-    if (!$path) return redirect(asset('images/og-image.png'));
-
-    // Extract path if it's a full URL
-    if (filter_var($path, FILTER_VALIDATE_URL)) {
-        $parsedUrl = parse_url($path);
-        $path = ltrim($parsedUrl['path'] ?? '', '/');
-        // Remove 'storage/' prefix if present
-        if (str_starts_with($path, 'storage/')) {
-            $path = substr($path, 8);
-        }
-    }
-
-    $path = urldecode($path);
-
-    $storagePath = storage_path('app/public/' . $path);
-    if (!file_exists($storagePath)) {
-        $storagePath = public_path('storage/' . $path);
-    }
-    
-    if (!file_exists($storagePath)) {
-        return redirect(asset('images/og-image.png'));
-    }
-
-    $cacheDir = storage_path('app/public/og-cache');
-    if (!file_exists($cacheDir)) {
-        mkdir($cacheDir, 0755, true);
-    }
-
-    // Cache based on filename and modification time to ensure updates
-    $filemtime = filemtime($storagePath);
-    $filename = md5($path . $filemtime) . '.jpg';
-    $cachePath = $cacheDir . '/' . $filename;
-
-    if (!file_exists($cachePath)) {
-        try {
-            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
-            $image = $manager->read($storagePath);
-            // Crop to perfect WhatsApp/Facebook 1200x630 landscape size
-            $image->cover(1200, 630);
-            $image->toJpeg(80)->save($cachePath);
-        } catch (\Exception $e) {
-            return response()->file($storagePath);
-        }
-    }
-
-    return response()->file($cachePath, [
-        'Content-Type' => 'image/jpeg',
-        'Cache-Control' => 'public, max-age=604800'
-    ]);
-})->name('og.image.generate');
-
-// Temporary route to test the Cron Job
-Route::get('/test-cron', function () {
-    \Illuminate\Support\Facades\Artisan::call('app:send-featured-expiry-reminders');
-    return 'Cron job executed manually! Output: ' . \Illuminate\Support\Facades\Artisan::output();
-});
+Route::get('/og-image', OpenGraphImageController::class)->name('og.image.generate');
