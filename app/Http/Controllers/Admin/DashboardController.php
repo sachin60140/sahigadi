@@ -4,27 +4,56 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Car;
+use App\Models\ContactEnquiry;
 use App\Models\CustomerCarListing;
 use App\Models\Dealer;
+use App\Models\Enquiry;
+use App\Models\Payment;
+use App\Models\PaymentLink;
 use App\Models\Plan;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        $paymentTotal = Payment::where('status', 'completed')->sum('amount');
+        $paymentMonth = Payment::where('status', 'completed')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->sum('amount');
+        $paymentToday = Payment::where('status', 'completed')
+            ->whereDate('created_at', today())
+            ->sum('amount');
+        $gatewaySummary = Payment::selectRaw("COALESCE(payment_gateway, 'unknown') as gateway, COUNT(*) as count, COALESCE(SUM(amount), 0) as amount")
+            ->where('status', 'completed')
+            ->groupBy('payment_gateway')
+            ->get()
+            ->map(fn ($row) => [
+                'gateway' => ucfirst((string) $row->gateway),
+                'count' => (int) $row->count,
+                'amount' => (float) $row->amount,
+            ])
+            ->values();
+
+        $pendingDealers = Dealer::where('status', 'pending')->count();
+        $pendingCars = Car::where('status', 'pending')->count();
+        $pendingCustomerListings = CustomerCarListing::where('status', 'pending')->count();
+        $unreadContactEnquiries = ContactEnquiry::where('is_read', false)->count();
+
         $stats = [
-            'pending_dealers' => Dealer::where('status', 'pending')->count(),
+            'pending_dealers' => $pendingDealers,
             'approved_dealers' => Dealer::where('status', 'approved')->count(),
             'total_dealers' => Dealer::count(),
             
-            'pending_cars' => Car::where('status', 'pending')->count(),
+            'pending_cars' => $pendingCars,
             'approved_cars' => Car::where('status', 'approved')->count(),
             'total_cars' => Car::count(),
             
-            'pending_customer_listings' => CustomerCarListing::where('status', 'pending')->count(),
+            'pending_customer_listings' => $pendingCustomerListings,
             'approved_customer_listings' => CustomerCarListing::where('status', 'approved')->count(),
             'total_customer_listings' => CustomerCarListing::count(),
             
@@ -39,21 +68,65 @@ class DashboardController extends Controller
             'today_customers' => \App\Models\Customer::whereDate('created_at', today())->count(),
             'today_dealers' => Dealer::whereDate('created_at', today())->count(),
             
-            'total_enquiries' => \App\Models\Enquiry::count(),
-            'contact_enquiries' => \App\Models\ContactEnquiry::where('is_read', false)->count(),
+            'total_enquiries' => Enquiry::count(),
+            'contact_enquiries' => $unreadContactEnquiries,
             
             'vahan_lookups' => \App\Models\VehicleDetail::count() + \App\Models\CustomerVehicleSearch::count() + \App\Models\AdminVehicleSearch::count(),
             'mahindra_lookups' => \App\Models\ServiceHistory::count() + \App\Models\CustomerServiceHistory::count() + \App\Models\AdminServiceHistory::count(),
             'maruti_lookups' => \App\Models\MarutiServiceHistory::count() + \App\Models\CustomerMarutiServiceHistory::count() + \App\Models\AdminMarutiServiceHistory::count(),
             'challan_lookups' => \App\Models\CustomerChallanSearch::count() + \App\Models\AdminChallanSearch::count(),
+            'payment_total' => (float) $paymentTotal,
+            'payment_month' => (float) $paymentMonth,
+            'payment_today' => (float) $paymentToday,
+            'pending_actions' => $pendingDealers + $pendingCars + $pendingCustomerListings + $unreadContactEnquiries,
         ];
 
-        return view('admin.dashboard', compact('stats'));
+        $paymentLinks = [
+            'total' => PaymentLink::count(),
+            'pending' => PaymentLink::where('status', 'pending')->count(),
+            'paid' => PaymentLink::where('status', 'paid')->count(),
+            'expired' => PaymentLink::where('status', 'pending')->where('expires_at', '<', now())->count(),
+            'pending_amount' => (float) PaymentLink::where('status', 'pending')->sum('amount'),
+        ];
+
+        $recentPayments = Payment::with(['dealer:id,name,email', 'customer:id,name,email'])
+            ->latest()
+            ->take(6)
+            ->get()
+            ->map(fn (Payment $payment) => [
+                'id' => $payment->id,
+                'gateway' => $payment->payment_gateway ?: 'unknown',
+                'amount' => (float) $payment->amount,
+                'status' => $payment->status,
+                'type' => $payment->type,
+                'party' => $payment->dealer?->name ?: $payment->customer?->name ?: 'Direct payment',
+                'created_at' => optional($payment->created_at)->format('d M, h:i A'),
+            ]);
+
+        return Inertia::render('Admin/Dashboard', [
+            'stats' => $stats,
+            'gatewaySummary' => $gatewaySummary,
+            'paymentLinks' => $paymentLinks,
+            'recentPayments' => $recentPayments,
+            'gatewayHealth' => [
+                'razorpay_active' => Setting::isRazorpayActive(),
+                'phonepe_active' => Setting::isPhonePeActive(),
+                'phonepe_environment' => Setting::getPhonePeEnvironment(),
+                'dealer_min_recharge' => Setting::getMinimumWalletRechargeAmount(),
+                'customer_min_recharge' => Setting::getCustomerMinimumWalletRechargeAmount(),
+            ],
+            'generatedAt' => now()->format('l, d M Y h:i A'),
+        ]);
     }
 
     public function login()
     {
-        return view('admin.login');
+        return Inertia::render('Admin/Auth/Login', [
+            'actions' => [
+                'authenticate' => route('admin.authenticate'),
+                'home' => route('home'),
+            ],
+        ]);
     }
 
     public function authenticate(Request $request)
@@ -74,13 +147,16 @@ class DashboardController extends Controller
         }
 
         auth('admin')->login($user);
+        $request->session()->regenerate();
 
         return redirect()->route('admin.dashboard')->with('success', 'Welcome back!');
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         auth('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect()->route('admin.login')->with('success', 'Logged out successfully');
     }
@@ -104,6 +180,11 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard')->with('success', 'Password changed successfully');
         }
 
-        return view('admin.change-password');
+        return Inertia::render('Admin/Auth/ChangePassword', [
+            'actions' => [
+                'update' => route('admin.change-password'),
+                'cancel' => route('admin.dashboard'),
+            ],
+        ]);
     }
 }

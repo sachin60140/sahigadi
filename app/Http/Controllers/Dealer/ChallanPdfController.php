@@ -7,6 +7,8 @@ use App\Models\ChallanPdfSearch;
 use App\Services\ChallanPdfService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Setting;
+use Inertia\Inertia;
 
 class ChallanPdfController extends Controller
 {
@@ -19,7 +21,7 @@ class ChallanPdfController extends Controller
 
     public function index()
     {
-        return view('dealer.challan_pdf.index');
+        return $this->renderPage(ChallanPdfSearch::where('dealer_id', Auth::guard('dealer')->id())->latest()->paginate(15));
     }
 
     public function search(Request $request)
@@ -48,6 +50,21 @@ class ChallanPdfController extends Controller
         $dealer = Auth::guard('dealer')->user();
         $history = ChallanPdfSearch::where('dealer_id', $dealer->id)->latest()->paginate(15);
         
-        return view('dealer.challan_pdf.history', compact('history'));
+        return $this->renderPage($history);
+    }
+
+    private function renderPage($history)
+    {
+        $dealer = Auth::guard('dealer')->user();
+
+        return Inertia::render('Dealer/Services/ChallanPdf', [
+            'history' => $history->through(fn (ChallanPdfSearch $item) => [
+                'id' => $item->id, 'vehicle_number' => $item->vehicle_number, 'is_success' => (bool) $item->is_success, 'charge' => (float) ($item->charge_amount ?? 0), 'error' => $item->error_message, 'pdf_url' => $item->pdf_url, 'created_at' => optional($item->created_at)->format('d M Y, h:i A'),
+            ]),
+            'charge' => (float) Setting::getDealerChallanPdfCharge(),
+            'walletBalance' => $dealer->walletBalance(),
+            'active' => Setting::isChallanPdfActive(),
+            'actions' => ['search' => route('dealer.challan-pdf.search'), 'history' => route('dealer.challan-pdf.history'), 'wallet' => route('dealer.wallet.add')],
+        ]);
     }
 }

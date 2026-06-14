@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Dealer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     public function showLogin()
     {
-        return view('dealer.auth.login');
+        return \Inertia\Inertia::render('Auth/DealerLogin');
     }
 
     public function login(Request $request)
@@ -32,7 +33,7 @@ class AuthController extends Controller
 
     public function showRegister()
     {
-        return view('dealer.auth.register');
+        return \Inertia\Inertia::render('Dealer/Register');
     }
 
     public function register(Request $request)
@@ -153,7 +154,7 @@ class AuthController extends Controller
 
     public function showForgotPassword()
     {
-        return view('dealer.auth.forgot-password');
+        return \Inertia\Inertia::render('Auth/DealerForgotPassword');
     }
 
     public function sendResetOtp(Request $request)

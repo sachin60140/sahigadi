@@ -1,4 +1,4 @@
-<x-mail::message>
+﻿<x-mail::message>
 # {{ $details['is_admin'] ? 'New Featured Plan Subscription' : 'Featured Plan Subscribed Successfully' }}
 
 Hi {{ $details['user_name'] }},
@@ -29,3 +29,4 @@ View Dashboard
 Thanks,<br>
 {{ config('app.name') }}
 </x-mail::message>
+

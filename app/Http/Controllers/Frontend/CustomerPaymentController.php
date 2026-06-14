@@ -8,6 +8,9 @@ use App\Services\RazorpayService;
 use App\Services\PhonePeService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class CustomerPaymentController extends Controller
 {
@@ -18,17 +21,21 @@ class CustomerPaymentController extends Controller
 
     public function checkout(Request $request)
     {
+        $request->validate([
+            'recharge_amount' => 'required|numeric|min:0',
+        ]);
+
         $type = 'wallet_recharge';
-        $amount = 0;
-        
-        if ($request->has('recharge_amount')) {
-            $minRechargeAmount = Setting::getCustomerMinimumWalletRechargeAmount();
-            $rechargeAmount = max($minRechargeAmount, (float) $request->recharge_amount);
-            $amount = round($rechargeAmount * 1.18, 2);
-        } else {
-            return redirect()->back()->with('error', 'Invalid recharge amount.');
+        $minRechargeAmount = Setting::getCustomerMinimumWalletRechargeAmount();
+        $rechargeAmount = (float) $request->recharge_amount;
+
+        if ($rechargeAmount < $minRechargeAmount) {
+            throw ValidationException::withMessages([
+                'recharge_amount' => "The minimum recharge amount is Rs {$minRechargeAmount}.",
+            ]);
         }
 
+        $amount = round($rechargeAmount * 1.18, 2);
         $customer = auth('customer')->user();
 
         $isRazorpayActive = Setting::isRazorpayActive();
@@ -47,38 +54,69 @@ class CustomerPaymentController extends Controller
             ]);
         }
 
-        $typeLabel = 'Wallet Recharge';
+        $paymentInfo = [
+            'customer_id' => $customer->id,
+            'type' => $type,
+            'amount' => (float) $amount,
+        ];
+        $paymentIntent = (string) Str::uuid();
+        session()->put("customer_payment_intents.{$paymentIntent}", $paymentInfo);
 
-        // Reuse the dealer checkout view or create customer checkout view?
-        // Dealer checkout view just renders Razorpay script and PhonePe button.
-        // It POSTs to route('payments.success') etc. which we need to change.
-        // Let's pass routes so the view can use them, OR we duplicate checkout.blade.php.
-        // We will duplicate checkout.blade.php for customer.
-        return view('frontend.customer.payments.checkout', [
+        if ($orderData) {
+            session()->put("customer_razorpay_orders.{$orderData['order_id']}", $paymentInfo);
+        }
+
+        return Inertia::render('Customer/Payments/Checkout', [
             'order' => $orderData,
             'type' => $type,
-            'amount' => $amount,
-            'typeLabel' => $typeLabel,
+            'amount' => (float) $amount,
+            'baseAmount' => $rechargeAmount,
+            'typeLabel' => 'Wallet Recharge',
             'keyId' => $this->razorpayService->getKeyId(),
             'isRazorpayActive' => $isRazorpayActive,
             'isPhonePeActive' => $isPhonePeActive,
+            'paymentIntent' => $paymentIntent,
+            'customer' => [
+                'name' => $customer->name,
+                'email' => $customer->email,
+            ],
+            'csrfToken' => csrf_token(),
+            'actions' => [
+                'success' => route('customer.payments.success'),
+                'phonepe' => route('customer.payments.phonepe.initiate'),
+                'wallet' => route('customer.wallet.index'),
+            ],
         ]);
     }
 
     public function success(Request $request)
     {
         try {
+            $request->validate([
+                'razorpay_order_id' => 'required|string',
+                'razorpay_payment_id' => 'required|string',
+                'razorpay_signature' => 'required|string',
+            ]);
+
             $customer = auth('customer')->user();
+            $sessionKey = "customer_razorpay_orders.{$request->razorpay_order_id}";
+            $paymentInfo = session()->get($sessionKey);
+
+            if (! $paymentInfo || (int) $paymentInfo['customer_id'] !== (int) $customer->id) {
+                throw new Exception('This payment session is invalid or has expired.');
+            }
 
             $this->razorpayService->processPayment(
                 $customer,
                 $request->razorpay_order_id,
                 $request->razorpay_payment_id,
                 $request->razorpay_signature,
-                $request->amount / 100,
-                $request->type,
+                (float) $paymentInfo['amount'],
+                $paymentInfo['type'],
                 $request->reference_id ?? null
             );
+
+            session()->forget($sessionKey);
 
             return redirect()->route('customer.wallet.index')->with('success', 'Payment successful! Amount credited to wallet.');
         } catch (Exception $e) {
@@ -94,9 +132,20 @@ class CustomerPaymentController extends Controller
     public function phonepeInitiate(Request $request)
     {
         try {
+            $request->validate([
+                'intent' => 'required|uuid',
+            ]);
+
             $customer = auth('customer')->user();
-            $type = 'wallet_recharge';
-            $amount = $request->amount;
+            $intentKey = "customer_payment_intents.{$request->intent}";
+            $paymentInfo = session()->get($intentKey);
+
+            if (! $paymentInfo || (int) $paymentInfo['customer_id'] !== (int) $customer->id) {
+                throw new Exception('This payment session is invalid or has expired.');
+            }
+
+            $type = $paymentInfo['type'];
+            $amount = (float) $paymentInfo['amount'];
             $transactionId = 'PPC_' . time() . '_' . $customer->id;
 
             session()->put('customer_phonepe_payment_info', [
@@ -111,6 +160,8 @@ class CustomerPaymentController extends Controller
             ]);
 
             if ($response['success']) {
+                session()->forget($intentKey);
+
                 return redirect()->away($response['redirect_url']);
             }
 

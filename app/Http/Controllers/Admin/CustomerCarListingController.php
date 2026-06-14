@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\CustomerCarListing;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class CustomerCarListingController extends Controller
 {
@@ -13,11 +16,11 @@ class CustomerCarListingController extends Controller
     {
         $query = CustomerCarListing::with('brand');
 
-        if ($request->has('status') && $request->status !== 'all') {
+        if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
         }
 
-        if ($request->has('search') && $request->search) {
+        if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', '%'.$request->search.'%')
                     ->orWhere('model', 'like', '%'.$request->search.'%')
@@ -26,11 +29,11 @@ class CustomerCarListingController extends Controller
             });
         }
 
-        if ($request->has('date') && $request->date) {
+        if ($request->filled('date')) {
             $query->whereDate('created_at', $request->date);
         }
 
-        if ($request->has('city') && $request->city) {
+        if ($request->filled('city')) {
             $query->where('city', $request->city);
         }
 
@@ -45,7 +48,37 @@ class CustomerCarListingController extends Controller
         $pendingCount = CustomerCarListing::pending()->count();
         $featuredPlans = \App\Models\FeaturedPlan::active()->orderBy('duration_days')->get();
 
-        return view('admin.customer-listings.index', compact('listings', 'pendingCount', 'featuredPlans'));
+        return Inertia::render('Admin/CustomerListings/Index', [
+            'listings' => $listings->through(fn ($listing) => $this->mapListingList($listing)),
+            'pendingCount' => $pendingCount,
+            'featuredPlans' => $featuredPlans->map(fn ($plan) => $this->mapFeaturedPlan($plan))->values(),
+            'filters' => [
+                'status' => $request->query('status', 'all'),
+                'date' => $request->query('date', ''),
+                'city' => $request->query('city', ''),
+                'search' => $request->query('search', ''),
+            ],
+            'cities' => CustomerCarListing::query()
+                ->whereNotNull('city')
+                ->where('city', '!=', '')
+                ->distinct()
+                ->orderBy('city')
+                ->pluck('city')
+                ->values(),
+            'stats' => [
+                'total' => CustomerCarListing::count(),
+                'pending' => $pendingCount,
+                'approved' => CustomerCarListing::where('status', 'approved')->count(),
+                'rejected' => CustomerCarListing::where('status', 'rejected')->count(),
+                'featured' => CustomerCarListing::where('is_featured', true)
+                    ->where(fn ($query) => $query->whereNull('featured_expires_at')->orWhere('featured_expires_at', '>', now()))
+                    ->count(),
+            ],
+            'exportUrls' => [
+                'excel' => route('admin.customer-listings.exportExcel'),
+                'pdf' => route('admin.customer-listings.exportPdf'),
+            ],
+        ]);
     }
 
     public function exportExcel(Request $request)
@@ -66,7 +99,13 @@ class CustomerCarListingController extends Controller
     {
         $brands = Brand::active()->orderBy('name')->get();
 
-        return view('admin.customer-listings.create', compact('brands'));
+        return Inertia::render('Admin/CustomerListings/Create', [
+            'options' => $this->formOptions($brands),
+            'actions' => [
+                'store' => route('admin.customer-listings.store'),
+                'back' => route('admin.customer-listings.index'),
+            ],
+        ]);
     }
 
     public function store(Request $request)
@@ -74,13 +113,18 @@ class CustomerCarListingController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'owner_phone' => 'required|string|max:20',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        CustomerCarListing::create($request->only([
+        $data = $request->only([
             'title', 'brand_id', 'model', 'year', 'fuel_type', 'transmission',
             'km_driven', 'price', 'city', 'registration_number',
             'owners', 'owner_name', 'owner_phone', 'whatsapp_number', 'status',
-        ]));
+        ]);
+
+        $data['images'] = json_encode($this->storeImages($request));
+
+        CustomerCarListing::create($data);
 
         return redirect()->route('admin.customer-listings.index')->with('success', 'Listing created successfully');
     }
@@ -89,7 +133,12 @@ class CustomerCarListingController extends Controller
     {
         $listing = CustomerCarListing::where('slug', $customer_listing)->with('brand')->firstOrFail();
 
-        return view('admin.customer-listings.show', compact('listing'));
+        $featuredPlans = \App\Models\FeaturedPlan::active()->orderBy('duration_days')->get();
+
+        return Inertia::render('Admin/CustomerListings/Show', [
+            'listing' => $this->mapListingDetail($listing),
+            'featuredPlans' => $featuredPlans->map(fn ($plan) => $this->mapFeaturedPlan($plan))->values(),
+        ]);
     }
 
     public function edit($customer_listing)
@@ -97,7 +146,15 @@ class CustomerCarListingController extends Controller
         $listing = CustomerCarListing::where('slug', $customer_listing)->firstOrFail();
         $brands = Brand::active()->orderBy('name')->get();
 
-        return view('admin.customer-listings.edit', compact('listing', 'brands'));
+        return Inertia::render('Admin/CustomerListings/Edit', [
+            'listing' => $this->mapListingDetail($listing),
+            'options' => $this->formOptions($brands),
+            'actions' => [
+                'update' => route('admin.customer-listings.update', $listing),
+                'back' => route('admin.customer-listings.show', $listing),
+                'index' => route('admin.customer-listings.index'),
+            ],
+        ]);
     }
 
     public function update(Request $request, $customer_listing)
@@ -123,11 +180,11 @@ class CustomerCarListingController extends Controller
             ]);
 
             foreach ($request->file('images') as $image) {
-                $filename = \Illuminate\Support\Str::uuid().'.'.$image->getClientOriginalExtension();
+                $filename = Str::uuid().'.'.$image->getClientOriginalExtension();
                 $path = $image->storeAs('customer-listings', $filename, 'public');
                 
                 try {
-                    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($path);
+                    $fullPath = Storage::disk('public')->path($path);
                     $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
                     $img = $manager->read($fullPath);
                     if ($img->width() > 800) {
@@ -297,13 +354,169 @@ class CustomerCarListingController extends Controller
             $listing->update(['images' => json_encode($images)]);
             
             // Optional: delete from storage
-            if (\Storage::disk('public')->exists($imagePath)) {
-                \Storage::disk('public')->delete($imagePath);
+            if (Storage::disk('public')->exists($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
             }
 
             return back()->with('success', 'Image deleted successfully');
         }
 
         return back()->with('error', 'Image not found');
+    }
+
+    private function formOptions($brands): array
+    {
+        return [
+            'brands' => $brands->map(fn ($brand) => [
+                'id' => $brand->id,
+                'name' => $brand->name,
+            ])->values(),
+            'fuelTypes' => [
+                ['value' => 'petrol', 'label' => 'Petrol'],
+                ['value' => 'diesel', 'label' => 'Diesel'],
+                ['value' => 'electric', 'label' => 'Electric'],
+                ['value' => 'hybrid', 'label' => 'Hybrid'],
+                ['value' => 'cng', 'label' => 'CNG'],
+            ],
+            'transmissions' => [
+                ['value' => 'manual', 'label' => 'Manual'],
+                ['value' => 'automatic', 'label' => 'Automatic'],
+            ],
+            'statuses' => [
+                ['value' => 'pending', 'label' => 'Pending'],
+                ['value' => 'approved', 'label' => 'Approved'],
+                ['value' => 'rejected', 'label' => 'Rejected'],
+            ],
+        ];
+    }
+
+    private function mapListingList(CustomerCarListing $listing): array
+    {
+        $images = $this->listingImages($listing);
+
+        return [
+            'id' => $listing->id,
+            'slug' => $listing->slug,
+            'unique_id' => $listing->unique_id,
+            'title' => $listing->title,
+            'brand' => $listing->brand?->name,
+            'model' => $listing->model,
+            'year' => $listing->year,
+            'fuel_type' => $listing->fuel_type,
+            'transmission' => $listing->transmission,
+            'km_driven' => $listing->km_driven,
+            'price' => (float) ($listing->price ?? 0),
+            'city' => $listing->city,
+            'registration_number' => $listing->registration_number,
+            'owners' => $listing->owners,
+            'owner_name' => $listing->owner_name,
+            'owner_phone' => $listing->owner_phone,
+            'whatsapp_number' => $listing->whatsapp_number,
+            'status' => $listing->status,
+            'rejection_reason' => $listing->rejection_reason,
+            'is_featured' => $listing->isFeatured(),
+            'featured_expires_at' => $this->formatDate($listing->featured_expires_at),
+            'paid_featured_active' => $listing->featuredListings()->active()->exists(),
+            'image_url' => $images[0]['url'] ?? null,
+            'image_count' => count($images),
+            'latitude' => $listing->latitude,
+            'longitude' => $listing->longitude,
+            'map_url' => $listing->latitude && $listing->longitude ? 'https://www.google.com/maps?q='.$listing->latitude.','.$listing->longitude : null,
+            'created_at' => $this->formatDateTime($listing->created_at),
+            'actions' => $this->listingActions($listing),
+        ];
+    }
+
+    private function mapListingDetail(CustomerCarListing $listing): array
+    {
+        return [
+            ...$this->mapListingList($listing),
+            'brand_id' => $listing->brand_id,
+            'images' => $this->listingImages($listing),
+        ];
+    }
+
+    private function listingActions(CustomerCarListing $listing): array
+    {
+        return [
+            'show' => route('admin.customer-listings.show', $listing),
+            'edit' => route('admin.customer-listings.edit', $listing),
+            'destroy' => route('admin.customer-listings.destroy', $listing),
+            'approve' => route('admin.customer-listings.approve', $listing),
+            'reject' => route('admin.customer-listings.reject', $listing),
+            'featured' => route('admin.customer-listings.featured', $listing),
+            'remove_featured' => route('admin.customer-listings.remove-featured', $listing),
+            'delete_image' => route('admin.customer-listings.image.delete', $listing),
+        ];
+    }
+
+    private function listingImages(CustomerCarListing $listing): array
+    {
+        $images = json_decode($listing->images, true) ?: [];
+
+        return collect($images)->map(fn ($path, $index) => [
+            'path' => $path,
+            'url' => $path ? asset('storage/'.$path) : null,
+            'is_primary' => $index === 0,
+        ])->values()->all();
+    }
+
+    private function storeImages(Request $request): array
+    {
+        if (! $request->hasFile('images')) {
+            return [];
+        }
+
+        $paths = [];
+        foreach ($request->file('images') as $image) {
+            $filename = Str::uuid().'.'.$image->getClientOriginalExtension();
+            $paths[] = $image->storeAs('customer-listings', $filename, 'public');
+        }
+
+        return $paths;
+    }
+
+    private function mapFeaturedPlan($plan): array
+    {
+        return [
+            'id' => $plan->id,
+            'name' => $plan->name,
+            'duration_days' => (int) $plan->duration_days,
+            'price' => (float) ($plan->price ?? 0),
+        ];
+    }
+
+    private function formatDate($value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        if ($value instanceof \Carbon\CarbonInterface) {
+            return $value->format('d M Y');
+        }
+
+        try {
+            return \Carbon\Carbon::parse($value)->format('d M Y');
+        } catch (\Throwable) {
+            return (string) $value;
+        }
+    }
+
+    private function formatDateTime($value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        if ($value instanceof \Carbon\CarbonInterface) {
+            return $value->format('d M Y, h:i A');
+        }
+
+        try {
+            return \Carbon\Carbon::parse($value)->format('d M Y, h:i A');
+        } catch (\Throwable) {
+            return (string) $value;
+        }
     }
 }

@@ -7,6 +7,7 @@ use App\Models\CustomerChallanSearch;
 use App\Services\CustomerChallanSearchService;
 use App\Services\RazorpayService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ChallanSearchController extends Controller
 {
@@ -26,7 +27,31 @@ class ChallanSearchController extends Controller
     {
         $charge = $this->challanService->getCharge();
 
-        return view('frontend.challan-search.index', compact('charge'));
+        return Inertia::render('Public/Services/Lookup', [
+            'service' => [
+                'key' => 'challan-search',
+                'eyebrow' => 'Traffic compliance',
+                'title' => 'E-Challan status check',
+                'description' => 'See pending traffic challans, violation details and payable amounts before buying or selling.',
+                'numberField' => 'vehicle_number',
+                'numberLabel' => 'Vehicle registration number',
+                'placeholder' => 'e.g. BR01AB1234',
+                'submitLabel' => 'Check challan status',
+                'actionUrl' => route('challan-search.search'),
+                'charge' => (float) $charge,
+                'requiresGuestDetails' => true,
+                'customerAuthenticated' => false,
+                'seoTitle' => 'E-Challan Check - SAHI GADI',
+                'seoDescription' => 'Check pending e-challans online with SAHI GADI before buying or selling a used car. Search by vehicle number and review challan status.',
+                'canonical' => route('challan-search.index'),
+                'features' => [
+                    'Pending challan count and total',
+                    'Violation, location and status details',
+                    'Quick vehicle-number based verification',
+                ],
+            ],
+            'history' => [],
+        ]);
     }
 
     public function search(Request $request)
@@ -47,9 +72,12 @@ class ChallanSearchController extends Controller
 
         $cached = CustomerChallanSearch::checkCache($vehicleNumber);
         if ($cached) {
-            return view('frontend.challan-search.result', [
+            return Inertia::render('Public/Services/ChallanResult', [
                 'challanSearch' => $cached,
                 'cached' => true,
+                'success' => true,
+                'message' => 'Found in cache',
+                'indexUrl' => route('challan-search.index'),
             ]);
         }
 
@@ -73,12 +101,16 @@ class ChallanSearchController extends Controller
             ],
         ]);
 
-        return view('frontend.challan-search.payment', [
+        return Inertia::render('Public/Services/Payment', [
             'orderId' => $order['order_id'],
-            'amount' => $order['amount'],
+            'amount' => (float) $order['amount'],
             'keyId' => $this->razorpayService->getKeyId(),
             'vehicleNumber' => $vehicleNumber,
             'customerName' => $customerInfo['name'],
+            'reportLabel' => 'E-Challan Report',
+            'description' => 'E-Challan Check - '.$vehicleNumber,
+            'callbackUrl' => route('challan-search.callback'),
+            'cancelUrl' => route('challan-search.index'),
         ]);
     }
 
@@ -93,6 +125,14 @@ class ChallanSearchController extends Controller
         $razorpayOrderId = $request->razorpay_order_id;
         $razorpayPaymentId = $request->razorpay_payment_id;
         $razorpaySignature = $request->razorpay_signature;
+
+        if (empty($razorpayOrderId) || empty($razorpayPaymentId) || empty($razorpaySignature)) {
+            return redirect()->route('challan-search.index')->with('error', 'Payment was not completed');
+        }
+
+        if (! hash_equals((string) $pending['order_id'], (string) $razorpayOrderId)) {
+            return redirect()->route('challan-search.index')->with('error', 'Payment order does not match this search');
+        }
 
         if (! $this->razorpayService->verifySignature($razorpayOrderId, $razorpayPaymentId, $razorpaySignature)) {
             return redirect()->route('challan-search.index')->with('error', 'Payment verification failed');
@@ -112,11 +152,12 @@ class ChallanSearchController extends Controller
 
         session()->forget('challan_search_pending');
 
-        return view('frontend.challan-search.result', [
-            'challanSearch' => $result['data'],
+        return Inertia::render('Public/Services/ChallanResult', [
+            'challanSearch' => $result['data'] ?? null,
             'cached' => $result['cached'] ?? false,
             'success' => $result['success'],
             'message' => $result['message'],
+            'indexUrl' => route('challan-search.index'),
         ]);
     }
 }

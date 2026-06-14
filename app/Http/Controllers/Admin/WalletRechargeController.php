@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\WalletRechargesExport;
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
 use App\Models\WalletTransaction;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Inertia\Inertia;
 
 class WalletRechargeController extends Controller
 {
@@ -60,8 +62,67 @@ class WalletRechargeController extends Controller
 
     public function index(Request $request)
     {
-        $transactions = $this->buildQuery($request)->orderBy('created_at', 'desc')->paginate(20);
-        return view('admin.wallet-recharges.index', compact('transactions'));
+        $transactions = $this->buildQuery($request)->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+        $paymentsByReference = $this->paymentsByReference(collect($transactions->items())->pluck('reference_id')->filter()->values());
+
+        return Inertia::render('Admin/Finance/WalletRecharges', [
+            'transactions' => $transactions->through(fn (WalletTransaction $transaction) => $this->mapTransaction($transaction, $paymentsByReference)),
+            'filters' => $request->only(['from_date', 'to_date', 'payment_gateway', 'search']),
+            'exportUrls' => [
+                'excel' => route('admin.wallet-recharges.exportExcel', $request->query()),
+                'pdf' => route('admin.wallet-recharges.exportPdf', $request->query()),
+            ],
+        ]);
+    }
+
+    private function paymentsByReference($references): \Illuminate\Support\Collection
+    {
+        $references = collect($references)->filter()->unique()->values();
+
+        if ($references->isEmpty()) {
+            return collect();
+        }
+
+        return Payment::whereIn('razorpay_payment_id', $references)
+            ->orWhereIn('phonepe_transaction_id', $references)
+            ->get()
+            ->flatMap(fn (Payment $payment) => collect([
+                $payment->razorpay_payment_id => $payment,
+                $payment->phonepe_transaction_id => $payment,
+            ])->filter())
+            ->filter();
+    }
+
+    private function mapTransaction(WalletTransaction $transaction, \Illuminate\Support\Collection $paymentsByReference): array
+    {
+        $payment = $paymentsByReference->get($transaction->reference_id);
+        $gateway = $transaction->reference_type === 'admin_credit'
+            ? 'Direct Deposit'
+            : ($payment?->payment_gateway ? ucfirst($payment->payment_gateway) : (str_starts_with((string) $transaction->reference_id, 'PP_') ? 'PhonePe' : 'Razorpay'));
+        $referenceLabel = str_starts_with((string) $transaction->reference_id, 'PP_') ? 'UTR/Bank' : 'Order';
+
+        return [
+            'id' => $transaction->id,
+            'date' => optional($transaction->created_at)->format('d M Y'),
+            'time' => optional($transaction->created_at)->format('h:i A'),
+            'receipt' => 'RCPT-'.optional($transaction->created_at)->format('Y').'-'.str_pad((string) $transaction->id, 5, '0', STR_PAD_LEFT),
+            'amount' => (float) $transaction->amount,
+            'gst' => (float) $transaction->amount * 0.18,
+            'total' => (float) $transaction->amount * 1.18,
+            'gateway' => $gateway,
+            'reference_id' => $transaction->reference_id,
+            'secondary_reference' => $payment?->razorpay_order_id ?: $payment?->reference_id,
+            'secondary_reference_label' => $referenceLabel,
+            'reference_type' => $transaction->reference_type,
+            'dealer' => [
+                'name' => $transaction->wallet?->dealer?->name ?: 'Unknown Dealer',
+                'company_name' => $transaction->wallet?->dealer?->company_name ?: 'N/A',
+                'phone' => $transaction->wallet?->dealer?->phone,
+                'unique_id' => $transaction->wallet?->dealer?->dealer_unique_id ?: 'N/A',
+                'gst_number' => $transaction->wallet?->dealer?->gst_number,
+            ],
+            'receipt_url' => route('admin.wallet-recharges.receipt', $transaction->id),
+        ];
     }
 
     public function exportExcel(Request $request)

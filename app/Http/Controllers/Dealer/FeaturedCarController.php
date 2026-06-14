@@ -8,6 +8,7 @@ use App\Models\FeaturedPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Inertia\Inertia;
 
 class FeaturedCarController extends Controller
 {
@@ -19,7 +20,29 @@ class FeaturedCarController extends Controller
         }
 
         $plans = FeaturedPlan::active()->orderBy('duration_days')->get();
-        return view('dealer.cars.featured-plans', compact('car', 'plans'));
+        $dealer = auth('dealer')->user();
+
+        return Inertia::render('Dealer/Cars/FeaturedPlans', [
+            'car' => [
+                'title' => $car->title,
+                'model' => $car->model,
+                'unique_id' => $car->unique_id,
+                'is_featured' => $car->isFeatured(),
+                'featured_expires_at' => optional($car->featured_expires_at)->format('d M Y, h:i A'),
+            ],
+            'plans' => $plans->map(fn (FeaturedPlan $plan) => [
+                'id' => $plan->id,
+                'name' => $plan->name,
+                'price' => (float) $plan->price,
+                'duration_days' => $plan->duration_days,
+            ]),
+            'walletBalance' => (float) ($dealer->wallet?->balance ?? 0),
+            'actions' => [
+                'index' => route('dealer.cars.index'),
+                'purchase' => route('dealer.cars.featured-purchase', $car),
+                'wallet' => route('dealer.wallet.index'),
+            ],
+        ]);
     }
 
     public function purchase(Request $request, Car $car)
@@ -37,11 +60,7 @@ class FeaturedCarController extends Controller
         $wallet = $dealer->wallet;
 
         if (!$wallet || $wallet->balance < $plan->price) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Insufficient wallet balance. Please recharge.',
-                'redirect' => route('dealer.wallet.index')
-            ]);
+            return back()->with('error', 'Insufficient wallet balance. Please recharge.');
         }
 
         try {
@@ -103,19 +122,12 @@ class FeaturedCarController extends Controller
                 \Log::error('Failed to send featured plan subscription email: ' . $e->getMessage());
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Car successfully featured!',
-                'redirect' => route('dealer.cars.index')
-            ]);
+            return redirect()->route('dealer.cars.index')->with('success', 'Car successfully featured!');
 
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Dealer featured plan purchase failed: ' . $e->getMessage() . ' - Trace: ' . $e->getTraceAsString());
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing your request. Please try again. Error: ' . $e->getMessage()
-            ], 500);
+            return back()->with('error', 'An error occurred while processing your request. Please try again.');
         }
     }
 }

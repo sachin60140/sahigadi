@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class PaymentSettingsController extends Controller
 {
@@ -24,11 +25,21 @@ class PaymentSettingsController extends Controller
         $isRazorpayActive = Setting::isRazorpayActive();
         $isPhonePeActive = Setting::isPhonePeActive();
 
-        return view('admin.payment-settings.index', compact(
-            'keyId', 'keySecret', 'minRechargeAmount', 'customerMinRechargeAmount',
-            'phonePeMerchantId', 'phonePeSaltKey', 'phonePeSaltIndex', 'phonePeEnv', 'phonePeCheckoutUrl',
-            'isRazorpayActive', 'isPhonePeActive'
-        ));
+        return Inertia::render('Admin/Finance/PaymentSettings', [
+            'settings' => [
+                'razorpay_key_id' => $keyId,
+                'razorpay_key_secret' => $keySecret,
+                'min_wallet_recharge_amount' => $minRechargeAmount,
+                'customer_min_wallet_recharge_amount' => $customerMinRechargeAmount,
+                'phonepe_merchant_id' => $phonePeMerchantId,
+                'phonepe_salt_key' => $phonePeSaltKey,
+                'phonepe_salt_index' => $phonePeSaltIndex,
+                'phonepe_env' => $phonePeEnv,
+                'phonepe_checkout_url' => $phonePeCheckoutUrl,
+                'is_razorpay_active' => $isRazorpayActive,
+                'is_phonepe_active' => $isPhonePeActive,
+            ],
+        ]);
     }
 
     public function update(Request $request)

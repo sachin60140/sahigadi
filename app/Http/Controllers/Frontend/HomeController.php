@@ -15,15 +15,16 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
-        $featuredCars = Car::with(['dealer', 'brand', 'images'])
+        // 1. Featured Cars (Dealer + Customer)
+        $featuredDealerCars = Car::with(['dealer', 'brand', 'images'])
             ->approved()
             ->active()
             ->featured()
             ->inRandomOrder()
-            ->limit(8)
+            ->limit(6)
             ->get();
 
-        $featuredCustomerListings = CustomerCarListing::with('brand')
+        $featuredCustomerCars = CustomerCarListing::with('brand')
             ->approved()
             ->active()
             ->where('is_featured', true)
@@ -32,85 +33,40 @@ class HomeController extends Controller
                     ->orWhere('featured_expires_at', '>', now());
             })
             ->inRandomOrder()
-            ->limit(8)
+            ->limit(6)
             ->get();
 
-        $allFeatured = $featuredCars->concat($featuredCustomerListings)->shuffle()->take(8);
+        $featuredCars = $featuredDealerCars->concat($featuredCustomerCars)->shuffle()->take(6);
 
-        $featuredSlugs = $allFeatured->pluck('slug')->toArray();
+        // Fallback: If no featured cars, get the latest active cars
+        if ($featuredCars->isEmpty()) {
+            $latestDealer = Car::with(['dealer', 'brand', 'images'])->approved()->active()->orderBy('created_at', 'desc')->limit(3)->get();
+            $latestCustomer = CustomerCarListing::with('brand')->approved()->active()->orderBy('created_at', 'desc')->limit(3)->get();
+            $featuredCars = $latestDealer->concat($latestCustomer)->sortByDesc('created_at')->take(6)->values();
+        }
 
-        $query2 = Car::with(['dealer', 'brand', 'images'])
+        $featuredSlugs = $featuredCars->pluck('slug')->toArray();
+
+        // 2. Latest Cars (Recently Added)
+        $latestDealerCars = Car::with(['dealer', 'brand', 'images'])
             ->approved()
             ->active()
-            ->whereNotIn('slug', $featuredSlugs);
+            ->whereNotIn('slug', $featuredSlugs)
+            ->orderBy('created_at', 'desc')
+            ->limit(12)
+            ->get();
 
-        if ($request->has('keyword') && $request->keyword) {
-            $query2->where('title', 'like', '%'.$request->keyword.'%');
-        }
-
-        if ($request->has('city') && $request->city) {
-            $query2->where('city', $request->city);
-        }
-
-        if ($request->has('brand') && $request->brand) {
-            $query2->where('brand_id', $request->brand);
-        }
-
-        if ($request->has('fuel_type') && $request->fuel_type) {
-            $query2->where('fuel_type', $request->fuel_type);
-        }
-
-        if ($request->has('min_price') && $request->min_price) {
-            $query2->where('price', '>=', $request->min_price);
-        }
-
-        if ($request->has('max_price') && $request->max_price) {
-            $query2->where('price', '<=', $request->max_price);
-        }
-
-        if ($request->has('transmission') && $request->transmission) {
-            $query2->where('transmission', $request->transmission);
-        }
-
-        $cars = $query2->orderBy('created_at', 'desc')->get();
-
-        $query3 = CustomerCarListing::with('brand')
+        $latestCustomerCars = CustomerCarListing::with('brand')
             ->approved()
             ->active()
-            ->whereNotIn('slug', $featuredSlugs);
+            ->whereNotIn('slug', $featuredSlugs)
+            ->orderBy('created_at', 'desc')
+            ->limit(12)
+            ->get();
 
-        if ($request->has('keyword') && $request->keyword) {
-            $query3->where('title', 'like', '%'.$request->keyword.'%');
-        }
+        $latestCars = $latestDealerCars->concat($latestCustomerCars)->sortByDesc('created_at')->take(12)->values();
 
-        if ($request->has('city') && $request->city) {
-            $query3->where('city', $request->city);
-        }
-
-        if ($request->has('brand') && $request->brand) {
-            $query3->where('brand_id', $request->brand);
-        }
-
-        if ($request->has('fuel_type') && $request->fuel_type) {
-            $query3->where('fuel_type', $request->fuel_type);
-        }
-
-        if ($request->has('min_price') && $request->min_price) {
-            $query3->where('price', '>=', $request->min_price);
-        }
-
-        if ($request->has('max_price') && $request->max_price) {
-            $query3->where('price', '<=', $request->max_price);
-        }
-
-        if ($request->has('transmission') && $request->transmission) {
-            $query3->where('transmission', $request->transmission);
-        }
-
-        $customerListings = $query3->orderBy('created_at', 'desc')->get();
-
-        $allCars = $cars->concat($customerListings)->sortByDesc('created_at')->values();
-
+        // 3. Brands & Cities for dropdowns
         $brands = Brand::active()
             ->withCount(['cars' => function ($q) {
                 $q->approved()->active();
@@ -135,6 +91,7 @@ class HomeController extends Controller
             })
             ->sortBy('name')
             ->values();
+
         $dealerCities = Car::approved()->active()->whereNotNull('city')->distinct()->pluck('city');
         $customerCities = CustomerCarListing::approved()->active()->whereNotNull('city')->distinct()->pluck('city');
         $cities = $dealerCities->concat($customerCities)
@@ -144,12 +101,33 @@ class HomeController extends Controller
             ->sort()
             ->values();
 
-        $homepageSchema = $this->generateHomepageSchema($allFeatured);
+        $homepageSchema = $this->generateHomepageSchema($featuredCars);
 
+        $safeFeaturedCars = $featuredCars->map(fn($car) => $this->mapSafeCarPayload($car))->values()->toArray();
+        $safeLatestCars = $latestCars->map(fn($car) => $this->mapSafeCarPayload($car))->values()->toArray();
+
+        // Pass budgetOptions and fuelTypes explicitly since they were requested
+        $budgetOptions = [
+            ['label' => 'Under 3 Lakh', 'value' => '300000'],
+            ['label' => 'Under 5 Lakh', 'value' => '500000'],
+            ['label' => 'Under 7 Lakh', 'value' => '700000'],
+            ['label' => 'Under 10 Lakh', 'value' => '1000000'],
+            ['label' => 'Under 15 Lakh', 'value' => '1500000'],
+        ];
+
+        $fuelTypes = ['Petrol', 'Diesel', 'CNG', 'Electric'];
         $plans = \App\Models\Plan::active()->orderBy('price')->get();
 
-        return view('frontend.home', array_merge(
-            compact('allFeatured', 'allCars', 'brands', 'cities', 'plans'),
+        return \Inertia\Inertia::render('Public/Home', array_merge(
+            [
+                'featuredCars' => $safeFeaturedCars,
+                'latestCars' => $safeLatestCars,
+                'brands' => $brands,
+                'cities' => $cities,
+                'budgetOptions' => $budgetOptions,
+                'fuelTypes' => $fuelTypes,
+                'plans' => $plans
+            ],
             ['homepageSchema' => $homepageSchema]
         ));
     }
@@ -189,6 +167,34 @@ class HomeController extends Controller
             'url' => url('/'),
             'numberOfItems' => count($itemListElement),
             'itemListElement' => $itemListElement,
+        ];
+    }
+    
+    /**
+     * Strictly map car models to a safe public payload to prevent data leakage (e.g. phone numbers).
+     */
+    protected function mapSafeCarPayload($car)
+    {
+        return [
+            'id' => $car->id,
+            'slug' => $car->slug,
+            'title' => $car->title,
+            'brand' => $car->brand ? ['id' => $car->brand->id, 'name' => $car->brand->name, 'slug' => $car->brand->slug] : null,
+            'model' => $car->model,
+            'variant' => $car->variant,
+            'year' => $car->year,
+            'fuel_type' => $car->fuel_type,
+            'transmission' => $car->transmission,
+            'km_driven' => $car->km_driven,
+            'price' => $car->price,
+            'city' => $car->city,
+            'is_featured' => $car->is_featured,
+            'is_verified' => isset($car->dealer_id) ? true : ($car->is_verified ?? false),
+            // Map the primary image out safely
+            'image_url' => $car instanceof Car ? ($car->primaryImage()?->url ?? '/images/default-car.jpg') : 
+                (is_string($car->images) ? 
+                    (json_decode($car->images)[0] ?? '/images/default-car.jpg') : 
+                    ($car->images[0] ?? '/images/default-car.jpg')),
         ];
     }
 }

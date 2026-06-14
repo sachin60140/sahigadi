@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\CustomerWalletRechargesExport;
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
+use App\Models\Payment;
 use App\Models\CustomerWalletTransaction;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Inertia\Inertia;
 
 class CustomerWalletRechargeController extends Controller
 {
@@ -67,9 +70,26 @@ class CustomerWalletRechargeController extends Controller
 
     public function index(Request $request)
     {
-        $transactions = $this->buildQuery($request)->orderBy('created_at', 'desc')->paginate(20);
-        $customers = \App\Models\Customer::orderBy('name')->get();
-        return view('admin.customer-wallet-recharges.index', compact('transactions', 'customers'));
+        $transactions = $this->buildQuery($request)->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+        $paymentsByReference = $this->paymentsByReference(collect($transactions->items())->pluck('reference_id')->filter()->values());
+        $customers = Customer::with('wallet')
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Customer $customer) => [
+                'id' => $customer->id,
+                'label' => $customer->name.' ('.$customer->phone.') - Bal: Rs '.number_format((float) ($customer->wallet?->balance ?? 0), 2),
+                'balance' => (float) ($customer->wallet?->balance ?? 0),
+            ]);
+
+        return Inertia::render('Admin/Finance/CustomerWalletRecharges', [
+            'transactions' => $transactions->through(fn (CustomerWalletTransaction $transaction) => $this->mapTransaction($transaction, $paymentsByReference)),
+            'customers' => $customers,
+            'filters' => $request->only(['from_date', 'to_date', 'payment_gateway', 'search']),
+            'exportUrls' => [
+                'excel' => route('admin.customer-wallet-recharges.exportExcel', $request->query()),
+                'pdf' => route('admin.customer-wallet-recharges.exportPdf', $request->query()),
+            ],
+        ]);
     }
 
     public function deductMoney(Request $request)
@@ -80,7 +100,7 @@ class CustomerWalletRechargeController extends Controller
             'remark' => 'required|string|max:255',
         ]);
 
-        $customer = \App\Models\Customer::findOrFail($request->customer_id);
+        $customer = Customer::findOrFail($request->customer_id);
         $wallet = $customer->wallet()->firstOrCreate([]);
 
         if ($wallet->balance < $request->amount) {
@@ -128,5 +148,62 @@ class CustomerWalletRechargeController extends Controller
 
         $pdf = Pdf::loadView('frontend.customer.wallet.receipt-pdf', $data);
         return $pdf->download('Admin-Customer-Wallet-Recharge-Receipt-'.$transaction->id.'.pdf');
+    }
+
+    private function paymentsByReference($references): \Illuminate\Support\Collection
+    {
+        $references = collect($references)->filter()->unique()->values();
+
+        if ($references->isEmpty()) {
+            return collect();
+        }
+
+        return Payment::whereIn('razorpay_payment_id', $references)
+            ->orWhereIn('phonepe_transaction_id', $references)
+            ->get()
+            ->flatMap(fn (Payment $payment) => collect([
+                $payment->razorpay_payment_id => $payment,
+                $payment->phonepe_transaction_id => $payment,
+            ])->filter())
+            ->filter();
+    }
+
+    private function mapTransaction(CustomerWalletTransaction $transaction, \Illuminate\Support\Collection $paymentsByReference): array
+    {
+        $payment = $paymentsByReference->get($transaction->reference_id);
+        $isDebit = $transaction->type === 'debit';
+        $gateway = match (true) {
+            $isDebit => 'Admin Deduction',
+            $transaction->reference_type === 'admin_credit' => 'Direct Deposit',
+            $payment?->payment_gateway !== null => ucfirst($payment->payment_gateway),
+            str_starts_with((string) $transaction->reference_id, 'PP') => 'PhonePe',
+            default => 'Razorpay',
+        };
+        $referenceLabel = str_starts_with((string) $transaction->reference_id, 'PP') ? 'UTR/Bank' : 'Order';
+
+        return [
+            'id' => $transaction->id,
+            'date' => optional($transaction->created_at)->format('d M Y'),
+            'time' => optional($transaction->created_at)->format('h:i A'),
+            'receipt' => 'RCPT-'.optional($transaction->created_at)->format('Y').'-'.str_pad((string) $transaction->id, 5, '0', STR_PAD_LEFT),
+            'type' => $transaction->type,
+            'amount' => (float) $transaction->amount,
+            'gst' => (float) $transaction->amount * 0.18,
+            'total' => (float) $transaction->amount * 1.18,
+            'gateway' => $gateway,
+            'reference_id' => $transaction->reference_id,
+            'secondary_reference' => $payment?->razorpay_order_id ?: $payment?->reference_id,
+            'secondary_reference_label' => $referenceLabel,
+            'reference_type' => $transaction->reference_type,
+            'remark' => $transaction->remark,
+            'customer' => [
+                'name' => $transaction->wallet?->customer?->name ?: 'Unknown Customer',
+                'company_name' => $transaction->wallet?->customer?->company_name ?: 'N/A',
+                'phone' => $transaction->wallet?->customer?->phone,
+                'unique_id' => $transaction->wallet?->customer?->customer_unique_id ?: 'N/A',
+                'gst_number' => $transaction->wallet?->customer?->gst_number,
+            ],
+            'receipt_url' => $transaction->type === 'credit' ? route('admin.customer-wallet-recharges.receipt', $transaction->id) : null,
+        ];
     }
 }

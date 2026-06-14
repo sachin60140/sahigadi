@@ -6,14 +6,48 @@ use App\Http\Controllers\Controller;
 use App\Models\Dealer;
 use App\Models\PaymentLink;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class PaymentLinkController extends Controller
 {
     public function index()
     {
-        $paymentLinks = PaymentLink::with('dealer')->latest()->paginate(15);
-        $dealers = Dealer::where('status', 'approved')->get();
-        return view('admin.payment-links.index', compact('paymentLinks', 'dealers'));
+        $paymentLinks = PaymentLink::with('dealer')
+            ->latest()
+            ->paginate(15)
+            ->through(fn (PaymentLink $link) => [
+                'id' => $link->id,
+                'created_date' => optional($link->created_at)->format('d M Y'),
+                'created_time' => optional($link->created_at)->format('h:i A'),
+                'payee_name' => $link->dealer
+                    ? ($link->dealer->company_name ?: $link->dealer->name)
+                    : ($link->customer_name ?: 'Unknown Customer'),
+                'payee_detail' => $link->dealer
+                    ? trim(($link->dealer->name ?: 'Dealer').' '.($link->dealer->phone ? '('.$link->dealer->phone.')' : ''))
+                    : trim(($link->customer_mobile ?: '').' '.($link->customer_email ? '('.$link->customer_email.')' : '')),
+                'amount' => (float) $link->amount,
+                'purpose' => $link->purpose,
+                'gateway' => $link->gateway,
+                'status' => $link->status,
+                'expires_at' => optional($link->expires_at)->format('d M Y, h:i A'),
+                'public_url' => route('pay.link', $link->id),
+                'refresh_url' => route('admin.payment-links.refresh', $link->id),
+                'delete_url' => route('admin.payment-links.destroy', $link->id),
+            ]);
+
+        $dealers = Dealer::where('status', 'approved')
+            ->orderBy('company_name')
+            ->orderBy('name')
+            ->get(['id', 'name', 'company_name', 'phone'])
+            ->map(fn (Dealer $dealer) => [
+                'id' => $dealer->id,
+                'label' => ($dealer->company_name ?: $dealer->name).($dealer->phone ? ' ('.$dealer->phone.')' : ''),
+            ]);
+
+        return Inertia::render('Admin/Finance/PaymentLinks', [
+            'paymentLinks' => $paymentLinks,
+            'dealers' => $dealers,
+        ]);
     }
 
     public function store(Request $request)

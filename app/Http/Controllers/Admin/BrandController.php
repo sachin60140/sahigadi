@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class BrandController extends Controller
 {
@@ -13,12 +14,28 @@ class BrandController extends Controller
     {
         $brands = Brand::withCount(['cars', 'customerListings'])->orderBy('name')->get();
 
-        return view('admin.brands.index', compact('brands'));
+        return Inertia::render('Admin/Brands/Index', [
+            'brands' => $brands->map(fn (Brand $brand) => $this->mapBrand($brand))->values(),
+            'stats' => [
+                'total' => $brands->count(),
+                'active' => $brands->where('is_active', true)->count(),
+                'inactive' => $brands->where('is_active', false)->count(),
+                'vehicle_links' => $brands->sum(fn (Brand $brand) => $brand->cars_count + $brand->customer_listings_count),
+            ],
+            'actions' => [
+                'create' => route('admin.brands.create'),
+            ],
+        ]);
     }
 
     public function create()
     {
-        return view('admin.brands.create');
+        return Inertia::render('Admin/Brands/Create', [
+            'actions' => [
+                'store' => route('admin.brands.store'),
+                'back' => route('admin.brands.index'),
+            ],
+        ]);
     }
 
     public function store(Request $request)
@@ -28,7 +45,8 @@ class BrandController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $data = $request->only(['name', 'is_active']);
+        $data = $request->only(['name']);
+        $data['is_active'] = $request->boolean('is_active');
         $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('logo')) {
@@ -43,7 +61,15 @@ class BrandController extends Controller
 
     public function edit(Brand $brand)
     {
-        return view('admin.brands.edit', compact('brand'));
+        $brand->loadCount(['cars', 'customerListings']);
+
+        return Inertia::render('Admin/Brands/Edit', [
+            'brand' => $this->mapBrand($brand),
+            'actions' => [
+                'update' => route('admin.brands.update', $brand),
+                'back' => route('admin.brands.index'),
+            ],
+        ]);
     }
 
     public function update(Request $request, Brand $brand)
@@ -53,7 +79,8 @@ class BrandController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $data = $request->only(['name', 'is_active']);
+        $data = $request->only(['name']);
+        $data['is_active'] = $request->boolean('is_active');
         $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('logo')) {
@@ -71,5 +98,23 @@ class BrandController extends Controller
         $brand->delete();
 
         return redirect()->route('admin.brands.index')->with('success', 'Brand deleted successfully');
+    }
+
+    private function mapBrand(Brand $brand): array
+    {
+        return [
+            'id' => $brand->id,
+            'name' => $brand->name,
+            'slug' => $brand->slug,
+            'logo_url' => $brand->logo ? asset('storage/'.$brand->logo) : null,
+            'is_active' => (bool) $brand->is_active,
+            'cars_count' => (int) ($brand->cars_count ?? 0),
+            'customer_listings_count' => (int) ($brand->customer_listings_count ?? 0),
+            'inventory_count' => (int) (($brand->cars_count ?? 0) + ($brand->customer_listings_count ?? 0)),
+            'actions' => [
+                'edit' => route('admin.brands.edit', $brand),
+                'destroy' => route('admin.brands.destroy', $brand),
+            ],
+        ];
     }
 }

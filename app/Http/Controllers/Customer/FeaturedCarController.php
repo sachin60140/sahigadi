@@ -8,6 +8,7 @@ use App\Models\FeaturedPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Inertia\Inertia;
 
 class FeaturedCarController extends Controller
 {
@@ -19,7 +20,29 @@ class FeaturedCarController extends Controller
         }
 
         $plans = FeaturedPlan::active()->orderBy('duration_days')->get();
-        return view('customer.listings.featured-plans', compact('customerListing', 'plans'));
+        $customer = auth('customer')->user();
+
+        return Inertia::render('Customer/Listings/FeaturedPlans', [
+            'listing' => [
+                'title' => $customerListing->title,
+                'model' => $customerListing->model,
+                'unique_id' => $customerListing->unique_id,
+                'is_featured' => $customerListing->isFeatured(),
+                'featured_expires_at' => optional($customerListing->featured_expires_at)->format('d M Y, h:i A'),
+            ],
+            'plans' => $plans->map(fn (FeaturedPlan $plan) => [
+                'id' => $plan->id,
+                'name' => $plan->name,
+                'price' => (float) $plan->price,
+                'duration_days' => $plan->duration_days,
+            ]),
+            'walletBalance' => (float) ($customer->wallet?->balance ?? 0),
+            'actions' => [
+                'dashboard' => route('customer.dashboard'),
+                'purchase' => route('customer.listing.featured-purchase', $customerListing),
+                'wallet' => route('customer.wallet.index'),
+            ],
+        ]);
     }
 
     public function purchase(Request $request, CustomerCarListing $customerListing)
@@ -39,11 +62,7 @@ class FeaturedCarController extends Controller
         $wallet = $customer->wallet()->firstOrCreate(['customer_id' => $customer->id], ['balance' => 0]);
 
         if ($wallet->balance < $plan->price) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Insufficient wallet balance. Please recharge.',
-                'redirect' => route('customer.wallet.index')
-            ]);
+            return back()->with('error', 'Insufficient wallet balance. Please recharge.');
         }
 
         try {
@@ -105,19 +124,12 @@ class FeaturedCarController extends Controller
                 \Log::error('Failed to send featured plan subscription email: ' . $e->getMessage());
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Listing successfully featured!',
-                'redirect' => route('customer.dashboard')
-            ]);
+            return redirect()->route('customer.dashboard')->with('success', 'Listing successfully featured!');
 
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Featured plan purchase failed: ' . $e->getMessage() . ' - Trace: ' . $e->getTraceAsString());
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing your request. Please try again. Error: ' . $e->getMessage()
-            ], 500);
+            return back()->with('error', 'An error occurred while processing your request. Please try again.');
         }
     }
 }
