@@ -308,6 +308,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/payment-settings', [PaymentSettingsController::class, 'index'])->name('payment-settings.index');
         Route::post('/payment-settings', [PaymentSettingsController::class, 'update'])->name('payment-settings.update');
+        Route::post('/payment-settings/test-phonepe', [PaymentSettingsController::class, 'testPhonePe'])->name('payment-settings.test-phonepe');
 
         Route::get('/service-tracking/vehicle-search', [ServiceTrackingController::class, 'vehicleSearch'])->name('service-tracking.vehicle-search');
         Route::get('/service-tracking/service-history', [ServiceTrackingController::class, 'serviceHistory'])->name('service-tracking.service-history');

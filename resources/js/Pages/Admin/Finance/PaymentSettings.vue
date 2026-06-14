@@ -46,13 +46,13 @@
 
                 <SectionTitle title="PhonePe Settings" />
                 <div class="grid gap-4 md:grid-cols-2">
-                    <Field label="PhonePe Merchant ID" error-key="phonepe_merchant_id">
+                    <Field label="PhonePe Client ID" error-key="phonepe_merchant_id">
                         <input v-model="form.phonepe_merchant_id" class="admin-input" type="text" required />
                     </Field>
-                    <Field label="PhonePe Salt Key" error-key="phonepe_salt_key">
+                    <Field label="PhonePe Client Secret" error-key="phonepe_salt_key">
                         <input v-model="form.phonepe_salt_key" class="admin-input" type="password" required />
                     </Field>
-                    <Field label="PhonePe Salt Index" error-key="phonepe_salt_index">
+                    <Field label="PhonePe Client Version" error-key="phonepe_salt_index">
                         <input v-model="form.phonepe_salt_index" class="admin-input" type="text" required />
                     </Field>
                     <Field label="Environment" error-key="phonepe_env">
@@ -64,6 +64,17 @@
                     <Field label="Custom Checkout API URL" error-key="phonepe_checkout_url" wrapper-class="md:col-span-2">
                         <input v-model="form.phonepe_checkout_url" class="admin-input" type="url" placeholder="https://api.phonepe.com/apis/pg/checkout/v2/pay" />
                     </Field>
+                </div>
+                <div class="mt-4 flex flex-wrap items-center gap-3">
+                    <button
+                        type="button"
+                        class="inline-flex min-h-11 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 px-5 py-3 text-sm font-black text-teal-800 transition hover:bg-teal-100 disabled:cursor-wait disabled:opacity-60"
+                        :disabled="testingPhonePe || form.processing"
+                        @click="testPhonePe"
+                    >
+                        {{ testingPhonePe ? 'Testing PhonePe...' : 'Test PhonePe Connection' }}
+                    </button>
+                    <p class="text-sm font-semibold text-slate-500">Save credentials first, then test authentication without creating a payment.</p>
                 </div>
 
                 <SectionTitle title="Recharge Rules" />
@@ -99,8 +110,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, h, useSlots } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { defineComponent, h, ref, useSlots } from 'vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 type Settings = {
@@ -120,10 +131,21 @@ type Settings = {
 const props = defineProps<{ settings: Settings }>();
 
 const form = useForm({ ...props.settings });
+const testingPhonePe = ref(false);
 
 const submit = () => {
     form.post('/admin/payment-settings', {
         preserveScroll: true,
+    });
+};
+
+const testPhonePe = () => {
+    testingPhonePe.value = true;
+    router.post('/admin/payment-settings/test-phonepe', {}, {
+        preserveScroll: true,
+        onFinish: () => {
+            testingPhonePe.value = false;
+        },
     });
 };
 

@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Services\PhonePeService;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class PaymentSettingsController extends Controller
@@ -71,5 +74,24 @@ class PaymentSettingsController extends Controller
         Setting::setIsPhonePeActive($request->has('is_phonepe_active'));
 
         return redirect()->back()->with('success', 'Payment Gateway settings updated successfully!');
+    }
+
+    public function testPhonePe(PhonePeService $phonePeService)
+    {
+        try {
+            $result = $phonePeService->testConnection();
+
+            return redirect()->back()->with(
+                'success',
+                "PhonePe {$result['environment']} authentication succeeded."
+            );
+        } catch (Exception $exception) {
+            Log::warning('PhonePe connection test failed', [
+                'environment' => Setting::getPhonePeEnvironment(),
+                'error' => $exception->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', $exception->getMessage());
+        }
     }
 }

@@ -101,7 +101,7 @@ class PaymentLinkController extends Controller
             }
 
             if ($gateway === 'phonepe') {
-                $transactionId = 'PP_LNK_'.Str::uuid().'_'.$payment_link->id;
+                $transactionId = 'PL_'.Str::ulid();
 
                 $payment_link->update(['transaction_id' => $transactionId]);
 
@@ -115,11 +115,21 @@ class PaymentLinkController extends Controller
                     $transactionId,
                     [
                         'payment_link_id' => $payment_link->id,
-                        'redirectUrl' => route('pay.link.phonepe.callback'),
+                        'redirectUrl' => route('pay.link.phonepe.callback', [
+                            'payment_link' => $payment_link->id,
+                            'merchant_order_id' => $transactionId,
+                        ]),
                     ]
                 );
 
                 if ($response['success']) {
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'checkout_url' => $response['redirect_url'],
+                            'merchant_order_id' => $transactionId,
+                        ]);
+                    }
+
                     return redirect()->away($response['redirect_url']);
                 }
 
@@ -150,6 +160,10 @@ class PaymentLinkController extends Controller
 
             return redirect()->back()->with('error', 'Invalid gateway selected.');
         } catch (Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+
             return redirect()->route('pay.link', $payment_link->id)->with('error', $e->getMessage());
         }
     }
@@ -157,13 +171,10 @@ class PaymentLinkController extends Controller
     public function phonepeCallback(Request $request)
     {
         try {
+            $paymentLinkId = (string) $request->query('payment_link', '');
+            $transactionId = (string) $request->query('merchant_order_id', '');
             $paymentInfo = session()->get('phonepe_link_payment');
-
-            if (!$paymentInfo) {
-                throw new Exception('Payment information lost in session.');
-            }
-
-            $payment_link = PaymentLink::findOrFail($paymentInfo['link_id']);
+            $payment_link = PaymentLink::findOrFail($paymentLinkId ?: ($paymentInfo['link_id'] ?? null));
             $dealer = $payment_link->dealer;
 
             if ($payment_link->status !== 'pending') {
@@ -171,7 +182,6 @@ class PaymentLinkController extends Controller
                 return redirect()->route('pay.link', $payment_link->id)->with('success', 'Payment already verified!');
             }
 
-            $transactionId = (string) $paymentInfo['transaction_id'];
             if (! $payment_link->transaction_id
                 || ! hash_equals((string) $payment_link->transaction_id, $transactionId)) {
                 throw new Exception('Payment transaction does not match this payment link.');

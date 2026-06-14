@@ -47,23 +47,24 @@
                             v-if="phonePeAvailable"
                             type="button"
                             class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#5f259f] px-5 py-3 text-sm font-black text-white transition hover:bg-[#4f1f84] disabled:opacity-60"
-                            :disabled="processing"
+                            :disabled="processing !== null"
                             @click="submitPhonePe"
                         >
-                            <Smartphone class="h-5 w-5" />
-                            Pay with PhonePe
+                            <LoaderCircle v-if="processing === 'phonepe'" class="h-5 w-5 animate-spin" />
+                            <Smartphone v-else class="h-5 w-5" />
+                            {{ processing === 'phonepe' ? 'Opening PhonePe...' : 'Pay with PhonePe' }}
                         </button>
 
                         <button
                             v-if="razorpayAvailable"
                             type="button"
                             class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#2563eb] px-5 py-3 text-sm font-black text-white transition hover:bg-[#1d4ed8] disabled:opacity-60"
-                            :disabled="processing"
+                            :disabled="processing !== null"
                             @click="openRazorpay"
                         >
-                            <LoaderCircle v-if="processing" class="h-5 w-5 animate-spin" />
+                            <LoaderCircle v-if="processing === 'razorpay'" class="h-5 w-5 animate-spin" />
                             <CreditCard v-else class="h-5 w-5" />
-                            Pay with Razorpay
+                            {{ processing === 'razorpay' ? 'Opening Razorpay...' : 'Pay with Razorpay' }}
                         </button>
 
                         <div v-if="!phonePeAvailable && !razorpayAvailable" class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 text-center text-sm font-bold text-amber-800">
@@ -86,6 +87,7 @@ import { computed, onMounted, ref } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { CreditCard, LoaderCircle, LockKeyhole, ShieldCheck, Smartphone } from '@lucide/vue';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import { startPhonePeCheckout } from '@/Composables/usePhonePeCheckout';
 
 declare global {
     interface Window {
@@ -114,7 +116,7 @@ const props = defineProps<{
 }>();
 
 const page = usePage();
-const processing = ref(false);
+const processing = ref<'phonepe' | 'razorpay' | null>(null);
 const errorMessage = ref('');
 const scriptReady = ref(false);
 const flashError = computed(() => (page.props as any).flash?.error || '');
@@ -156,13 +158,26 @@ const loadRazorpay = () => new Promise<void>((resolve, reject) => {
     document.head.appendChild(script);
 });
 
-const submitPhonePe = () => {
-    processing.value = true;
-    submitNative({ gateway: 'phonepe' });
+const submitPhonePe = async () => {
+    processing.value = 'phonepe';
+    errorMessage.value = '';
+
+    try {
+        await startPhonePeCheckout(
+            props.checkoutUrl,
+            { gateway: 'phonepe' },
+            csrf(),
+        );
+    } catch (error) {
+        processing.value = null;
+        errorMessage.value = error instanceof Error
+            ? error.message
+            : 'Unable to open PhonePe checkout.';
+    }
 };
 
 const openRazorpay = async () => {
-    processing.value = true;
+    processing.value = 'razorpay';
     errorMessage.value = '';
     try {
         if (!scriptReady.value) await loadRazorpay();
@@ -186,16 +201,16 @@ const openRazorpay = async () => {
                 razorpay_payment_id: response.razorpay_payment_id || '',
                 razorpay_signature: response.razorpay_signature || '',
             }),
-            modal: { ondismiss: () => { processing.value = false; } },
+            modal: { ondismiss: () => { processing.value = null; } },
         });
         checkout.on('payment.failed', (response: any) => {
             errorMessage.value = response?.error?.description || 'Payment failed. Please try again.';
-            processing.value = false;
+            processing.value = null;
         });
         checkout.open();
     } catch (error) {
         errorMessage.value = error instanceof Error ? error.message : 'Razorpay checkout could not be opened.';
-        processing.value = false;
+        processing.value = null;
     }
 };
 

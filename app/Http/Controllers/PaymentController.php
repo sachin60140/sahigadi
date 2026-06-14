@@ -254,6 +254,10 @@ class PaymentController extends Controller
     public function phonepeInitiate(Request $request)
     {
         try {
+            if (! Setting::isPhonePeActive()) {
+                throw new Exception('PhonePe is currently unavailable.');
+            }
+
             $request->validate([
                 'intent' => 'required|uuid',
             ]);
@@ -268,10 +272,12 @@ class PaymentController extends Controller
 
             $type = $paymentInfo['type'];
             $amount = (float) $paymentInfo['amount'];
-            $transactionId = 'PP_' . time() . '_' . $dealer->id;
+            $transactionId = 'PP_'.$dealer->id.'_'.Str::ulid();
+            $callbackUrl = route('dealer.payments.phonepe.callback', [
+                'merchant_order_id' => $transactionId,
+            ]);
 
-            // Store temporary info in session for callback
-            session()->put('phonepe_payment_info', [
+            session()->put("dealer_phonepe_payments.{$transactionId}", [
                 'transaction_id' => $transactionId,
                 'type' => $type,
                 'amount' => $amount,
@@ -280,16 +286,35 @@ class PaymentController extends Controller
                 'days' => $paymentInfo['days'],
             ]);
 
-            $response = $this->phonepeService->createPayment($amount, $transactionId, ['dealer_id' => $dealer->id]);
+            $response = $this->phonepeService->createPayment($amount, $transactionId, [
+                'dealer_id' => $dealer->id,
+                'redirectUrl' => $callbackUrl,
+            ]);
 
             if ($response['success']) {
                 session()->forget($intentKey);
 
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'checkout_url' => $response['redirect_url'],
+                        'merchant_order_id' => $transactionId,
+                    ]);
+                }
+
                 return redirect()->away($response['redirect_url']);
             }
 
-            return redirect()->route('dealer.wallet.index')->with('error', 'PhonePe payment initiation failed.');
+            throw new Exception('PhonePe payment initiation failed.');
         } catch (Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Dealer PhonePe payment initiation failed', [
+                'dealer_id' => auth('dealer')->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+
             return redirect()->route('dealer.wallet.index')->with('error', $e->getMessage());
         }
     }
@@ -298,13 +323,18 @@ class PaymentController extends Controller
     {
         try {
             $dealer = auth('dealer')->user();
-            $paymentInfo = session()->get('phonepe_payment_info');
+            $transactionId = (string) $request->query('merchant_order_id', '');
+            $paymentInfo = $transactionId !== ''
+                ? session()->get("dealer_phonepe_payments.{$transactionId}")
+                : null;
 
             if (!$paymentInfo) {
                 throw new Exception('Payment information lost in session.');
             }
 
-            $transactionId = $paymentInfo['transaction_id'];
+            if (! hash_equals((string) $paymentInfo['transaction_id'], $transactionId)) {
+                throw new Exception('PhonePe payment session does not match this order.');
+            }
 
             $this->phonepeService->processPayment(
                 $dealer,
@@ -334,66 +364,54 @@ class PaymentController extends Controller
                     }
                 }
 
-            session()->forget('phonepe_payment_info');
+            session()->forget("dealer_phonepe_payments.{$transactionId}");
             return redirect()->route('dealer.wallet.index')->with('success', 'PhonePe Payment successful! Amount credited.');
         } catch (Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Dealer PhonePe callback failed', [
+                'dealer_id' => auth('dealer')->id(),
+                'merchant_order_id' => $request->query('merchant_order_id'),
+                'error' => $e->getMessage(),
+            ]);
+
             return redirect()->route('dealer.wallet.index')->with('error', $e->getMessage());
         }
     }
 
     public function phonepeWebhook(Request $request)
     {
-        $expectedUser = env('PHONEPE_WEBHOOK_USER', 'sahigadiwebhook');
-        $expectedPass = env('PHONEPE_WEBHOOK_PASS', 'Sahi Gadi12345');
+        $expectedUser = (string) config('services.phonepe.webhook_user', '');
+        $expectedPass = (string) config('services.phonepe.webhook_pass', '');
 
-        $authHeader = $request->header('Authorization');
-        $expectedSha256 = hash('sha256', $expectedUser . ':' . $expectedPass);
-        
-        $isBasicAuth = ($request->getUser() === $expectedUser && $request->getPassword() === $expectedPass);
-        $isSha256 = (str_replace(' ', '', $authHeader) === 'SHA256(' . $expectedSha256 . ')' || $authHeader === $expectedSha256);
+        if ($expectedUser === '' || $expectedPass === '') {
+            \Illuminate\Support\Facades\Log::error('PhonePe webhook credentials are not configured.');
 
-        // V2 payload can be raw JSON or Base64 encoded JSON inside "response" key
-        $data = $request->all();
-
-        $xVerify = $request->header('x-verify');
-        $isXVerify = false;
-        if ($xVerify && isset($data['response'])) {
-            $isXVerify = app(\App\Services\PhonePeService::class)->isValidWebhookSignature($data['response'], $xVerify);
+            return response()->json(['error' => 'Webhook is not configured'], 503);
         }
 
-        if (!$isBasicAuth && !$isSha256 && !$isXVerify) {
-            \Illuminate\Support\Facades\Log::warning('PhonePe Webhook Auth Failed', ['header' => $authHeader, 'x_verify' => $xVerify]);
+        $authHeader = trim((string) $request->header('Authorization', ''));
+        $expectedHeader = 'SHA256('.hash('sha256', $expectedUser.':'.$expectedPass).')';
+
+        if (! hash_equals($expectedHeader, $authHeader)) {
+            \Illuminate\Support\Facades\Log::warning('PhonePe webhook authentication failed.');
+
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
+        $data = $request->all();
         \Illuminate\Support\Facades\Log::info('PhonePe Webhook Received', ['data' => $data]);
 
-        $transactionId = null;
-        $state = null;
-        $amount = 0;
-
-        // Handle Base64 Encoded Format
-        if (isset($data['response'])) {
-            $decodedData = json_decode(base64_decode($data['response']), true);
-            if (is_array($decodedData) && isset($decodedData['data'])) {
-                $transactionId = $decodedData['data']['merchantTransactionId'] ?? null;
-                $state = ($decodedData['code'] ?? '') === 'PAYMENT_SUCCESS' ? 'COMPLETED' : 'FAILED';
-                $amount = $decodedData['data']['amount'] ?? 0;
-            }
-        } 
-        // Handle Raw JSON Format
-        elseif (isset($data['event']) && $data['event'] === 'checkout.order.completed') {
-            $payload = $data['payload'] ?? [];
-            $transactionId = $payload['merchantOrderId'] ?? null;
-            $state = $payload['state'] ?? null;
-            $amount = $payload['amount'] ?? 0;
+        if (($data['event'] ?? null) !== 'checkout.order.completed') {
+            return response()->json(['success' => true]);
         }
 
+        $payload = is_array($data['payload'] ?? null) ? $data['payload'] : [];
+        $transactionId = $payload['merchantOrderId'] ?? null;
+        $state = $payload['state'] ?? null;
+        $amount = (int) ($payload['amount'] ?? 0);
+
         if ($transactionId && $state === 'COMPLETED') {
-                if (str_starts_with($transactionId, 'PP_LNK_')) {
-                    $parts = explode('_', $transactionId);
-                    $linkId = end($parts);
-                    $paymentLink = \App\Models\PaymentLink::find($linkId);
+                if (str_starts_with($transactionId, 'PL_')) {
+                    $paymentLink = \App\Models\PaymentLink::where('transaction_id', $transactionId)->first();
                     
                     if ($paymentLink && $paymentLink->status === 'pending') {
                         $dealer = $paymentLink->dealer;
@@ -423,7 +441,7 @@ class PaymentController extends Controller
                     }
                 } elseif (str_starts_with($transactionId, 'PPC_')) {
                     $parts = explode('_', $transactionId);
-                    $customerId = end($parts);
+                    $customerId = $parts[1] ?? null;
                     $customer = \App\Models\Customer::find($customerId);
                     
                     if ($customer) {
@@ -438,9 +456,9 @@ class PaymentController extends Controller
                             \Illuminate\Support\Facades\Log::error('PhonePe Webhook Process Error for Customer', ['error' => $e->getMessage()]);
                         }
                     }
-                } else {
+                } elseif (str_starts_with($transactionId, 'PP_')) {
                     $parts = explode('_', $transactionId);
-                    $dealerId = end($parts);
+                    $dealerId = $parts[1] ?? null;
                     $dealer = \App\Models\Dealer::find($dealerId);
                     
                     if ($dealer) {

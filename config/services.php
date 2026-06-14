@@ -40,6 +40,16 @@ return [
         'secret' => env('RAZORPAY_SECRET'),
     ],
 
+    'phonepe' => [
+        'merchant_id' => env('PHONEPE_CLIENT_ID', env('PHONEPE_MERCHANT_ID')),
+        'salt_key' => env('PHONEPE_CLIENT_SECRET', env('PHONEPE_SALT_KEY')),
+        'salt_index' => env('PHONEPE_CLIENT_VERSION', env('PHONEPE_SALT_INDEX', '1')),
+        'env' => env('PHONEPE_ENV', 'UAT'),
+        'checkout_url' => env('PHONEPE_CHECKOUT_URL'),
+        'webhook_user' => env('PHONEPE_WEBHOOK_USER'),
+        'webhook_pass' => env('PHONEPE_WEBHOOK_PASS'),
+    ],
+
     'vehicle_api' => [
         'url' => env('VEHICLE_API_URL', 'https://api.attestr.com/api/v2/public/checkx/rc'),
         'key' => env('VEHICLE_API_KEY', ''),

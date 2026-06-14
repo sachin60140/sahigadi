@@ -205,7 +205,7 @@ class Setting extends Model
 
     public static function setPhonePeMerchantId(string $merchantId): void
     {
-        static::set('phonepe_merchant_id', $merchantId, 'string', 'payment', 'PhonePe Merchant ID');
+        static::set('phonepe_merchant_id', $merchantId, 'string', 'payment', 'PhonePe Client ID');
     }
 
     public static function getPhonePeSaltKey(): ?string
@@ -215,7 +215,7 @@ class Setting extends Model
 
     public static function setPhonePeSaltKey(string $saltKey): void
     {
-        static::set('phonepe_salt_key', $saltKey, 'string', 'payment', 'PhonePe Salt Key');
+        static::set('phonepe_salt_key', $saltKey, 'string', 'payment', 'PhonePe Client Secret');
     }
 
     public static function getPhonePeSaltIndex(): string
@@ -225,7 +225,7 @@ class Setting extends Model
 
     public static function setPhonePeSaltIndex(string $saltIndex): void
     {
-        static::set('phonepe_salt_index', $saltIndex, 'string', 'payment', 'PhonePe Salt Index');
+        static::set('phonepe_salt_index', $saltIndex, 'string', 'payment', 'PhonePe Client Version');
     }
 
     public static function getPhonePeEnvironment(): string
@@ -240,7 +240,7 @@ class Setting extends Model
 
     public static function getPhonePeCheckoutUrl(): ?string
     {
-        return static::get('phonepe_checkout_url');
+        return static::get('phonepe_checkout_url', config('services.phonepe.checkout_url'));
     }
 
     public static function setPhonePeCheckoutUrl(?string $url): void

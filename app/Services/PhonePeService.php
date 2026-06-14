@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class PhonePeService
 {
@@ -25,18 +26,22 @@ class PhonePeService
         $this->clientSecret = trim(Setting::getPhonePeSaltKey() ?? '');
         // Salt Index is used as Client Version
         $this->clientVersion = trim(Setting::getPhonePeSaltIndex() ?? '1');
-        $this->env = trim(Setting::getPhonePeEnvironment() ?? 'UAT');
+        $this->env = strtoupper(trim(Setting::getPhonePeEnvironment() ?? 'UAT'));
     }
 
     protected function getTokenUrl(): string
     {
         $customUrl = Setting::getPhonePeCheckoutUrl();
         if ($customUrl) {
+            $this->assertSupportedCheckoutUrl($customUrl);
+
             if (str_contains($customUrl, 'api-preprod.phonepe.com')) {
                 return str_replace('/checkout/v2/pay', '/v1/oauth/token', $customUrl);
             } else {
                 $tokenUrl = str_replace('/pg/checkout/v2/pay', '/identity-manager/v1/oauth/token', $customUrl);
-                if ($tokenUrl !== $customUrl) return $tokenUrl;
+                if ($tokenUrl !== $customUrl) {
+                    return $tokenUrl;
+                }
                 
                 return str_replace('/checkout/v2/pay', '/v1/oauth/token', $customUrl);
             }
@@ -51,6 +56,8 @@ class PhonePeService
     {
         $customUrl = Setting::getPhonePeCheckoutUrl();
         if ($customUrl) {
+            $this->assertSupportedCheckoutUrl($customUrl);
+
             return $customUrl;
         }
 
@@ -67,99 +74,200 @@ class PhonePeService
 
     protected function getAccessToken(): string
     {
-        $cacheKey = 'phonepe_access_token_' . $this->clientId;
-        
-        return Cache::remember($cacheKey, 3000, function () {
-            $tokenUrl = $this->getTokenUrl();
+        $this->assertConfiguration();
 
-            $response = Http::asForm()->post($tokenUrl, [
-                'client_id' => $this->clientId,
-                'client_secret' => $this->clientSecret,
-                'client_version' => $this->clientVersion,
-                'grant_type' => 'client_credentials'
+        $cacheKey = 'phonepe_access_token_'.hash(
+            'sha256',
+            implode('|', [$this->env, $this->clientId, $this->clientVersion, $this->clientSecret])
+        );
+
+        $cachedToken = Cache::get($cacheKey);
+        if (is_string($cachedToken) && $cachedToken !== '') {
+            return $cachedToken;
+        }
+
+        $tokenUrl = $this->getTokenUrl();
+
+        try {
+            $response = Http::asForm()
+                ->acceptJson()
+                ->connectTimeout(8)
+                ->timeout(20)
+                ->post($tokenUrl, [
+                    'client_id' => $this->clientId,
+                    'client_secret' => $this->clientSecret,
+                    'client_version' => $this->clientVersion,
+                    'grant_type' => 'client_credentials',
+                ]);
+        } catch (\Throwable $exception) {
+            Log::error('PhonePe authentication request failed', [
+                'environment' => $this->env,
+                'endpoint_host' => parse_url($tokenUrl, PHP_URL_HOST),
+                'error' => $exception->getMessage(),
             ]);
 
-            if ($response->successful() && $response->json('access_token')) {
-                return $response->json('access_token');
-            }
+            throw new Exception('Unable to connect to PhonePe. Please verify that outbound HTTPS requests are allowed by the server.');
+        }
 
-            throw new Exception('PhonePe Authentication Failed: ' . $response->body());
-        });
+        $token = $response->json('access_token');
+        if ($response->successful() && is_string($token) && $token !== '') {
+            $expiresAt = (int) $response->json('expires_at', time() + 3000);
+            $ttl = max(60, $expiresAt - time() - 60);
+            Cache::put($cacheKey, $token, $ttl);
+
+            return $token;
+        }
+
+        $this->logGatewayFailure('authentication', $response->status(), $response->json());
+
+        throw new Exception($this->gatewayErrorMessage(
+            'PhonePe authentication failed',
+            $response->status(),
+            $response->json()
+        ));
+    }
+
+    public function testConnection(): array
+    {
+        $this->getAccessToken();
+
+        return [
+            'success' => true,
+            'environment' => $this->env,
+            'payment_endpoint' => $this->getPaymentUrl(),
+        ];
     }
 
     public function createPayment(float $amount, string $transactionId, array $callbackParams = []): array
     {
+        $this->assertPaymentRequest($amount, $transactionId);
+
+        $redirectUrl = $callbackParams['redirectUrl'] ?? route('dealer.payments.phonepe.callback');
+        $this->assertRedirectUrl($redirectUrl);
+
         $payload = [
             'merchantOrderId' => $transactionId,
-            'amount' => (int) ($amount * 100),
+            'amount' => (int) round($amount * 100),
+            'expireAfter' => 1200,
             'paymentFlow' => [
                 'type' => 'PG_CHECKOUT',
                 'merchantUrls' => [
-                    'redirectUrl' => $callbackParams['redirectUrl'] ?? route('dealer.payments.phonepe.callback')
-                ]
-            ]
+                    'redirectUrl' => $redirectUrl,
+                ],
+            ],
         ];
 
         $paymentUrl = $this->getPaymentUrl();
 
         $token = $this->getAccessToken();
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'Authorization' => 'O-Bearer ' . $token
-        ])->post($paymentUrl, $payload);
+        try {
+            $response = Http::acceptJson()
+                ->asJson()
+                ->withHeaders(['Authorization' => 'O-Bearer '.$token])
+                ->connectTimeout(8)
+                ->timeout(20)
+                ->post($paymentUrl, $payload);
+        } catch (\Throwable $exception) {
+            Log::error('PhonePe payment initiation request failed', [
+                'environment' => $this->env,
+                'merchant_order_id' => $transactionId,
+                'endpoint_host' => parse_url($paymentUrl, PHP_URL_HOST),
+                'error' => $exception->getMessage(),
+            ]);
+
+            throw new Exception('Unable to connect to PhonePe checkout. Please try again shortly.');
+        }
 
         if ($response->successful()) {
+            $redirectUrl = $response->json('redirectUrl')
+                ?? $response->json('data.redirectUrl');
+
+            if (! is_string($redirectUrl) || ! filter_var($redirectUrl, FILTER_VALIDATE_URL)) {
+                $this->logGatewayFailure('missing_redirect_url', $response->status(), $response->json());
+
+                throw new Exception('PhonePe created the order but did not return a valid checkout URL.');
+            }
+
             return [
                 'success' => true,
-                'redirect_url' => $response->json('redirectUrl')
+                'redirect_url' => $redirectUrl,
+                'order_id' => $response->json('orderId') ?? $response->json('data.orderId'),
+                'state' => $response->json('state') ?? $response->json('data.state'),
             ];
         }
 
-        throw new Exception('PhonePe Payment Initiation Failed: ' . $response->body());
+        $this->logGatewayFailure('payment_initiation', $response->status(), $response->json());
+
+        throw new Exception($this->gatewayErrorMessage(
+            'PhonePe payment initiation failed',
+            $response->status(),
+            $response->json()
+        ));
     }
 
     public function verifyPaymentStatus(string $transactionId): array
     {
-        $statusUrl = $this->getStatusUrl($transactionId);
+        $this->assertTransactionId($transactionId);
 
+        $statusUrl = $this->getStatusUrl($transactionId);
         $token = $this->getAccessToken();
 
-        $response = Http::withHeaders([
-            'Authorization' => 'O-Bearer ' . $token
-        ])->get($statusUrl);
+        try {
+            $response = Http::acceptJson()
+                ->withHeaders(['Authorization' => 'O-Bearer '.$token])
+                ->connectTimeout(8)
+                ->timeout(20)
+                ->get($statusUrl, [
+                    'details' => 'false',
+                    'errorContext' => 'true',
+                ]);
+        } catch (\Throwable $exception) {
+            Log::error('PhonePe order status request failed', [
+                'environment' => $this->env,
+                'merchant_order_id' => $transactionId,
+                'endpoint_host' => parse_url($statusUrl, PHP_URL_HOST),
+                'error' => $exception->getMessage(),
+            ]);
+
+            throw new Exception('Unable to verify the PhonePe payment status. Please try again shortly.');
+        }
 
         if ($response->successful()) {
             $data = $response->json();
-            
-            // Handle different possible structures of PhonePe response
             $state = $data['state'] ?? ($data['data']['state'] ?? 'UNKNOWN');
             $amount = $data['amount'] ?? ($data['data']['amount'] ?? 0);
-            $providerRef = $data['transactionId'] ?? ($data['providerReferenceId'] ?? ($data['data']['transactionId'] ?? ($data['data']['providerReferenceId'] ?? null)));
+            $providerRef = $data['paymentDetails'][0]['transactionId']
+                ?? $data['transactionId']
+                ?? $data['providerReferenceId']
+                ?? $data['data']['paymentDetails'][0]['transactionId']
+                ?? $data['data']['transactionId']
+                ?? $data['data']['providerReferenceId']
+                ?? null;
             
             return [
                 'success' => $state === 'COMPLETED',
                 'status' => $state,
-                'amount' => $amount / 100,
+                'amount' => (float) ($amount / 100),
                 'transaction_id' => $transactionId,
-                'provider_reference_id' => $providerRef
+                'provider_reference_id' => $providerRef,
+                'error_code' => $data['errorCode']
+                    ?? $data['errorContext']['errorCode']
+                    ?? $data['data']['errorCode']
+                    ?? null,
+                'error_description' => $data['errorContext']['description']
+                    ?? $data['data']['errorContext']['description']
+                    ?? null,
             ];
         }
 
-        return [
-            'success' => false,
-            'status' => 'FAILED',
-            'amount' => 0,
-            'transaction_id' => $transactionId
-        ];
-    }
+        $this->logGatewayFailure('order_status', $response->status(), $response->json());
 
-    public function isValidWebhookSignature(string $payload, ?string $signature): bool
-    {
-        if (!$signature) return false;
-        
-        $expectedSignature = hash('sha256', $payload . $this->clientSecret) . "###" . $this->clientVersion;
-        return hash_equals($expectedSignature, $signature);
+        throw new Exception($this->gatewayErrorMessage(
+            'PhonePe payment status could not be verified',
+            $response->status(),
+            $response->json()
+        ));
     }
 
     public function processPayment($dealer, string $transactionId, float $expectedAmount, string $type)
@@ -170,7 +278,7 @@ class PhonePeService
             throw new Exception("PhonePe payment was not successful. Status: " . $status['status']);
         }
 
-        if ($status['amount'] != $expectedAmount) {
+        if ((int) round($status['amount'] * 100) !== (int) round($expectedAmount * 100)) {
             throw new Exception("Payment amount mismatch. Expected: {$expectedAmount}, Received: {$status['amount']}");
         }
 
@@ -224,5 +332,74 @@ class PhonePeService
             DB::rollBack();
             throw $e;
         }
+    }
+
+    protected function assertConfiguration(): void
+    {
+        if ($this->clientId === '' || $this->clientSecret === '' || $this->clientVersion === '') {
+            throw new Exception('PhonePe v2 credentials are incomplete. Configure Client ID, Client Secret, and Client Version.');
+        }
+
+        if (! in_array($this->env, ['UAT', 'PRODUCTION'], true)) {
+            throw new Exception('PhonePe environment must be UAT or PRODUCTION.');
+        }
+    }
+
+    protected function assertPaymentRequest(float $amount, string $transactionId): void
+    {
+        if ((int) round($amount * 100) < 100) {
+            throw new Exception('PhonePe requires a minimum payment amount of Rs 1.00.');
+        }
+
+        $this->assertTransactionId($transactionId);
+    }
+
+    protected function assertTransactionId(string $transactionId): void
+    {
+        if (! preg_match('/^[A-Za-z0-9_-]{1,63}$/', $transactionId)) {
+            throw new Exception('PhonePe merchant order ID is invalid.');
+        }
+    }
+
+    protected function assertSupportedCheckoutUrl(string $url): void
+    {
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $path = rtrim((string) parse_url($url, PHP_URL_PATH), '/');
+        $allowedHosts = ['api.phonepe.com', 'api-preprod.phonepe.com'];
+
+        if (! in_array($host, $allowedHosts, true) || ! str_ends_with($path, '/checkout/v2/pay')) {
+            throw new Exception('The custom PhonePe URL must be an official Checkout v2 /checkout/v2/pay endpoint.');
+        }
+    }
+
+    protected function assertRedirectUrl(string $url): void
+    {
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new Exception('PhonePe callback URL is invalid. Check the live APP_URL configuration.');
+        }
+
+        if ($this->env === 'PRODUCTION' && parse_url($url, PHP_URL_SCHEME) !== 'https') {
+            throw new Exception('PhonePe production callback URL must use HTTPS. Check APP_URL and proxy configuration.');
+        }
+    }
+
+    protected function gatewayErrorMessage(string $prefix, int $status, mixed $payload): string
+    {
+        $code = is_array($payload) ? ($payload['code'] ?? null) : null;
+        $message = is_array($payload) ? ($payload['message'] ?? null) : null;
+        $details = collect([$code, $message])->filter()->implode(': ');
+
+        return $prefix.' (HTTP '.$status.')'.($details !== '' ? ' '.$details : '');
+    }
+
+    protected function logGatewayFailure(string $stage, int $status, mixed $payload): void
+    {
+        Log::error('PhonePe gateway request failed', [
+            'stage' => $stage,
+            'environment' => $this->env,
+            'http_status' => $status,
+            'code' => is_array($payload) ? ($payload['code'] ?? null) : null,
+            'message' => is_array($payload) ? ($payload['message'] ?? null) : null,
+        ]);
     }
 }

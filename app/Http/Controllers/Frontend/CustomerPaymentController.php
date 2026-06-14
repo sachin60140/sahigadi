@@ -8,6 +8,7 @@ use App\Services\RazorpayService;
 use App\Services\PhonePeService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -132,6 +133,10 @@ class CustomerPaymentController extends Controller
     public function phonepeInitiate(Request $request)
     {
         try {
+            if (! Setting::isPhonePeActive()) {
+                throw new Exception('PhonePe is currently unavailable.');
+            }
+
             $request->validate([
                 'intent' => 'required|uuid',
             ]);
@@ -146,9 +151,12 @@ class CustomerPaymentController extends Controller
 
             $type = $paymentInfo['type'];
             $amount = (float) $paymentInfo['amount'];
-            $transactionId = 'PPC_' . time() . '_' . $customer->id;
+            $transactionId = 'PPC_'.$customer->id.'_'.Str::ulid();
+            $callbackUrl = route('customer.payments.phonepe.callback', [
+                'merchant_order_id' => $transactionId,
+            ]);
 
-            session()->put('customer_phonepe_payment_info', [
+            session()->put("customer_phonepe_payments.{$transactionId}", [
                 'transaction_id' => $transactionId,
                 'type' => $type,
                 'amount' => $amount,
@@ -156,17 +164,33 @@ class CustomerPaymentController extends Controller
 
             $response = $this->phonepeService->createPayment($amount, $transactionId, [
                 'customer_id' => $customer->id,
-                'redirectUrl' => route('customer.payments.phonepe.callback')
+                'redirectUrl' => $callbackUrl,
             ]);
 
             if ($response['success']) {
                 session()->forget($intentKey);
 
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'checkout_url' => $response['redirect_url'],
+                        'merchant_order_id' => $transactionId,
+                    ]);
+                }
+
                 return redirect()->away($response['redirect_url']);
             }
 
-            return redirect()->route('customer.wallet.index')->with('error', 'PhonePe payment initiation failed.');
+            throw new Exception('PhonePe payment initiation failed.');
         } catch (Exception $e) {
+            Log::error('Customer PhonePe payment initiation failed', [
+                'customer_id' => auth('customer')->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+
             return redirect()->route('customer.wallet.index')->with('error', $e->getMessage());
         }
     }
@@ -175,13 +199,18 @@ class CustomerPaymentController extends Controller
     {
         try {
             $customer = auth('customer')->user();
-            $paymentInfo = session()->get('customer_phonepe_payment_info');
+            $transactionId = (string) $request->query('merchant_order_id', '');
+            $paymentInfo = $transactionId !== ''
+                ? session()->get("customer_phonepe_payments.{$transactionId}")
+                : null;
 
             if (!$paymentInfo) {
                 throw new Exception('Payment information lost in session.');
             }
 
-            $transactionId = $paymentInfo['transaction_id'];
+            if (! hash_equals((string) $paymentInfo['transaction_id'], $transactionId)) {
+                throw new Exception('PhonePe payment session does not match this order.');
+            }
 
             $this->phonepeService->processPayment(
                 $customer,
@@ -190,9 +219,15 @@ class CustomerPaymentController extends Controller
                 $paymentInfo['type']
             );
 
-            session()->forget('customer_phonepe_payment_info');
+            session()->forget("customer_phonepe_payments.{$transactionId}");
             return redirect()->route('customer.wallet.index')->with('success', 'PhonePe Payment successful! Amount credited.');
         } catch (Exception $e) {
+            Log::error('Customer PhonePe callback failed', [
+                'customer_id' => auth('customer')->id(),
+                'merchant_order_id' => $request->query('merchant_order_id'),
+                'error' => $e->getMessage(),
+            ]);
+
             return redirect()->route('customer.wallet.index')->with('error', $e->getMessage());
         }
     }

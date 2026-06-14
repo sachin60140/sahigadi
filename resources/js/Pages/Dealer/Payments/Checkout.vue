@@ -72,15 +72,13 @@
                             </span>
                         </button>
 
-                        <form v-if="isPhonePeActive" :action="actions.phonepe" method="POST">
-                            <input type="hidden" name="_token" :value="csrfToken" />
-                            <input type="hidden" name="intent" :value="paymentIntent" />
-                            <button
-                                type="submit"
-                                class="flex min-h-20 w-full items-center justify-between gap-4 rounded-lg border border-slate-200 px-4 py-4 text-left transition hover:border-orange-300 hover:bg-orange-50 disabled:cursor-wait disabled:opacity-60 sm:px-5"
-                                :disabled="processing !== null"
-                                @click="processing = 'phonepe'"
-                            >
+                        <button
+                            v-if="isPhonePeActive"
+                            type="button"
+                            class="flex min-h-20 w-full items-center justify-between gap-4 rounded-lg border border-slate-200 px-4 py-4 text-left transition hover:border-orange-300 hover:bg-orange-50 disabled:cursor-wait disabled:opacity-60 sm:px-5"
+                            :disabled="processing !== null"
+                            @click="payWithPhonePe"
+                        >
                                 <span class="flex min-w-0 items-center gap-4">
                                     <span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#5f259f] text-white">
                                         <Smartphone class="h-5 w-5" />
@@ -93,8 +91,7 @@
                                 <span class="shrink-0 text-sm font-black text-orange-600">
                                     {{ processing === 'phonepe' ? 'Redirecting...' : money(amount) }}
                                 </span>
-                            </button>
-                        </form>
+                        </button>
                     </div>
 
                     <div class="mt-6 border-t border-slate-100 pt-5">
@@ -130,6 +127,7 @@ import {
     Smartphone,
 } from '@lucide/vue';
 import DealerLayout from '@/Layouts/DealerLayout.vue';
+import { startPhonePeCheckout } from '@/Composables/usePhonePeCheckout';
 
 type RazorpayOrder = {
     order_id: string;
@@ -235,6 +233,24 @@ const payWithRazorpay = async () => {
     } catch (error) {
         processing.value = null;
         gatewayError.value = error instanceof Error ? error.message : 'Unable to open Razorpay checkout.';
+    }
+};
+
+const payWithPhonePe = async () => {
+    gatewayError.value = '';
+    processing.value = 'phonepe';
+
+    try {
+        await startPhonePeCheckout(
+            props.actions.phonepe,
+            { intent: props.paymentIntent },
+            props.csrfToken,
+        );
+    } catch (error) {
+        processing.value = null;
+        gatewayError.value = error instanceof Error
+            ? error.message
+            : 'Unable to open PhonePe checkout.';
     }
 };
 </script>
