@@ -2,12 +2,12 @@
     <Head title="Payment Checkout" />
     <CustomerLayout title="Secure Checkout" eyebrow="Wallet recharge">
         <div class="mx-auto max-w-5xl">
-            <Link :href="actions.wallet" class="inline-flex items-center gap-2 text-sm font-black text-teal-700 hover:text-teal-900"><ArrowLeft class="h-4 w-4" /> Back to wallet</Link>
+            <Link :href="actions.wallet" class="inline-flex items-center gap-2 text-sm font-semibold text-teal-700 hover:text-teal-900"><ArrowLeft class="h-4 w-4" /> Back to wallet</Link>
 
             <section class="mt-5 grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
                 <aside class="rounded-lg bg-slate-950 p-5 text-white shadow-sm sm:p-6">
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-300">Order summary</p>
-                    <h2 class="mt-3 text-2xl font-black">{{ typeLabel }}</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-300">Order summary</p>
+                    <h2 class="mt-3 text-2xl font-semibold">{{ typeLabel }}</h2>
                     <dl class="mt-7 divide-y divide-white/10 rounded-lg bg-white/5 px-4">
                         <Row label="Wallet credit" :value="money(baseAmount)" />
                         <Row label="GST (18%)" :value="money(amount - baseAmount)" />
@@ -20,14 +20,14 @@
                 </aside>
 
                 <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Payment method</p>
-                    <h2 class="mt-1 text-2xl font-black text-slate-950">Choose how to pay</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Payment method</p>
+                    <h2 class="mt-1 text-2xl font-semibold text-slate-950">Choose how to pay</h2>
                     <p v-if="gatewayError" class="mt-5 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{{ gatewayError }}</p>
 
                     <div class="mt-6 grid gap-4">
                         <button v-if="isRazorpayActive" type="button" class="flex min-h-20 items-center justify-between gap-4 rounded-lg border border-slate-200 px-4 py-4 text-left hover:border-teal-300 hover:bg-teal-50 disabled:opacity-60" :disabled="processing !== null" @click="payWithRazorpay">
-                            <span class="flex min-w-0 items-center gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#2b4cff] text-white"><CreditCard class="h-5 w-5" /></span><span><span class="block font-black text-slate-950">Razorpay</span><span class="mt-1 block text-sm font-semibold text-slate-500">Cards, UPI, net banking and wallets</span></span></span>
-                            <span class="shrink-0 text-sm font-black text-teal-700">{{ processing === 'razorpay' ? 'Opening...' : money(amount) }}</span>
+                            <span class="flex min-w-0 items-center gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#2b4cff] text-white"><CreditCard class="h-5 w-5" /></span><span><span class="block font-semibold text-slate-950">Razorpay</span><span class="mt-1 block text-sm font-semibold text-slate-500">Cards, UPI, net banking and wallets</span></span></span>
+                            <span class="shrink-0 text-sm font-semibold text-teal-700">{{ processing === 'razorpay' ? 'Opening...' : money(amount) }}</span>
                         </button>
                         <button
                             v-if="isPhonePeActive"
@@ -36,8 +36,8 @@
                             :disabled="processing !== null"
                             @click="payWithPhonePe"
                         >
-                                <span class="flex min-w-0 items-center gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#5f259f] text-white"><Smartphone class="h-5 w-5" /></span><span><span class="block font-black text-slate-950">PhonePe</span><span class="mt-1 block text-sm font-semibold text-slate-500">Continue to secure checkout</span></span></span>
-                                <span class="shrink-0 text-sm font-black text-orange-600">{{ processing === 'phonepe' ? 'Redirecting...' : money(amount) }}</span>
+                                <span class="flex min-w-0 items-center gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#5f259f] text-white"><Smartphone class="h-5 w-5" /></span><span><span class="block font-semibold text-slate-950">PhonePe</span><span class="mt-1 block text-sm font-semibold text-slate-500">Continue to secure checkout</span></span></span>
+                                <span class="shrink-0 text-sm font-semibold text-orange-600">{{ processing === 'phonepe' ? 'Redirecting...' : money(amount) }}</span>
                         </button>
                     </div>
                 </div>
@@ -138,5 +138,5 @@ const payWithPhonePe = async () => {
     }
 };
 
-const Row = defineComponent({ props: { label: { type: String, required: true }, value: { type: String, required: true }, strong: { type: Boolean, default: false } }, setup(p) { return () => h('div', { class: 'flex items-center justify-between gap-4 py-4' }, [h('dt', { class: p.strong ? 'font-black text-white' : 'text-sm font-bold text-slate-300' }, p.label), h('dd', { class: p.strong ? 'text-2xl font-black text-orange-300' : 'text-sm font-black text-white' }, p.value)]); } });
+const Row = defineComponent({ props: { label: { type: String, required: true }, value: { type: String, required: true }, strong: { type: Boolean, default: false } }, setup(p) { return () => h('div', { class: 'flex items-center justify-between gap-4 py-4' }, [h('dt', { class: p.strong ? 'font-semibold text-white' : 'text-sm font-bold text-slate-300' }, p.label), h('dd', { class: p.strong ? 'text-2xl font-semibold text-orange-300' : 'text-sm font-semibold text-white' }, p.value)]); } });
 </script>

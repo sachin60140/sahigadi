@@ -21,20 +21,20 @@
             </div>
             <div class="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
                 <div class="max-w-3xl">
-                    <div class="mb-5 inline-flex w-fit items-center gap-2 rounded-lg border border-orange-100 bg-white/85 px-3 py-2 text-xs font-black uppercase tracking-wide text-orange-700 shadow-sm">
+                    <div class="mb-5 inline-flex w-fit items-center gap-2 rounded-lg border border-orange-100 bg-white/85 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-orange-700 shadow-sm">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
                         SahiGadi seller desk
                     </div>
-                    <h1 class="max-w-4xl text-3xl font-black leading-tight tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">
+                    <h1 class="max-w-4xl text-3xl font-semibold leading-tight tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">
                         List your car cleanly and reach serious local buyers.
                     </h1>
                     <p class="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
                         Add owner details, car specs, photos and expected price in one guided flow built for Bihar sellers.
                     </p>
                     <div class="mt-7 flex flex-wrap gap-3">
-                        <span v-for="item in heroBenefits" :key="item" class="inline-flex items-center gap-2 rounded-lg border border-white bg-white/80 px-3 py-2 text-sm font-black text-slate-700 shadow-sm">
+                        <span v-for="item in heroBenefits" :key="item" class="inline-flex items-center gap-2 rounded-lg border border-white bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
                             <svg class="h-4 w-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                             </svg>
@@ -49,12 +49,12 @@
         <div class="relative z-10 mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:px-8">
             <aside class="hidden lg:block">
                 <div class="sticky top-24 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">How it works</p>
-                    <h2 class="mt-2 text-xl font-black text-slate-950">Four simple steps to submit your listing.</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">How it works</p>
+                    <h2 class="mt-2 text-xl font-semibold text-slate-950">Four simple steps to submit your listing.</h2>
                     <div class="mt-5 space-y-3">
                         <div v-for="(item, index) in processCards" :key="item.title" class="rounded-lg border border-slate-100 bg-[#f7fbff] p-4">
-                            <p class="text-xs font-black uppercase tracking-wide text-orange-600">Step {{ index + 1 }}</p>
-                            <p class="mt-1 text-sm font-black text-slate-950">{{ item.title }}</p>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Step {{ index + 1 }}</p>
+                            <p class="mt-1 text-sm font-semibold text-slate-950">{{ item.title }}</p>
                             <p class="mt-1 text-xs font-semibold leading-5 text-slate-500">{{ item.text }}</p>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
 
             <div v-else class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl shadow-slate-200/80">
                 <div class="border-b border-slate-100 px-5 py-7 sm:px-8">
-                    <p class="mb-4 text-sm font-black uppercase tracking-wide text-orange-600">Listing form</p>
+                    <p class="mb-4 text-sm font-semibold uppercase tracking-wide text-orange-600">Listing form</p>
                     <FormStepper :steps="steps" :currentStep="currentStep" />
                 </div>
 
@@ -74,7 +74,7 @@
 
                         <!-- Step 1: Owner Details -->
                         <div v-show="currentStep === 0" class="space-y-6">
-                            <h3 class="mb-6 text-2xl font-black text-slate-950">Owner Details</h3>
+                            <h3 class="mb-6 text-2xl font-semibold text-slate-950">Owner Details</h3>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <FormInput
@@ -108,7 +108,7 @@
                                         </p>
 
                                         <!-- Action Buttons / Input -->
-                                        <div v-if="otpVerified" class="inline-flex items-center rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-black text-teal-700">
+                                        <div v-if="otpVerified" class="inline-flex items-center rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-700">
                                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                             Verified
                                         </div>
@@ -117,7 +117,7 @@
                                                 type="button"
                                                 @click="sendOtp"
                                                 :disabled="sendingOtp || form.owner_phone.length !== 10"
-                                                class="text-sm font-black text-orange-600 hover:text-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                                class="text-sm font-semibold text-orange-600 hover:text-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
                                             >
                                                 {{ sendingOtp ? 'Sending...' : 'Send OTP to Verify' }}
                                             </button>
@@ -134,7 +134,7 @@
                                                 type="button"
                                                 @click="verifyOtp"
                                                 :disabled="verifyingOtp || otp.length !== 6"
-                                                class="inline-flex items-center justify-center rounded-lg border border-transparent bg-slate-950 px-4 py-2 text-sm font-black text-white focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2 hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-70"
+                                                class="inline-flex items-center justify-center rounded-lg border border-transparent bg-slate-950 px-4 py-2 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2 hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-70"
                                             >
                                                 {{ verifyingOtp ? 'Verifying...' : 'Verify' }}
                                             </button>
@@ -185,7 +185,7 @@
 
                         <!-- Step 2: Car Details -->
                         <div v-show="currentStep === 1" class="space-y-6">
-                            <h3 class="mb-6 text-2xl font-black text-slate-950">Car Details</h3>
+                            <h3 class="mb-6 text-2xl font-semibold text-slate-950">Car Details</h3>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <FormSelect
@@ -277,7 +277,7 @@
 
                         <!-- Step 3: Condition & Photos -->
                         <div v-show="currentStep === 2" class="space-y-6">
-                            <h3 class="mb-2 text-2xl font-black text-slate-950">Condition & Photos</h3>
+                            <h3 class="mb-2 text-2xl font-semibold text-slate-950">Condition & Photos</h3>
                             <p class="mb-6 text-sm font-medium text-slate-500">Upload at least 5 clear photos of your car. Location access is required to list a vehicle.</p>
 
                             <FileUploadPreview
@@ -307,7 +307,7 @@
 
                         <!-- Step 4: Review & Submit -->
                         <div v-show="currentStep === 3" class="space-y-6">
-                            <h3 class="mb-6 text-2xl font-black text-slate-950">Review & Submit</h3>
+                            <h3 class="mb-6 text-2xl font-semibold text-slate-950">Review & Submit</h3>
 
                             <div class="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-5 sm:p-6">
                                 <div class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
@@ -325,7 +325,7 @@
                                     </div>
                                     <div>
                                         <span class="block text-gray-500 font-medium">Expected Price</span>
-                                        <span class="block font-black text-orange-600">₹{{ form.price }}</span>
+                                        <span class="block font-semibold text-orange-600">₹{{ form.price }}</span>
                                     </div>
                                     <div>
                                         <span class="block text-gray-500 font-medium">Photos Added</span>
@@ -350,7 +350,7 @@
                                 type="button"
                                 v-if="currentStep > 0"
                                 @click="prevStep"
-                                class="w-full rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-black text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2 sm:w-auto"
+                                class="w-full rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2 sm:w-auto"
                             >
                                 Back
                             </button>
@@ -360,7 +360,7 @@
                                 type="button"
                                 v-if="currentStep < steps.length - 1"
                                 @click="nextStep"
-                                class="w-full rounded-lg border border-transparent bg-slate-950 px-8 py-3 text-sm font-black text-white shadow-sm transition-colors hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2 sm:w-auto"
+                                class="w-full rounded-lg border border-transparent bg-slate-950 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2 sm:w-auto"
                             >
                                 Continue
                             </button>
@@ -369,7 +369,7 @@
                                 type="submit"
                                 v-if="currentStep === steps.length - 1"
                                 :disabled="form.processing || !consent"
-                                class="flex w-full items-center justify-center rounded-lg border border-transparent bg-orange-500 px-8 py-3 text-sm font-black text-white shadow-sm transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+                                class="flex w-full items-center justify-center rounded-lg border border-transparent bg-orange-500 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
                             >
                                 <svg v-if="form.processing" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

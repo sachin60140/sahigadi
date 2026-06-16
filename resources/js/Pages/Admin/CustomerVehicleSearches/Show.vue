@@ -7,9 +7,9 @@
         <section class="mt-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                    <Link :href="search.actions.back" class="inline-flex rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-black text-slate-700 transition hover:bg-slate-50">Back to searches</Link>
-                    <p class="mt-5 text-xs font-black uppercase tracking-wide text-teal-700">Customer registration record</p>
-                    <h2 class="mt-2 text-3xl font-black uppercase text-slate-950">{{ search.registration_number }}</h2>
+                    <Link :href="search.actions.back" class="inline-flex rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Back to searches</Link>
+                    <p class="mt-5 text-xs font-semibold uppercase tracking-wide text-teal-700">Customer registration record</p>
+                    <h2 class="mt-2 text-3xl font-semibold uppercase text-slate-950">{{ search.registration_number }}</h2>
                     <p class="mt-2 text-sm font-semibold text-slate-600">
                         {{ search.customer_name || 'Guest customer' }}
                         <span v-if="search.customer_phone"> / {{ search.customer_phone }}</span>
@@ -17,7 +17,7 @@
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <StatusBadge :success="search.is_success" />
-                    <a v-if="search.is_success" :href="search.actions.pdf" class="rounded-lg bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-teal-700">Download PDF</a>
+                    <a v-if="search.is_success" :href="search.actions.pdf" class="rounded-lg bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-700">Download PDF</a>
                 </div>
             </div>
         </section>
@@ -30,28 +30,28 @@
         </section>
 
         <section v-if="search.error_message" class="mt-5 rounded-lg border border-red-100 bg-red-50 px-5 py-4">
-            <p class="text-xs font-black uppercase tracking-wide text-red-700">Lookup error</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-red-700">Lookup error</p>
             <p class="mt-2 text-sm font-bold leading-6 text-red-700">{{ search.error_message }}</p>
         </section>
 
         <section class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.65fr)]">
             <article class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
                 <div class="border-b border-slate-100 px-5 py-4">
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Vahan response</p>
-                    <h3 class="mt-1 text-xl font-black text-slate-950">Vehicle information</h3>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Vahan response</p>
+                    <h3 class="mt-1 text-xl font-semibold text-slate-950">Vehicle information</h3>
                 </div>
                 <div v-if="vehicleRows.length" class="overflow-x-auto">
                     <table class="w-full min-w-[620px] text-left text-sm">
                         <tbody class="divide-y divide-slate-100">
                             <tr v-for="row in vehicleRows" :key="row.key">
-                                <th class="w-[38%] bg-slate-50 px-5 py-3 text-xs font-black uppercase tracking-wide text-slate-500">{{ prettyLabel(row.key) }}</th>
+                                <th class="w-[38%] bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{{ prettyLabel(row.key) }}</th>
                                 <td class="break-words px-5 py-3 font-bold text-slate-800">{{ stringifyValue(row.value) }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div v-else class="px-5 py-14 text-center">
-                    <p class="text-lg font-black text-slate-950">No vehicle response stored</p>
+                    <p class="text-lg font-semibold text-slate-950">No vehicle response stored</p>
                     <p class="mt-2 text-sm font-semibold text-slate-500">This search record does not contain a detailed Vahan payload.</p>
                 </div>
             </article>
@@ -125,8 +125,8 @@ const InfoTile = defineComponent({
             orange: 'border-orange-100 bg-orange-50',
         };
         return () => h('div', { class: ['rounded-lg border p-4 shadow-sm', colors[tileProps.tone] || colors.slate] }, [
-            h('p', { class: 'text-xs font-black uppercase tracking-wide text-slate-500' }, tileProps.label),
-            h('p', { class: 'mt-2 text-lg font-black text-slate-950' }, tileProps.value),
+            h('p', { class: 'text-xs font-semibold uppercase tracking-wide text-slate-500' }, tileProps.label),
+            h('p', { class: 'mt-2 text-lg font-semibold text-slate-950' }, tileProps.value),
         ]);
     },
 });
@@ -136,7 +136,7 @@ const StatusBadge = defineComponent({
     setup(badgeProps) {
         return () => h('span', {
             class: [
-                'inline-flex rounded-md px-3 py-2 text-xs font-black',
+                'inline-flex rounded-md px-3 py-2 text-xs font-semibold',
                 badgeProps.success ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100' : 'bg-red-50 text-red-700 ring-1 ring-red-100',
             ],
         }, badgeProps.success ? 'Successful lookup' : 'Failed lookup');
@@ -151,10 +151,10 @@ const DetailPanel = defineComponent({
     setup(panelProps) {
         return () => h('article', { class: 'overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm' }, [
             h('div', { class: 'border-b border-slate-100 px-5 py-4' }, [
-                h('h3', { class: 'text-lg font-black text-slate-950' }, panelProps.title),
+                h('h3', { class: 'text-lg font-semibold text-slate-950' }, panelProps.title),
             ]),
             h('dl', { class: 'divide-y divide-slate-100' }, panelProps.rows.map((row) => h('div', { class: 'px-5 py-3' }, [
-                h('dt', { class: 'text-xs font-black uppercase tracking-wide text-slate-500' }, row.label),
+                h('dt', { class: 'text-xs font-semibold uppercase tracking-wide text-slate-500' }, row.label),
                 h('dd', { class: 'mt-1 break-all text-sm font-bold text-slate-800' }, stringifyValue(row.value)),
             ]))),
         ]);

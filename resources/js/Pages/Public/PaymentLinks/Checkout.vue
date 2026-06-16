@@ -12,28 +12,28 @@
                         <span class="mx-auto grid h-14 w-14 place-items-center rounded-lg bg-teal-50 text-teal-700">
                             <ShieldCheck class="h-7 w-7" />
                         </span>
-                        <p class="mt-5 text-xs font-black uppercase tracking-wide text-orange-600">SahiGadi payment link</p>
-                        <h1 class="mt-2 text-3xl font-black text-slate-950">Secure checkout</h1>
+                        <p class="mt-5 text-xs font-semibold uppercase tracking-wide text-orange-600">SahiGadi payment link</p>
+                        <h1 class="mt-2 text-3xl font-semibold text-slate-950">Secure checkout</h1>
                         <p class="mt-3 text-sm font-semibold text-slate-600">Choose an available payment method to complete this request.</p>
                     </div>
 
                     <dl class="mt-7 rounded-lg border border-slate-200 bg-slate-50 p-5">
                         <div class="text-center">
-                            <dt class="text-xs font-black uppercase tracking-wide text-slate-500">Amount to pay</dt>
-                            <dd class="mt-2 text-4xl font-black text-slate-950">{{ money(link.amount) }}</dd>
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Amount to pay</dt>
+                            <dd class="mt-2 text-4xl font-semibold text-slate-950">{{ money(link.amount) }}</dd>
                         </div>
                         <div class="mt-5 grid gap-3 border-t border-slate-200 pt-5 text-sm">
                             <div class="flex items-start justify-between gap-4">
                                 <dt class="font-bold text-slate-500">Purpose</dt>
-                                <dd class="max-w-[65%] text-right font-black text-slate-900">{{ link.purpose }}</dd>
+                                <dd class="max-w-[65%] text-right font-semibold text-slate-900">{{ link.purpose }}</dd>
                             </div>
                             <div class="flex items-start justify-between gap-4">
                                 <dt class="font-bold text-slate-500">Payee</dt>
-                                <dd class="max-w-[65%] text-right font-black text-slate-900">{{ link.payee || 'SahiGadi' }}</dd>
+                                <dd class="max-w-[65%] text-right font-semibold text-slate-900">{{ link.payee || 'SahiGadi' }}</dd>
                             </div>
                             <div v-if="link.expires_at" class="flex items-start justify-between gap-4">
                                 <dt class="font-bold text-slate-500">Valid until</dt>
-                                <dd class="text-right font-black text-slate-900">{{ formatDate(link.expires_at) }}</dd>
+                                <dd class="text-right font-semibold text-slate-900">{{ formatDate(link.expires_at) }}</dd>
                             </div>
                         </div>
                     </dl>
@@ -46,7 +46,7 @@
                         <button
                             v-if="phonePeAvailable"
                             type="button"
-                            class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#5f259f] px-5 py-3 text-sm font-black text-white transition hover:bg-[#4f1f84] disabled:opacity-60"
+                            class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#5f259f] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#4f1f84] disabled:opacity-60"
                             :disabled="processing !== null"
                             @click="submitPhonePe"
                         >
@@ -58,7 +58,7 @@
                         <button
                             v-if="razorpayAvailable"
                             type="button"
-                            class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#2563eb] px-5 py-3 text-sm font-black text-white transition hover:bg-[#1d4ed8] disabled:opacity-60"
+                            class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#2563eb] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1d4ed8] disabled:opacity-60"
                             :disabled="processing !== null"
                             @click="openRazorpay"
                         >

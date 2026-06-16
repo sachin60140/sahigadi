@@ -21,17 +21,17 @@
                         <li class="text-slate-300">/</li>
                         <li><Link href="/verified-dealers" class="transition hover:text-teal-700">Verified Dealers</Link></li>
                         <li class="text-slate-300">/</li>
-                        <li class="font-black text-teal-700">{{ dealer.name }}</li>
+                        <li class="font-semibold text-teal-700">{{ dealer.name }}</li>
                     </ol>
                 </nav>
 
                 <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
                     <div>
-                        <div class="mb-5 inline-flex w-fit items-center gap-2 rounded-lg border border-teal-100 bg-white/85 px-3 py-2 text-xs font-black uppercase tracking-wide text-teal-700 shadow-sm">
+                        <div class="mb-5 inline-flex w-fit items-center gap-2 rounded-lg border border-teal-100 bg-white/85 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-teal-700 shadow-sm">
                             <IconShield class="h-4 w-4" />
                             SahiGadi verified dealer
                         </div>
-                        <h1 class="max-w-4xl text-3xl font-black leading-tight tracking-normal text-slate-950 sm:text-5xl">
+                        <h1 class="max-w-4xl text-3xl font-semibold leading-tight tracking-normal text-slate-950 sm:text-5xl">
                             {{ dealer.name }} car listings
                         </h1>
                         <p class="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
@@ -58,7 +58,7 @@
                             <div class="grid h-16 w-16 place-items-center rounded-lg bg-teal-700 text-white shadow-lg shadow-teal-700/15">
                                 <IconShop class="h-8 w-8" />
                             </div>
-                            <h2 class="mt-4 text-2xl font-black text-slate-950">{{ dealer.name }}</h2>
+                            <h2 class="mt-4 text-2xl font-semibold text-slate-950">{{ dealer.name }}</h2>
                             <p v-if="dealer.company_name" class="mt-1 text-sm font-bold text-slate-500">{{ dealer.company_name }}</p>
 
                             <div class="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
@@ -77,7 +77,7 @@
                             </div>
 
                             <div class="mt-5 border-t border-slate-200 pt-5">
-                                <span class="inline-flex items-center gap-2 rounded-md bg-orange-50 px-3 py-2 text-xs font-black uppercase tracking-wide text-orange-700 ring-1 ring-orange-100">
+                                <span class="inline-flex items-center gap-2 rounded-md bg-orange-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-orange-700 ring-1 ring-orange-100">
                                     <IconCar class="h-4 w-4" />
                                     {{ formatNumber(cars.total || 0) }} listings
                                 </span>
@@ -90,7 +90,7 @@
                                     <IconShield class="h-5 w-5" />
                                 </span>
                                 <div>
-                                    <h3 class="text-sm font-black text-slate-950">Verified dealer</h3>
+                                    <h3 class="text-sm font-semibold text-slate-950">Verified dealer</h3>
                                     <p class="mt-2 text-sm font-medium leading-6 text-slate-600">
                                         Listings from this dealer are reviewed by SahiGadi for marketplace trust and authenticity.
                                     </p>
@@ -103,7 +103,7 @@
                         <div class="mb-5 flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
                             <div>
                                 <p class="text-sm font-semibold text-slate-500">Showing</p>
-                                <h2 class="text-xl font-black text-slate-950">{{ resultSummary }}</h2>
+                                <h2 class="text-xl font-semibold text-slate-950">{{ resultSummary }}</h2>
                                 <p class="mt-1 text-sm font-medium text-slate-500">Sort this dealer's inventory by price, newest or kilometres.</p>
                             </div>
                             <SortDropdown
@@ -121,11 +121,11 @@
                             <span class="mx-auto grid h-16 w-16 place-items-center rounded-lg bg-teal-50 text-teal-700">
                                 <IconCar class="h-8 w-8" />
                             </span>
-                            <h2 class="mt-5 text-2xl font-black text-slate-950">No cars available</h2>
+                            <h2 class="mt-5 text-2xl font-semibold text-slate-950">No cars available</h2>
                             <p class="mx-auto mt-3 max-w-xl text-sm font-medium leading-7 text-slate-600">
                                 This dealer currently has no active listings. Browse all cars or check again later.
                             </p>
-                            <Link href="/cars" class="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-teal-700 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-800">
+                            <Link href="/cars" class="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800">
                                 Browse All Cars
                                 <IconArrow class="h-4 w-4" />
                             </Link>
@@ -252,7 +252,7 @@ const TrustChip = defineComponent({
     props: { label: { type: String, required: true } },
     setup(chipProps) {
         const slots = useSlots();
-        return () => h('span', { class: 'inline-flex items-center gap-2 rounded-md border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-black text-teal-700' }, [
+        return () => h('span', { class: 'inline-flex items-center gap-2 rounded-md border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-700' }, [
             slots.default?.(),
             chipProps.label,
         ]);
@@ -266,16 +266,16 @@ const DealerSummary = defineComponent({
     },
     setup(summaryProps) {
         return () => h('div', { class: 'rounded-lg border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70' }, [
-            h('p', { class: 'text-xs font-black uppercase tracking-wide text-orange-600' }, 'Dealer profile'),
-            h('h2', { class: 'mt-2 text-2xl font-black text-slate-950' }, summaryProps.dealer.company_name || summaryProps.dealer.name),
+            h('p', { class: 'text-xs font-semibold uppercase tracking-wide text-orange-600' }, 'Dealer profile'),
+            h('h2', { class: 'mt-2 text-2xl font-semibold text-slate-950' }, summaryProps.dealer.company_name || summaryProps.dealer.name),
             h('p', { class: 'mt-3 text-sm font-medium leading-7 text-slate-600' }, 'Review dealer contact details and inventory count before opening a listing.'),
             h('div', { class: 'mt-5 grid gap-3 sm:grid-cols-2' }, [
                 h('div', { class: 'rounded-lg border border-slate-200 bg-slate-50 p-4' }, [
-                    h('p', { class: 'text-2xl font-black text-slate-950' }, formatNumber(summaryProps.total)),
+                    h('p', { class: 'text-2xl font-semibold text-slate-950' }, formatNumber(summaryProps.total)),
                     h('p', { class: 'mt-2 text-sm font-bold text-slate-500' }, 'active cars'),
                 ]),
                 h('div', { class: 'rounded-lg border border-slate-200 bg-slate-50 p-4' }, [
-                    h('p', { class: 'text-2xl font-black text-slate-950' }, summaryProps.dealer.gst_verified ? 'GST' : 'Email'),
+                    h('p', { class: 'text-2xl font-semibold text-slate-950' }, summaryProps.dealer.gst_verified ? 'GST' : 'Email'),
                     h('p', { class: 'mt-2 text-sm font-bold text-slate-500' }, 'verified'),
                 ]),
             ]),

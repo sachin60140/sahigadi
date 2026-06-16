@@ -7,12 +7,12 @@
                 <div>
                     <Link
                         :href="`/admin/customer-transactions?type=${type}`"
-                        class="inline-flex rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                        class="inline-flex rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                     >
                         Back to list
                     </Link>
-                    <p class="mt-5 text-xs font-black uppercase tracking-wide text-teal-700">{{ currentTabLabel }}</p>
-                    <h2 class="mt-2 text-3xl font-black text-slate-950">{{ transaction.vehicle_number || 'Vehicle request' }}</h2>
+                    <p class="mt-5 text-xs font-semibold uppercase tracking-wide text-teal-700">{{ currentTabLabel }}</p>
+                    <h2 class="mt-2 text-3xl font-semibold text-slate-950">{{ transaction.vehicle_number || 'Vehicle request' }}</h2>
                     <p class="mt-2 text-sm font-semibold leading-7 text-slate-600">
                         {{ transaction.customer_name || 'N/A' }}
                         <span v-if="transaction.customer_phone"> / {{ transaction.customer_phone }}</span>
@@ -23,17 +23,17 @@
 
                 <div class="grid gap-3 sm:grid-cols-2 lg:min-w-[420px]">
                     <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Paid amount</p>
-                        <p class="mt-2 text-2xl font-black text-slate-950">{{ formatCurrency(transaction.paid_amount) }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Paid amount</p>
+                        <p class="mt-2 text-2xl font-semibold text-slate-950">{{ formatCurrency(transaction.paid_amount) }}</p>
                         <StatusBadge class="mt-3" :success="transaction.is_success" />
                     </div>
                     <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Refund state</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Refund state</p>
                         <RefundBadge class="mt-3" :transaction="transaction" />
                         <button
                             v-if="transaction.can_refund"
                             type="button"
-                            class="mt-4 w-full rounded-lg bg-red-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-red-700"
+                            class="mt-4 w-full rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700"
                             @click="refund"
                         >
                             Issue Refund
@@ -60,7 +60,7 @@
             />
             <div v-if="challans.length" class="overflow-x-auto">
                 <table class="min-w-[940px] w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Challan No</th>
                             <th class="px-5 py-3">Date</th>
@@ -72,14 +72,14 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="(challan, index) in challans" :key="`${challan.challanNo || 'challan'}-${index}`" class="hover:bg-slate-50">
-                            <td class="px-5 py-4 font-black text-slate-950">{{ challan.challanNo || 'N/A' }}</td>
+                            <td class="px-5 py-4 font-semibold text-slate-950">{{ challan.challanNo || 'N/A' }}</td>
                             <td class="px-5 py-4 text-slate-600">{{ formatDate(challan.dateChallan) }}</td>
                             <td class="px-5 py-4 text-slate-600">{{ challan.locationChallan || 'N/A' }}</td>
                             <td class="px-5 py-4 text-slate-600">{{ challan.detailsViolation?.[0]?.offence || 'N/A' }}</td>
-                            <td class="px-5 py-4 font-black text-slate-950">{{ formatCurrency(challan.amountChallan || 0) }}</td>
+                            <td class="px-5 py-4 font-semibold text-slate-950">{{ formatCurrency(challan.amountChallan || 0) }}</td>
                             <td class="px-5 py-4">
                                 <span
-                                    class="inline-flex rounded-md px-2.5 py-1 text-xs font-black"
+                                    class="inline-flex rounded-md px-2.5 py-1 text-xs font-semibold"
                                     :class="challan.status === 'Paid' ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100' : 'bg-red-50 text-red-700 ring-1 ring-red-100'"
                                 >
                                     {{ challan.status || 'Unknown' }}
@@ -98,7 +98,7 @@
                 <table class="min-w-[720px] w-full text-left text-sm">
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="row in vehicleRows" :key="row.key" class="hover:bg-slate-50">
-                            <td class="w-1/3 bg-slate-50 px-5 py-4 text-xs font-black uppercase tracking-wide text-slate-500">{{ prettyLabel(row.key) }}</td>
+                            <td class="w-1/3 bg-slate-50 px-5 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">{{ prettyLabel(row.key) }}</td>
                             <td class="px-5 py-4 font-semibold text-slate-700">{{ stringifyValue(row.value) }}</td>
                         </tr>
                     </tbody>
@@ -111,7 +111,7 @@
             <SectionHeader title="Maruti service records" subtitle="Workshop history attached to this customer request." />
             <div v-if="records.length" class="overflow-x-auto">
                 <table class="min-w-[920px] w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Date</th>
                             <th class="px-5 py-3">Service Type</th>
@@ -123,12 +123,12 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="(record, index) in records" :key="index" class="hover:bg-slate-50">
-                            <td class="px-5 py-4 font-black text-slate-950">{{ record.svc_date || 'N/A' }}</td>
+                            <td class="px-5 py-4 font-semibold text-slate-950">{{ record.svc_date || 'N/A' }}</td>
                             <td class="px-5 py-4 text-slate-600">{{ record.service_cate || 'N/A' }}</td>
                             <td class="px-5 py-4 text-slate-600">{{ record.dealer_name || 'N/A' }}</td>
                             <td class="px-5 py-4 text-slate-600">{{ record.register_no || 'N/A' }} / {{ record.repair_order_no || 'N/A' }}</td>
                             <td class="px-5 py-4 text-slate-600">{{ record.mileage || 'N/A' }}</td>
-                            <td class="px-5 py-4 font-black text-slate-950">{{ formatCurrency(record.total_amount || 0) }}</td>
+                            <td class="px-5 py-4 font-semibold text-slate-950">{{ formatCurrency(record.total_amount || 0) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -140,7 +140,7 @@
             <SectionHeader title="Mahindra service records" subtitle="Service history rows attached to this customer request." />
             <div v-if="records.length" class="overflow-x-auto">
                 <table class="min-w-[820px] w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Date</th>
                             <th class="px-5 py-3">Dealer</th>
@@ -151,11 +151,11 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="(record, index) in records" :key="index" class="hover:bg-slate-50">
-                            <td class="px-5 py-4 font-black text-slate-950">{{ record.svc_date || 'N/A' }}</td>
+                            <td class="px-5 py-4 font-semibold text-slate-950">{{ record.svc_date || 'N/A' }}</td>
                             <td class="px-5 py-4 text-slate-600">{{ record.dealer_name || 'N/A' }}</td>
                             <td class="px-5 py-4 text-slate-600">{{ record.work_type || 'N/A' }}</td>
                             <td class="px-5 py-4 text-slate-600">{{ record.mileage ? `${record.mileage} km` : 'N/A' }}</td>
-                            <td class="px-5 py-4 font-black text-slate-950">{{ formatCurrency(record.net_bill_amt || 0) }}</td>
+                            <td class="px-5 py-4 font-semibold text-slate-950">{{ formatCurrency(record.net_bill_amt || 0) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -272,10 +272,10 @@ const InfoCard = defineComponent({
     },
     setup(cardProps) {
         return () => h('div', { class: 'rounded-lg border border-slate-200 bg-white p-4 shadow-sm' }, [
-            h('p', { class: 'text-xs font-black uppercase tracking-wide text-slate-500' }, cardProps.label),
+            h('p', { class: 'text-xs font-semibold uppercase tracking-wide text-slate-500' }, cardProps.label),
             h('p', {
                 class: [
-                    'mt-2 break-all text-sm font-black text-slate-950',
+                    'mt-2 break-all text-sm font-semibold text-slate-950',
                     cardProps.mono ? 'font-mono' : '',
                 ],
             }, cardProps.value),
@@ -290,8 +290,8 @@ const SectionHeader = defineComponent({
     },
     setup(sectionProps) {
         return () => h('div', { class: 'border-b border-slate-100 px-5 py-4' }, [
-            h('p', { class: 'text-xs font-black uppercase tracking-wide text-teal-700' }, 'Response data'),
-            h('h3', { class: 'mt-1 text-xl font-black text-slate-950' }, sectionProps.title),
+            h('p', { class: 'text-xs font-semibold uppercase tracking-wide text-teal-700' }, 'Response data'),
+            h('h3', { class: 'mt-1 text-xl font-semibold text-slate-950' }, sectionProps.title),
             h('p', { class: 'mt-1 text-sm font-semibold text-slate-500' }, sectionProps.subtitle),
         ]);
     },
@@ -304,7 +304,7 @@ const EmptyState = defineComponent({
     },
     setup(emptyProps) {
         return () => h('div', { class: 'px-5 py-14 text-center' }, [
-            h('p', { class: 'text-lg font-black text-slate-950' }, emptyProps.title),
+            h('p', { class: 'text-lg font-semibold text-slate-950' }, emptyProps.title),
             h('p', { class: 'mt-2 text-sm font-semibold text-slate-500' }, emptyProps.text),
         ]);
     },
@@ -318,7 +318,7 @@ const StatusBadge = defineComponent({
     setup(badgeProps) {
         return () => h('span', {
             class: [
-                'inline-flex rounded-md px-2.5 py-1 text-xs font-black',
+                'inline-flex rounded-md px-2.5 py-1 text-xs font-semibold',
                 badgeProps.success ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100' : 'bg-red-50 text-red-700 ring-1 ring-red-100',
                 badgeProps.class,
             ],
@@ -334,17 +334,17 @@ const RefundBadge = defineComponent({
     setup(badgeProps) {
         return () => {
             if (!badgeProps.transaction.razorpay_payment_id) {
-                return h('span', { class: ['inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600', badgeProps.class] }, 'Unpaid / No ID');
+                return h('span', { class: ['inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600', badgeProps.class] }, 'Unpaid / No ID');
             }
 
             if (badgeProps.transaction.is_refunded) {
                 return h('div', { class: badgeProps.class }, [
-                    h('span', { class: 'inline-flex rounded-md bg-sky-50 px-2.5 py-1 text-xs font-black text-sky-700 ring-1 ring-sky-100' }, 'Refunded'),
+                    h('span', { class: 'inline-flex rounded-md bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100' }, 'Refunded'),
                     h('p', { class: 'mt-1 break-all text-xs font-semibold text-slate-500' }, badgeProps.transaction.razorpay_refund_id || 'Refund ID pending'),
                 ]);
             }
 
-            return h('span', { class: ['inline-flex rounded-md bg-orange-50 px-2.5 py-1 text-xs font-black text-orange-700 ring-1 ring-orange-100', badgeProps.class] }, 'Not Refunded');
+            return h('span', { class: ['inline-flex rounded-md bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-700 ring-1 ring-orange-100', badgeProps.class] }, 'Not Refunded');
         };
     },
 });

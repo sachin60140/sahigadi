@@ -34,13 +34,13 @@
                     <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
                         <div>
                             <div class="mb-4 flex flex-wrap gap-2">
-                                <span v-if="car.is_verified" class="inline-flex items-center gap-1.5 rounded-lg border border-teal-100 bg-white/80 px-3 py-2 text-xs font-black uppercase tracking-wide text-teal-700 shadow-sm">
+                                <span v-if="car.is_verified" class="inline-flex items-center gap-1.5 rounded-lg border border-teal-100 bg-white/80 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-teal-700 shadow-sm">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016Z" />
                                     </svg>
                                     Verified listing
                                 </span>
-                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-orange-100 bg-white/80 px-3 py-2 text-xs font-black uppercase tracking-wide text-orange-700 shadow-sm">
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-orange-100 bg-white/80 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-orange-700 shadow-sm">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                     </svg>
@@ -48,7 +48,7 @@
                                 </span>
                             </div>
 
-                            <h1 class="max-w-4xl text-3xl font-black leading-tight tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
+                            <h1 class="max-w-4xl text-3xl font-semibold leading-tight tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
                                 {{ car.title }}
                             </h1>
                             <p class="mt-3 max-w-2xl text-base font-medium leading-8 text-slate-600">
@@ -57,15 +57,15 @@
 
                             <div class="mt-5 grid gap-3 sm:grid-cols-3">
                                 <div v-for="item in overviewStats" :key="item.label" class="rounded-lg border border-white bg-white/75 p-3 shadow-sm">
-                                    <p class="text-lg font-black text-slate-950">{{ item.value }}</p>
+                                    <p class="text-lg font-semibold text-slate-950">{{ item.value }}</p>
                                     <p class="mt-1 text-xs font-bold uppercase tracking-wide text-slate-500">{{ item.label }}</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/70">
-                            <p class="text-xs font-black uppercase tracking-wide text-orange-600">Asking price</p>
-                            <p class="mt-2 text-3xl font-black text-slate-950">&#8377;{{ formattedPrice }}</p>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Asking price</p>
+                            <p class="mt-2 text-3xl font-semibold text-slate-950">&#8377;{{ formattedPrice }}</p>
                             <p class="mt-2 text-sm font-semibold text-slate-500">{{ locationLabel }}</p>
                         </div>
                     </div>
@@ -101,7 +101,7 @@
 
                         <!-- Description -->
                         <div v-if="car.description" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-                            <h2 class="mb-4 text-xl font-black text-slate-950 md:text-2xl">Description</h2>
+                            <h2 class="mb-4 text-xl font-semibold text-slate-950 md:text-2xl">Description</h2>
                             <div class="prose max-w-none whitespace-pre-wrap leading-relaxed text-slate-600" v-html="car.description"></div>
                         </div>
 

@@ -30,20 +30,20 @@
                             <IconMenu class="h-5 w-5" />
                         </button>
                         <div class="min-w-0">
-                            <p class="text-xs font-black uppercase tracking-wide text-teal-700">{{ eyebrow }}</p>
-                            <h1 class="truncate text-xl font-black text-slate-950 sm:text-2xl">{{ title }}</h1>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">{{ eyebrow }}</p>
+                            <h1 class="truncate text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">{{ title }}</h1>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-3">
                         <Link
                             href="/"
-                            class="hidden rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700 sm:inline-flex"
+                            class="hidden rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700 sm:inline-flex"
                         >
                             Public Site
                         </Link>
                         <div class="hidden min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 sm:block">
-                            <p class="max-w-[180px] truncate text-sm font-black text-slate-900">{{ adminName }}</p>
+                            <p class="max-w-[180px] truncate text-sm font-semibold text-slate-900">{{ adminName }}</p>
                             <p class="max-w-[180px] truncate text-xs font-semibold text-slate-500">{{ adminEmail }}</p>
                         </div>
                     </div>
@@ -178,7 +178,7 @@ const BrandBlock = defineComponent({
                     h(IconCar, { class: 'h-5 w-5' }),
                 ]),
                 h('div', { class: 'min-w-0' }, [
-                    h('p', { class: 'text-lg font-black leading-none text-slate-950' }, [
+                    h('p', { class: 'text-lg font-bold leading-none tracking-tight text-slate-950' }, [
                         'SAHI',
                         h('span', { class: 'text-orange-500' }, 'GADI'),
                     ]),
@@ -196,7 +196,7 @@ const NavGroup = defineComponent({
     emits: ['navigate'],
     setup(props, { emit }) {
         return () => h('div', { class: 'mb-6' }, [
-            h('p', { class: 'mb-2 px-3 text-xs font-black uppercase tracking-wide text-slate-400' }, props.group.title),
+            h('p', { class: 'mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-slate-400' }, props.group.title),
             h('div', { class: 'grid gap-1' }, props.group.items.map((item) => h(Link, {
                 key: item.href,
                 href: item.href,

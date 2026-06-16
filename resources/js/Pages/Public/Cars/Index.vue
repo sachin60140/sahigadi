@@ -26,13 +26,13 @@
 
                 <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
                     <div>
-                        <div class="mb-4 inline-flex w-fit items-center gap-2 rounded-lg border border-teal-100 bg-white/80 px-3 py-2 text-xs font-black uppercase tracking-wide text-teal-700 shadow-sm">
+                        <div class="mb-4 inline-flex w-fit items-center gap-2 rounded-lg border border-teal-100 bg-white/80 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-teal-700 shadow-sm">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
                             </svg>
                             SahiGadi search
                         </div>
-                        <h1 class="max-w-4xl text-3xl font-black leading-tight tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
+                        <h1 class="max-w-4xl text-3xl font-semibold leading-tight tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
                             {{ pageHeading }}
                         </h1>
                         <p class="mt-4 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
@@ -41,23 +41,23 @@
 
                         <div class="mt-6 flex flex-wrap gap-3">
                             <div v-for="stat in heroStats" :key="stat.label" class="rounded-lg border border-white bg-white/75 px-4 py-3 shadow-sm">
-                                <p class="text-lg font-black text-slate-950">{{ stat.value }}</p>
+                                <p class="text-lg font-semibold text-slate-950">{{ stat.value }}</p>
                                 <p class="text-xs font-bold uppercase tracking-wide text-slate-500">{{ stat.label }}</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/70">
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-600">Buying workspace</p>
-                        <h2 class="mt-2 text-xl font-black text-slate-950">Shortlist cars with cleaner filters.</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Buying workspace</p>
+                        <h2 class="mt-2 text-xl font-semibold text-slate-950">Shortlist cars with cleaner filters.</h2>
                         <p class="mt-2 text-sm font-medium leading-6 text-slate-600">
                             Compare price, city, fuel type and transmission before opening the full listing.
                         </p>
                         <div class="mt-5 grid grid-cols-2 gap-2">
-                            <Link href="/cars?sort=newest" class="rounded-lg border border-teal-100 bg-teal-50 px-3 py-3 text-center text-sm font-black text-teal-700 transition hover:border-teal-200 hover:bg-white">
+                            <Link href="/cars?sort=newest" class="rounded-lg border border-teal-100 bg-teal-50 px-3 py-3 text-center text-sm font-semibold text-teal-700 transition hover:border-teal-200 hover:bg-white">
                                 Latest Cars
                             </Link>
-                            <Link href="/sell-your-car" class="rounded-lg border border-orange-100 bg-orange-50 px-3 py-3 text-center text-sm font-black text-orange-700 transition hover:border-orange-200 hover:bg-white">
+                            <Link href="/sell-your-car" class="rounded-lg border border-orange-100 bg-orange-50 px-3 py-3 text-center text-sm font-semibold text-orange-700 transition hover:border-orange-200 hover:bg-white">
                                 Sell Yours
                             </Link>
                         </div>
@@ -93,14 +93,14 @@
                         <div class="mb-5 flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
                             
                             <div class="flex w-full flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between md:w-auto md:gap-4">
-                                <button @click="showMobileFilters = true" class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50 focus:ring-2 focus:ring-teal-700 lg:hidden">
+                                <button @click="showMobileFilters = true" class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:ring-2 focus:ring-teal-700 lg:hidden">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
                                     Filters
                                 </button>
                                 
                                 <div>
                                     <p class="hidden text-sm font-semibold text-slate-500 md:block">Showing</p>
-                                    <h2 class="text-lg font-black text-slate-950 md:text-xl">{{ resultSummary }}</h2>
+                                    <h2 class="text-lg font-semibold text-slate-950 md:text-xl">{{ resultSummary }}</h2>
                                     <p class="mt-1 hidden text-sm font-medium text-slate-500 md:block">Refine by budget, city, brand, fuel or transmission.</p>
                                 </div>
                             </div>

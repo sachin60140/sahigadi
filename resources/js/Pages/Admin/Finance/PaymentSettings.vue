@@ -6,15 +6,15 @@
             <form class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6" @submit.prevent="submit">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-teal-700">Gateway configuration</p>
-                        <h2 class="mt-2 text-2xl font-black text-slate-950">Razorpay and PhonePe setup</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Gateway configuration</p>
+                        <h2 class="mt-2 text-2xl font-semibold text-slate-950">Razorpay and PhonePe setup</h2>
                         <p class="mt-2 max-w-2xl text-sm font-semibold leading-7 text-slate-600">
                             Control active gateways, credentials, environment and minimum wallet recharge rules.
                         </p>
                     </div>
                     <button
                         type="submit"
-                        class="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit"
+                        class="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit"
                         :disabled="form.processing"
                     >
                         {{ form.processing ? 'Saving...' : 'Save Settings' }}
@@ -68,7 +68,7 @@
                 <div class="mt-4 flex flex-wrap items-center gap-3">
                     <button
                         type="button"
-                        class="inline-flex min-h-11 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 px-5 py-3 text-sm font-black text-teal-800 transition hover:bg-teal-100 disabled:cursor-wait disabled:opacity-60"
+                        class="inline-flex min-h-11 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 px-5 py-3 text-sm font-semibold text-teal-800 transition hover:bg-teal-100 disabled:cursor-wait disabled:opacity-60"
                         :disabled="testingPhonePe || form.processing"
                         @click="testPhonePe"
                     >
@@ -158,7 +158,7 @@ const Field = defineComponent({
     setup(fieldProps) {
         const slots = useSlots();
         return () => h('label', { class: ['block', fieldProps.wrapperClass] }, [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, fieldProps.label),
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, fieldProps.label),
             slots.default?.(),
             form.errors[fieldProps.errorKey]
                 ? h('span', { class: 'mt-2 block text-xs font-bold text-red-600' }, form.errors[fieldProps.errorKey])
@@ -171,7 +171,7 @@ const SectionTitle = defineComponent({
     props: { title: { type: String, required: true } },
     setup(sectionProps) {
         return () => h('div', { class: 'mb-4 mt-8 border-b border-slate-200 pb-3' }, [
-            h('h3', { class: 'text-lg font-black text-slate-950' }, sectionProps.title),
+            h('h3', { class: 'text-lg font-semibold text-slate-950' }, sectionProps.title),
         ]);
     },
 });
@@ -194,7 +194,7 @@ const ToggleCard = defineComponent({
         }, [
             h('div', { class: 'flex items-center justify-between gap-3' }, [
                 h('div', [
-                    h('p', { class: 'text-sm font-black text-slate-950' }, toggleProps.label),
+                    h('p', { class: 'text-sm font-semibold text-slate-950' }, toggleProps.label),
                     h('p', { class: 'mt-1 text-sm font-semibold leading-6 text-slate-600' }, toggleProps.text),
                 ]),
                 h('span', {
@@ -229,7 +229,7 @@ const InfoPanel = defineComponent({
         }[panelProps.tone] || 'border-slate-200 bg-white text-slate-700';
 
         return () => h('div', { class: ['rounded-lg border p-5 shadow-sm', toneClass] }, [
-            h('h3', { class: 'text-base font-black text-slate-950' }, panelProps.title),
+            h('h3', { class: 'text-base font-semibold text-slate-950' }, panelProps.title),
             h('p', { class: 'mt-2 text-sm font-semibold leading-6' }, panelProps.text),
         ]);
     },

@@ -2,15 +2,15 @@
     <Head title="Edit Car Listing" />
     <CustomerLayout title="Edit Listing" eyebrow="Vehicle inventory">
         <div class="mx-auto max-w-5xl">
-            <Link :href="actions.dashboard" class="inline-flex items-center gap-2 text-sm font-black text-teal-700 hover:text-teal-900">
+            <Link :href="actions.dashboard" class="inline-flex items-center gap-2 text-sm font-semibold text-teal-700 hover:text-teal-900">
                 <ArrowLeft class="h-4 w-4" />
                 Back to dashboard
             </Link>
 
             <form class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm" @submit.prevent="submit">
                 <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">{{ listing.unique_id }}</p>
-                    <h2 class="mt-1 text-2xl font-black text-slate-950">Vehicle details</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">{{ listing.unique_id }}</p>
+                    <h2 class="mt-1 text-2xl font-semibold text-slate-950">Vehicle details</h2>
                     <p class="mt-2 text-sm font-semibold text-slate-500">Changes return the listing to pending review.</p>
                 </div>
 
@@ -55,10 +55,10 @@
                     <section class="border-t border-slate-100 pt-7">
                         <div class="flex flex-wrap items-start justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-black text-slate-950">Car images</h3>
+                                <h3 class="text-lg font-semibold text-slate-950">Car images</h3>
                                 <p class="mt-1 text-sm font-semibold text-slate-500">Choose 5 to 10 new images only when replacing the current set.</p>
                             </div>
-                            <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-50">
+                            <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                 <Images class="h-4 w-4" />
                                 Select images
                                 <input class="hidden" type="file" multiple accept="image/jpeg,image/png,image/gif" @change="selectImages" />
@@ -76,7 +76,7 @@
                                 @click="primaryIndex = index"
                             >
                                 <img :src="item.url" alt="" class="h-full w-full object-cover" />
-                                <span v-if="index === primaryIndex" class="absolute left-2 top-2 rounded-md bg-teal-700 px-2 py-1 text-[10px] font-black text-white">Primary</span>
+                                <span v-if="index === primaryIndex" class="absolute left-2 top-2 rounded-md bg-teal-700 px-2 py-1 text-[10px] font-semibold text-white">Primary</span>
                                 <span
                                     class="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-md bg-slate-950/75 text-white opacity-0 transition group-hover:opacity-100"
                                     role="button"
@@ -89,7 +89,7 @@
                         </div>
 
                         <div v-else-if="listing.images.length" class="mt-5">
-                            <p class="mb-3 text-xs font-black uppercase tracking-wide text-slate-400">Current images</p>
+                            <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Current images</p>
                             <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                                 <div v-for="image in listing.images" :key="image" class="aspect-square overflow-hidden rounded-lg bg-slate-100">
                                     <img :src="image" alt="" class="h-full w-full object-cover" />
@@ -101,7 +101,7 @@
                     </section>
 
                     <section class="border-t border-slate-100 pt-7">
-                        <h3 class="text-lg font-black text-slate-950">Owner and location</h3>
+                        <h3 class="text-lg font-semibold text-slate-950">Owner and location</h3>
                         <div class="mt-4 grid gap-4 sm:grid-cols-2">
                             <Field label="Email address" :error="form.errors.owner_email"><input v-model="form.owner_email" class="customer-input" type="email" /></Field>
                             <Field label="WhatsApp number" :error="form.errors.whatsapp_number"><input v-model="form.whatsapp_number" class="customer-input" inputmode="tel" /></Field>
@@ -109,10 +109,10 @@
                         <div class="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
                             <MapPin class="h-5 w-5 text-teal-700" />
                             <div class="min-w-0 flex-1">
-                                <p class="text-sm font-black text-slate-950">{{ hasLocation ? 'Location attached' : 'Location not available' }}</p>
+                                <p class="text-sm font-semibold text-slate-950">{{ hasLocation ? 'Location attached' : 'Location not available' }}</p>
                                 <p class="mt-1 text-xs font-semibold text-slate-500">{{ locationMessage }}</p>
                             </div>
-                            <button type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 disabled:opacity-50" :disabled="locating" @click="locate">
+                            <button type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 disabled:opacity-50" :disabled="locating" @click="locate">
                                 {{ locating ? 'Locating...' : 'Refresh location' }}
                             </button>
                         </div>
@@ -120,8 +120,8 @@
                 </div>
 
                 <div class="flex flex-col-reverse gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
-                    <Link :href="actions.dashboard" class="rounded-lg border border-slate-200 px-5 py-3 text-center text-sm font-black text-slate-700 hover:bg-slate-50">Cancel</Link>
-                    <button class="inline-flex items-center justify-center gap-2 rounded-lg bg-teal-700 px-5 py-3 text-sm font-black text-white hover:bg-teal-800 disabled:opacity-50" :disabled="form.processing">
+                    <Link :href="actions.dashboard" class="rounded-lg border border-slate-200 px-5 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</Link>
+                    <button class="inline-flex items-center justify-center gap-2 rounded-lg bg-teal-700 px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-50" :disabled="form.processing">
                         <Save class="h-4 w-4" />
                         {{ form.processing ? 'Updating...' : 'Update listing' }}
                     </button>
@@ -237,7 +237,7 @@ const Field = defineComponent({
     props: { label: { type: String, required: true }, error: { type: String, default: '' } },
     setup(fieldProps, { slots }) {
         return () => h('label', { class: 'block' }, [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, fieldProps.label),
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, fieldProps.label),
             slots.default?.(),
             fieldProps.error ? h('span', { class: 'mt-1 block text-xs font-bold text-red-600' }, fieldProps.error) : null,
         ]);

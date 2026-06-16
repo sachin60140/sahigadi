@@ -80,7 +80,7 @@
                 </div>
 
                 <div class="lg:col-span-2">
-                    <button type="button" class="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-sm font-black text-teal-700" @click="useCurrentLocation">
+                    <button type="button" class="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-sm font-semibold text-teal-700" @click="useCurrentLocation">
                         Use Current Location
                     </button>
                 </div>
@@ -101,10 +101,10 @@
         </section>
 
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <Link :href="cancelUrl" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+            <Link :href="cancelUrl" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                 Cancel
             </Link>
-            <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-700" :disabled="form.processing">
+            <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-700" :disabled="form.processing">
                 {{ form.processing ? 'Saving...' : submitLabel }}
             </button>
         </div>
@@ -159,7 +159,7 @@ const Field = defineComponent({
     },
     setup(fieldProps, { slots }) {
         return () => h('label', { class: 'block' }, [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, [
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, [
                 fieldProps.label,
                 fieldProps.required ? h('span', { class: 'text-red-600' }, ' *') : null,
             ]),

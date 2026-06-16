@@ -5,8 +5,8 @@
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Payment analysis</p>
-                    <h2 class="mt-2 text-3xl font-black text-slate-950">Monitor paid customer service requests.</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Payment analysis</p>
+                    <h2 class="mt-2 text-3xl font-semibold text-slate-950">Monitor paid customer service requests.</h2>
                     <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
                         Track RC checks, challan lookups and service-history payments with refund control in one admin view.
                     </p>
@@ -25,7 +25,7 @@
                     v-for="tab in tabs"
                     :key="tab.value"
                     :href="`/admin/customer-transactions?type=${tab.value}`"
-                    class="whitespace-nowrap rounded-lg px-4 py-3 text-sm font-black transition"
+                    class="whitespace-nowrap rounded-lg px-4 py-3 text-sm font-semibold transition"
                     :class="tab.value === type ? 'bg-teal-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'"
                 >
                     {{ tab.label }}
@@ -37,10 +37,10 @@
             <div class="border-b border-slate-100 px-5 py-4">
                 <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-teal-700">{{ currentTabLabel }}</p>
-                        <h3 class="mt-1 text-xl font-black text-slate-950">Recent transactions</h3>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">{{ currentTabLabel }}</p>
+                        <h3 class="mt-1 text-xl font-semibold text-slate-950">Recent transactions</h3>
                     </div>
-                    <span class="inline-flex w-fit rounded-md bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-600">
+                    <span class="inline-flex w-fit rounded-md bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
                         {{ transactions.data.length }} visible records
                     </span>
                 </div>
@@ -48,7 +48,7 @@
 
             <div class="overflow-x-auto">
                 <table class="min-w-[1040px] w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Request</th>
                             <th class="px-5 py-3">Customer</th>
@@ -62,20 +62,20 @@
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="transaction in transactions.data" :key="transaction.id" class="hover:bg-slate-50">
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">#{{ transaction.id }}</p>
+                                <p class="font-semibold text-slate-950">#{{ transaction.id }}</p>
                                 <p class="mt-1 text-xs font-semibold text-slate-500">{{ transaction.created_at }}</p>
                             </td>
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">{{ transaction.customer_name || 'N/A' }}</p>
+                                <p class="font-semibold text-slate-950">{{ transaction.customer_name || 'N/A' }}</p>
                                 <p class="mt-1 text-xs font-bold text-slate-500">{{ transaction.customer_phone || 'No phone' }}</p>
                             </td>
                             <td class="px-5 py-4">
-                                <span class="inline-flex rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-black text-slate-800">
+                                <span class="inline-flex rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-800">
                                     {{ transaction.vehicle_number || 'N/A' }}
                                 </span>
                             </td>
                             <td class="px-5 py-4">
-                                <p class="text-base font-black text-slate-950">{{ formatCurrency(transaction.paid_amount) }}</p>
+                                <p class="text-base font-semibold text-slate-950">{{ formatCurrency(transaction.paid_amount) }}</p>
                             </td>
                             <td class="px-5 py-4">
                                 <StatusBadge :success="transaction.is_success" />
@@ -87,14 +87,14 @@
                                 <div class="flex justify-end gap-2">
                                     <Link
                                         :href="transaction.show_url"
-                                        class="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-black text-teal-700 transition hover:bg-white"
+                                        class="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-semibold text-teal-700 transition hover:bg-white"
                                     >
                                         Details
                                     </Link>
                                     <button
                                         v-if="transaction.can_refund"
                                         type="button"
-                                        class="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs font-black text-red-700 transition hover:bg-white"
+                                        class="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs font-semibold text-red-700 transition hover:bg-white"
                                         @click="refund(transaction)"
                                     >
                                         Refund
@@ -104,7 +104,7 @@
                         </tr>
                         <tr v-if="!transactions.data.length">
                             <td colspan="7" class="px-5 py-14 text-center">
-                                <p class="text-lg font-black text-slate-950">No customer transactions found</p>
+                                <p class="text-lg font-semibold text-slate-950">No customer transactions found</p>
                                 <p class="mt-2 text-sm font-semibold text-slate-500">Choose another service tab to inspect its payment history.</p>
                             </td>
                         </tr>
@@ -185,8 +185,8 @@ const MetricTile = defineComponent({
         });
 
         return () => h('div', { class: ['rounded-lg border p-4', toneClass.value] }, [
-            h('p', { class: 'text-2xl font-black' }, tileProps.value),
-            h('p', { class: 'mt-1 text-xs font-black uppercase tracking-wide' }, tileProps.label),
+            h('p', { class: 'text-2xl font-semibold' }, tileProps.value),
+            h('p', { class: 'mt-1 text-xs font-semibold uppercase tracking-wide' }, tileProps.label),
         ]);
     },
 });
@@ -196,7 +196,7 @@ const StatusBadge = defineComponent({
     setup(badgeProps) {
         return () => h('span', {
             class: [
-                'inline-flex rounded-md px-2.5 py-1 text-xs font-black',
+                'inline-flex rounded-md px-2.5 py-1 text-xs font-semibold',
                 badgeProps.success ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100' : 'bg-red-50 text-red-700 ring-1 ring-red-100',
             ],
         }, badgeProps.success ? 'Success' : 'Failed API');
@@ -208,17 +208,17 @@ const RefundBadge = defineComponent({
     setup(badgeProps) {
         return () => {
             if (!badgeProps.transaction.razorpay_payment_id) {
-                return h('span', { class: 'inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600' }, 'Unpaid / No ID');
+                return h('span', { class: 'inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600' }, 'Unpaid / No ID');
             }
 
             if (badgeProps.transaction.is_refunded) {
                 return h('div', [
-                    h('span', { class: 'inline-flex rounded-md bg-sky-50 px-2.5 py-1 text-xs font-black text-sky-700 ring-1 ring-sky-100' }, 'Refunded'),
+                    h('span', { class: 'inline-flex rounded-md bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100' }, 'Refunded'),
                     h('p', { class: 'mt-1 max-w-[220px] break-all text-xs font-semibold text-slate-500' }, badgeProps.transaction.razorpay_refund_id || 'Refund ID pending'),
                 ]);
             }
 
-            return h('span', { class: 'inline-flex rounded-md bg-orange-50 px-2.5 py-1 text-xs font-black text-orange-700 ring-1 ring-orange-100' }, 'Not Refunded');
+            return h('span', { class: 'inline-flex rounded-md bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-700 ring-1 ring-orange-100' }, 'Not Refunded');
         };
     },
 });

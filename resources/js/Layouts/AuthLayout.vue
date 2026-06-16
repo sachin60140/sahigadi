@@ -5,7 +5,7 @@
         
         <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
             <Link href="/" class="flex justify-center mb-6">
-                <span class="text-3xl font-black text-[#0f172a] tracking-tight">SAHI<span class="text-[#f97316]">GADI</span></span>
+                <span class="text-3xl font-semibold text-[#0f172a] tracking-tight">SAHI<span class="text-[#f97316]">GADI</span></span>
             </Link>
             
             <div class="text-center mb-8">

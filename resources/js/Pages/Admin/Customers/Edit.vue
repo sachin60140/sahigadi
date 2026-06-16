@@ -5,17 +5,17 @@
         <section class="mb-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Profile maintenance</p>
-                    <h2 class="mt-2 text-3xl font-black text-slate-950">Update {{ customer.name }}.</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Profile maintenance</p>
+                    <h2 class="mt-2 text-3xl font-semibold text-slate-950">Update {{ customer.name }}.</h2>
                     <p class="mt-2 text-sm font-semibold text-slate-600">{{ customer.customer_unique_id }} / the customer will receive the existing profile-update email.</p>
                 </div>
-                <Link :href="actions.back" class="w-fit rounded-lg border border-slate-200 px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50">Back to details</Link>
+                <Link :href="actions.back" class="w-fit rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Back to details</Link>
             </div>
 
             <div class="mt-5">
                 <div class="flex items-center justify-between gap-3">
-                    <p class="text-sm font-black text-slate-700">Profile completion</p>
-                    <p class="text-sm font-black" :class="customer.profile_completion_percentage >= 75 ? 'text-teal-700' : 'text-orange-700'">
+                    <p class="text-sm font-semibold text-slate-700">Profile completion</p>
+                    <p class="text-sm font-semibold" :class="customer.profile_completion_percentage >= 75 ? 'text-teal-700' : 'text-orange-700'">
                         {{ customer.profile_completion_percentage }}%
                     </p>
                 </div>
@@ -27,7 +27,7 @@
                     ></div>
                 </div>
                 <div v-if="customer.missing_profile_fields.length" class="mt-3 flex flex-wrap gap-2">
-                    <span v-for="field in customer.missing_profile_fields" :key="field" class="rounded-md bg-orange-50 px-2.5 py-1 text-xs font-black text-orange-700 ring-1 ring-orange-100">
+                    <span v-for="field in customer.missing_profile_fields" :key="field" class="rounded-md bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-700 ring-1 ring-orange-100">
                         {{ field }}
                     </span>
                 </div>
@@ -103,8 +103,8 @@
             </section>
 
             <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <Link :href="actions.back" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50">Cancel</Link>
-                <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-700 disabled:opacity-60" :disabled="form.processing">
+                <Link :href="actions.back" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Cancel</Link>
+                <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60" :disabled="form.processing">
                     {{ form.processing ? 'Saving...' : 'Save Changes and Notify' }}
                 </button>
             </div>
@@ -164,8 +164,8 @@ const SectionHeading = defineComponent({
     props: { eyebrow: { type: String, required: true }, title: { type: String, required: true } },
     setup(sectionProps) {
         return () => h('div', [
-            h('p', { class: 'text-xs font-black uppercase tracking-wide text-teal-700' }, sectionProps.eyebrow),
-            h('h3', { class: 'mt-1 text-xl font-black text-slate-950' }, sectionProps.title),
+            h('p', { class: 'text-xs font-semibold uppercase tracking-wide text-teal-700' }, sectionProps.eyebrow),
+            h('h3', { class: 'mt-1 text-xl font-semibold text-slate-950' }, sectionProps.title),
         ]);
     },
 });
@@ -178,7 +178,7 @@ const Field = defineComponent({
     },
     setup(fieldProps, { slots }) {
         return () => h('label', { class: 'block' }, [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, [
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, [
                 fieldProps.label,
                 fieldProps.required ? h('span', { class: 'text-red-600' }, ' *') : null,
             ]),

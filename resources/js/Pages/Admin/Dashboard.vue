@@ -6,8 +6,8 @@
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                 <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <div>
-                        <p class="text-sm font-black uppercase tracking-wide text-teal-700">Platform overview</p>
-                        <h2 class="mt-2 text-3xl font-black leading-tight text-slate-950 sm:text-4xl">
+                        <p class="text-sm font-semibold uppercase tracking-wide text-teal-700">Platform overview</p>
+                        <h2 class="mt-2 text-2xl font-bold leading-tight tracking-tight text-slate-950 sm:text-3xl">
                             Revenue, approvals and service activity in one view.
                         </h2>
                         <p class="mt-3 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
@@ -15,14 +15,14 @@
                         </p>
                     </div>
                     <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Last refreshed</p>
-                        <p class="mt-1 text-sm font-black text-slate-950">{{ generatedAt }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Last refreshed</p>
+                        <p class="mt-1 text-sm font-semibold text-slate-950">{{ generatedAt }}</p>
                     </div>
                 </div>
             </div>
 
             <div class="grid gap-3 rounded-lg border border-slate-200 bg-slate-950 p-5 text-white shadow-sm">
-                <p class="text-xs font-black uppercase tracking-wide text-teal-200">Gateway health</p>
+                <p class="text-xs font-semibold uppercase tracking-wide text-teal-200">Gateway health</p>
                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                     <GatewayStatus label="Razorpay" :active="gatewayHealth.razorpay_active" />
                     <GatewayStatus label="PhonePe" :active="gatewayHealth.phonepe_active" :meta="gatewayHealth.phonepe_environment" />
@@ -65,14 +65,41 @@
             />
         </section>
 
+        <section class="mt-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Revenue trend</p>
+                    <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-950">Last 30 days</h2>
+                </div>
+                <div class="sm:text-right">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">30-day total</p>
+                    <p class="text-2xl font-bold tracking-tight text-slate-950">{{ formatCurrency(trendTotal) }}</p>
+                </div>
+            </div>
+
+            <div v-if="trendHasData" class="mt-5">
+                <svg viewBox="0 0 600 160" preserveAspectRatio="none" class="h-36 w-full sm:h-44" role="img" aria-label="Daily completed revenue over the last 30 days">
+                    <path :d="trendArea" fill="rgba(13,148,136,0.10)" />
+                    <path :d="trendLine" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+                </svg>
+                <div class="mt-2 flex justify-between text-xs font-medium text-slate-400">
+                    <span>{{ trendFirstLabel }}</span>
+                    <span>{{ trendLastLabel }}</span>
+                </div>
+            </div>
+            <div v-else class="mt-5 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-8 text-center text-sm font-medium text-slate-500">
+                No completed payments in the last 30 days yet.
+            </div>
+        </section>
+
         <section class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-600">Payment gateways</p>
-                        <h2 class="mt-1 text-2xl font-black text-slate-950">Gateway collection split</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Payment gateways</p>
+                        <h2 class="mt-1 text-2xl font-bold text-slate-950">Gateway collection split</h2>
                     </div>
-                    <Link href="/admin/payment-settings" class="inline-flex w-full items-center justify-center rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700 sm:w-fit">
+                    <Link href="/admin/payment-settings" class="inline-flex w-full items-center justify-center rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700 sm:w-fit">
                         Manage Settings
                     </Link>
                 </div>
@@ -81,10 +108,10 @@
                     <div v-for="gateway in normalizedGateways" :key="gateway.gateway" class="rounded-lg border border-slate-200 bg-slate-50 p-4">
                         <div class="flex items-center justify-between gap-3">
                             <div>
-                                <h3 class="text-base font-black text-slate-950">{{ gateway.gateway }}</h3>
+                                <h3 class="text-base font-semibold text-slate-950">{{ gateway.gateway }}</h3>
                                 <p class="mt-1 text-xs font-bold uppercase tracking-wide text-slate-500">{{ formatNumber(gateway.count) }} completed payments</p>
                             </div>
-                            <p class="text-lg font-black text-slate-950">{{ formatCurrency(gateway.amount) }}</p>
+                            <p class="text-lg font-semibold text-slate-950">{{ formatCurrency(gateway.amount) }}</p>
                         </div>
                         <div class="mt-3 h-2 overflow-hidden rounded-full bg-white">
                             <div class="h-full rounded-full bg-teal-600" :style="{ width: `${gateway.percent}%` }"></div>
@@ -94,8 +121,8 @@
             </div>
 
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <p class="text-xs font-black uppercase tracking-wide text-teal-700">Payment links</p>
-                <h2 class="mt-1 text-2xl font-black text-slate-950">Custom collection links</h2>
+                <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Payment links</p>
+                <h2 class="mt-1 text-2xl font-bold text-slate-950">Custom collection links</h2>
                 <div class="mt-5 grid grid-cols-2 gap-3">
                     <StatusTile label="Total links" :value="formatNumber(paymentLinks.total)" />
                     <StatusTile label="Paid" :value="formatNumber(paymentLinks.paid)" tone="teal" />
@@ -103,10 +130,10 @@
                     <StatusTile label="Expired" :value="formatNumber(paymentLinks.expired)" tone="red" />
                 </div>
                 <div class="mt-4 rounded-lg border border-orange-100 bg-orange-50 p-4">
-                    <p class="text-xs font-black uppercase tracking-wide text-orange-700">Pending value</p>
-                    <p class="mt-1 text-2xl font-black text-slate-950">{{ formatCurrency(paymentLinks.pending_amount) }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-orange-700">Pending value</p>
+                    <p class="mt-1 text-2xl font-bold text-slate-950">{{ formatCurrency(paymentLinks.pending_amount) }}</p>
                 </div>
-                <Link href="/admin/payment-links" class="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-teal-700">
+                <Link href="/admin/payment-links" class="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-700">
                     Open Payment Links
                 </Link>
             </div>
@@ -114,8 +141,8 @@
 
         <section class="mt-5 grid gap-5 xl:grid-cols-[420px_minmax(0,1fr)]">
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <p class="text-xs font-black uppercase tracking-wide text-red-600">Approval queue</p>
-                <h2 class="mt-1 text-2xl font-black text-slate-950">Work that needs attention</h2>
+                <p class="text-xs font-semibold uppercase tracking-wide text-red-600">Approval queue</p>
+                <h2 class="mt-1 text-2xl font-bold text-slate-950">Work that needs attention</h2>
                 <div class="mt-5 grid gap-3">
                     <QueueItem label="Pending dealers" :value="stats.pending_dealers" href="/admin/dealers" />
                     <QueueItem label="Pending dealer cars" :value="stats.pending_cars" href="/admin/cars" />
@@ -127,10 +154,10 @@
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-sky-700">Service analytics</p>
-                        <h2 class="mt-1 text-2xl font-black text-slate-950">Paid lookup usage</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-sky-700">Service analytics</p>
+                        <h2 class="mt-1 text-2xl font-bold text-slate-950">Paid lookup usage</h2>
                     </div>
-                    <Link href="/admin/service-tracking/vehicle-search" class="inline-flex w-full items-center justify-center rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700 sm:w-fit">
+                    <Link href="/admin/service-tracking/vehicle-search" class="inline-flex w-full items-center justify-center rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700 sm:w-fit">
                         View Tracking
                     </Link>
                 </div>
@@ -146,12 +173,12 @@
         <section class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
                 <div class="border-b border-slate-200 p-5">
-                    <p class="text-xs font-black uppercase tracking-wide text-slate-500">Latest payments</p>
-                    <h2 class="mt-1 text-2xl font-black text-slate-950">Recent gateway activity</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Latest payments</p>
+                    <h2 class="mt-1 text-2xl font-bold text-slate-950">Recent gateway activity</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-[760px] w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                             <tr>
                                 <th class="px-5 py-3">Party</th>
                                 <th class="px-5 py-3">Gateway</th>
@@ -167,11 +194,11 @@
                                 <td class="px-5 py-4 font-semibold text-slate-600">{{ formatLabel(payment.gateway) }}</td>
                                 <td class="px-5 py-4 font-semibold text-slate-600">{{ formatLabel(payment.type || 'payment') }}</td>
                                 <td class="px-5 py-4">
-                                    <span class="rounded-md px-2.5 py-1 text-xs font-black" :class="statusClass(payment.status)">
+                                    <span class="rounded-md px-2.5 py-1 text-xs font-semibold" :class="statusClass(payment.status)">
                                         {{ formatLabel(payment.status) }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-4 text-right font-black text-slate-950">{{ formatCurrency(payment.amount) }}</td>
+                                <td class="px-5 py-4 text-right font-semibold text-slate-950">{{ formatCurrency(payment.amount) }}</td>
                                 <td class="px-5 py-4 font-semibold text-slate-500">{{ payment.created_at }}</td>
                             </tr>
                             <tr v-if="!recentPayments.length">
@@ -230,6 +257,7 @@ const props = defineProps<{
     recentPayments: RecentPayment[];
     gatewayHealth: GatewayHealth;
     generatedAt: string;
+    revenueTrend: Array<{ date: string; amount: number }>;
 }>();
 
 const formatNumber = (value: number | string) => new Intl.NumberFormat('en-IN').format(Number(value || 0));
@@ -254,6 +282,28 @@ const statusClass = (status: string) => {
     return 'bg-orange-50 text-orange-700 ring-1 ring-orange-100';
 };
 
+const trendData = computed(() => props.revenueTrend || []);
+const trendTotal = computed(() => trendData.value.reduce((sum, point) => sum + Number(point.amount || 0), 0));
+const trendMax = computed(() => Math.max(1, ...trendData.value.map((point) => Number(point.amount || 0))));
+const trendHasData = computed(() => trendData.value.some((point) => Number(point.amount || 0) > 0));
+const trendPoints = computed<Array<[number, number]>>(() => {
+    const count = trendData.value.length;
+    if (!count) return [];
+    return trendData.value.map((point, index) => {
+        const x = count === 1 ? 300 : (index / (count - 1)) * 600;
+        const y = 150 - (Number(point.amount || 0) / trendMax.value) * 130;
+        return [Math.round(x * 100) / 100, Math.round(y * 100) / 100];
+    });
+});
+const trendLine = computed(() => trendPoints.value.map((point, index) => `${index === 0 ? 'M' : 'L'}${point[0]} ${point[1]}`).join(' '));
+const trendArea = computed(() => {
+    const points = trendPoints.value;
+    if (!points.length) return '';
+    return `M${points[0][0]} 150 ` + points.map((point) => `L${point[0]} ${point[1]}`).join(' ') + ` L${points[points.length - 1][0]} 150 Z`;
+});
+const trendFirstLabel = computed(() => trendData.value[0]?.date ?? '');
+const trendLastLabel = computed(() => trendData.value[trendData.value.length - 1]?.date ?? '');
+
 const KpiCard = defineComponent({
     props: {
         label: { type: String, required: true },
@@ -274,10 +324,10 @@ const KpiCard = defineComponent({
             href: cardProps.href,
             class: 'group rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-lg',
         }, () => [
-            h('div', { class: ['mb-4 inline-flex rounded-lg border px-3 py-2 text-xs font-black uppercase tracking-wide', toneClass.value] }, cardProps.label),
-            h('p', { class: 'text-3xl font-black text-slate-950' }, cardProps.value),
-            h('p', { class: 'mt-2 text-sm font-semibold leading-6 text-slate-500' }, cardProps.helper),
-            h('span', { class: 'mt-4 inline-flex text-sm font-black text-teal-700 group-hover:text-orange-600' }, 'Open'),
+            h('div', { class: ['mb-4 inline-flex rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-wide', toneClass.value] }, cardProps.label),
+            h('p', { class: 'text-3xl font-bold tracking-tight text-slate-950' }, cardProps.value),
+            h('p', { class: 'mt-2 text-sm font-medium leading-6 text-slate-500' }, cardProps.helper),
+            h('span', { class: 'mt-4 inline-flex text-sm font-semibold text-teal-700 group-hover:text-orange-600' }, 'Open'),
         ]);
     },
 });
@@ -292,12 +342,12 @@ const GatewayStatus = defineComponent({
         return () => h('div', { class: 'rounded-lg border border-white/10 bg-white/5 p-4' }, [
             h('div', { class: 'flex items-center justify-between gap-3' }, [
                 h('div', [
-                    h('p', { class: 'text-sm font-black text-white' }, statusProps.label),
+                    h('p', { class: 'text-sm font-semibold text-white' }, statusProps.label),
                     statusProps.meta ? h('p', { class: 'mt-1 text-xs font-bold uppercase tracking-wide text-slate-300' }, statusProps.meta) : null,
                 ]),
                 h('span', {
                     class: [
-                        'rounded-md px-2.5 py-1 text-xs font-black',
+                        'rounded-md px-2.5 py-1 text-xs font-semibold',
                         statusProps.active ? 'bg-teal-400/15 text-teal-200 ring-1 ring-teal-300/20' : 'bg-red-400/15 text-red-200 ring-1 ring-red-300/20',
                     ],
                 }, statusProps.active ? 'Active' : 'Off'),
@@ -313,8 +363,8 @@ const MiniMetric = defineComponent({
     },
     setup(metricProps) {
         return () => h('div', [
-            h('p', { class: 'text-xs font-black uppercase tracking-wide text-slate-400' }, metricProps.label),
-            h('p', { class: 'mt-1 text-lg font-black text-white' }, metricProps.value),
+            h('p', { class: 'text-xs font-semibold uppercase tracking-wide text-slate-400' }, metricProps.label),
+            h('p', { class: 'mt-1 text-lg font-semibold text-white' }, metricProps.value),
         ]);
     },
 });
@@ -334,8 +384,8 @@ const StatusTile = defineComponent({
         }[tileProps.tone] || 'bg-slate-50 text-slate-700 ring-slate-100'));
 
         return () => h('div', { class: ['rounded-lg p-4 ring-1', tileClass.value] }, [
-            h('p', { class: 'text-2xl font-black text-slate-950' }, tileProps.value),
-            h('p', { class: 'mt-1 text-xs font-black uppercase tracking-wide' }, tileProps.label),
+            h('p', { class: 'text-2xl font-bold text-slate-950' }, tileProps.value),
+            h('p', { class: 'mt-1 text-xs font-semibold uppercase tracking-wide' }, tileProps.label),
         ]);
     },
 });
@@ -351,10 +401,10 @@ const QueueItem = defineComponent({
             href: itemProps.href,
             class: 'flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 transition hover:border-teal-200 hover:bg-white',
         }, () => [
-            h('span', { class: 'text-sm font-black text-slate-700' }, itemProps.label),
+            h('span', { class: 'text-sm font-semibold text-slate-700' }, itemProps.label),
             h('span', {
                 class: [
-                    'rounded-md px-2.5 py-1 text-sm font-black',
+                    'rounded-md px-2.5 py-1 text-sm font-semibold',
                     itemProps.value > 0 ? 'bg-red-50 text-red-700 ring-1 ring-red-100' : 'bg-teal-50 text-teal-700 ring-1 ring-teal-100',
                 ],
             }, formatNumber(itemProps.value)),
@@ -369,7 +419,7 @@ const ServiceMetric = defineComponent({
     },
     setup(metricProps) {
         return () => h('div', { class: 'rounded-lg border border-slate-200 bg-slate-50 p-4' }, [
-            h('p', { class: 'text-2xl font-black text-slate-950' }, formatNumber(metricProps.value)),
+            h('p', { class: 'text-2xl font-bold text-slate-950' }, formatNumber(metricProps.value)),
             h('p', { class: 'mt-1 text-sm font-bold text-slate-500' }, metricProps.label),
         ]);
     },
@@ -386,7 +436,7 @@ const QuickAction = defineComponent({
             href: actionProps.href,
             class: 'rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-lg',
         }, () => [
-            h('h3', { class: 'text-lg font-black text-slate-950' }, actionProps.title),
+            h('h3', { class: 'text-lg font-semibold text-slate-950' }, actionProps.title),
             h('p', { class: 'mt-2 text-sm font-semibold leading-6 text-slate-600' }, actionProps.text),
         ]);
     },

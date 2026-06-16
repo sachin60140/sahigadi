@@ -9,7 +9,7 @@
             <div :class="customer ? '' : 'mx-auto max-w-5xl'">
                 <div v-if="!vehicleSearch" class="rounded-lg border border-red-100 bg-white p-7 text-center shadow-sm">
                     <CircleAlert class="mx-auto h-10 w-10 text-red-500" />
-                    <h1 class="mt-4 text-2xl font-black text-slate-950">Report unavailable</h1>
+                    <h1 class="mt-4 text-2xl font-semibold text-slate-950">Report unavailable</h1>
                     <p class="mt-2 text-sm font-semibold text-slate-600">{{ message || 'No vehicle report was returned.' }}</p>
                 </div>
 
@@ -20,14 +20,14 @@
                                 <CircleCheck v-if="vehicleSearch.is_success" class="mt-0.5 h-7 w-7 shrink-0 text-teal-700" />
                                 <CircleAlert v-else class="mt-0.5 h-7 w-7 shrink-0 text-red-600" />
                                 <div>
-                                    <p class="text-xs font-black uppercase tracking-wide" :class="vehicleSearch.is_success ? 'text-teal-700' : 'text-red-700'">
+                                    <p class="text-xs font-semibold uppercase tracking-wide" :class="vehicleSearch.is_success ? 'text-teal-700' : 'text-red-700'">
                                         {{ vehicleSearch.is_success ? 'Vehicle details found' : 'No records found' }}
                                     </p>
-                                    <h1 class="mt-1 text-2xl font-black uppercase text-slate-950 sm:text-3xl">{{ vehicleSearch.registration_number }}</h1>
+                                    <h1 class="mt-1 text-2xl font-semibold uppercase text-slate-950 sm:text-3xl">{{ vehicleSearch.registration_number }}</h1>
                                     <p v-if="vehicleSearch.customer_name" class="mt-2 text-sm font-semibold text-slate-600">Requested by {{ vehicleSearch.customer_name }}</p>
                                 </div>
                             </div>
-                            <a v-if="pdfUrl && vehicleSearch.is_success" :href="pdfUrl" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-black text-white hover:bg-slate-800">
+                            <a v-if="pdfUrl && vehicleSearch.is_success" :href="pdfUrl" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
                                 <Download class="h-4 w-4" />
                                 Download PDF
                             </a>
@@ -45,8 +45,8 @@
 
                     <div v-if="vehicleSearch.is_success && entries.length" class="mt-6 grid gap-4 sm:grid-cols-2">
                         <div v-for="[key, value] in entries" :key="key" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                            <p class="text-xs font-black uppercase tracking-wide text-slate-400">{{ label(key) }}</p>
-                            <p class="mt-2 break-words text-sm font-black text-slate-900">{{ displayValue(value) }}</p>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ label(key) }}</p>
+                            <p class="mt-2 break-words text-sm font-semibold text-slate-900">{{ displayValue(value) }}</p>
                         </div>
                     </div>
 
@@ -61,7 +61,7 @@
                 </template>
 
                 <div class="mt-6">
-                    <Link :href="indexUrl" class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 shadow-sm hover:bg-slate-50">
+                    <Link :href="indexUrl" class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
                         <ArrowLeft class="h-4 w-4" />
                         Search another vehicle
                     </Link>

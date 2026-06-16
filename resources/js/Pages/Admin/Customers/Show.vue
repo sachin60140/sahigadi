@@ -5,16 +5,16 @@
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                 <div>
-                    <Link :href="customer.actions.back" class="inline-flex rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+                    <Link :href="customer.actions.back" class="inline-flex rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                         Back to customers
                     </Link>
-                    <h2 class="mt-5 text-3xl font-black text-slate-950">{{ customer.name }}</h2>
+                    <h2 class="mt-5 text-3xl font-semibold text-slate-950">{{ customer.name }}</h2>
                     <p class="mt-2 text-sm font-semibold text-slate-600">{{ customer.email }} <span v-if="customer.phone">/ {{ customer.phone }}</span></p>
                     <p class="mt-1 text-xs font-bold uppercase tracking-wide text-slate-500">{{ customer.customer_unique_id }} / {{ customer.company_name || 'Individual customer' }}</p>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                    <Link :href="customer.actions.edit" class="rounded-lg bg-orange-500 px-4 py-3 text-sm font-black text-white transition hover:bg-orange-600">
+                    <Link :href="customer.actions.edit" class="rounded-lg bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-600">
                         Edit Customer
                     </Link>
                 </div>
@@ -65,7 +65,7 @@
                         <span
                             v-for="field in customer.missing_profile_fields"
                             :key="field"
-                            class="rounded-md bg-orange-50 px-2.5 py-1 text-xs font-black text-orange-700 ring-1 ring-orange-100"
+                            class="rounded-md bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-700 ring-1 ring-orange-100"
                         >
                             {{ field }}
                         </span>
@@ -78,7 +78,7 @@
                 <Panel title="Car listings" :eyebrow="`${customer.listings.length} customer listings`">
                     <div v-if="customer.listings.length" class="overflow-x-auto">
                         <table class="min-w-[760px] w-full text-left text-sm">
-                            <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                            <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                                 <tr>
                                     <th class="px-4 py-3">Vehicle</th>
                                     <th class="px-4 py-3">Year</th>
@@ -90,11 +90,11 @@
                             <tbody class="divide-y divide-slate-100">
                                 <tr v-for="listing in customer.listings" :key="listing.id">
                                     <td class="px-4 py-3">
-                                        <p class="font-black text-slate-950">{{ listing.title || 'Untitled vehicle' }}</p>
+                                        <p class="font-semibold text-slate-950">{{ listing.title || 'Untitled vehicle' }}</p>
                                         <p class="mt-1 text-xs font-semibold text-slate-500">{{ listing.transmission || 'N/A' }} / {{ listing.fuel_type || 'N/A' }}</p>
                                     </td>
                                     <td class="px-4 py-3 font-semibold text-slate-600">{{ listing.year || 'N/A' }}</td>
-                                    <td class="px-4 py-3 font-black text-slate-950">{{ formatCurrency(listing.price) }}</td>
+                                    <td class="px-4 py-3 font-semibold text-slate-950">{{ formatCurrency(listing.price) }}</td>
                                     <td class="px-4 py-3 font-semibold text-slate-600">{{ listing.city || 'N/A' }}</td>
                                     <td class="px-4 py-3"><StatusBadge :status="listing.status" /></td>
                                 </tr>
@@ -107,7 +107,7 @@
                 <Panel title="Wallet transactions" eyebrow="Recent movement">
                     <div v-if="customer.wallet_transactions.length" class="overflow-x-auto">
                         <table class="min-w-[720px] w-full text-left text-sm">
-                            <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                            <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                                 <tr>
                                     <th class="px-4 py-3">Date</th>
                                     <th class="px-4 py-3">Type</th>
@@ -119,11 +119,11 @@
                                 <tr v-for="transaction in customer.wallet_transactions" :key="transaction.id">
                                     <td class="px-4 py-3 font-semibold text-slate-600">{{ transaction.created_at || 'N/A' }}</td>
                                     <td class="px-4 py-3">
-                                        <span class="inline-flex rounded-md px-2.5 py-1 text-xs font-black capitalize" :class="transaction.type === 'credit' ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100' : 'bg-red-50 text-red-700 ring-1 ring-red-100'">
+                                        <span class="inline-flex rounded-md px-2.5 py-1 text-xs font-semibold capitalize" :class="transaction.type === 'credit' ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100' : 'bg-red-50 text-red-700 ring-1 ring-red-100'">
                                             {{ transaction.type }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 font-black" :class="transaction.type === 'credit' ? 'text-teal-700' : 'text-red-700'">
+                                    <td class="px-4 py-3 font-semibold" :class="transaction.type === 'credit' ? 'text-teal-700' : 'text-red-700'">
                                         {{ transaction.type === 'credit' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
                                     </td>
                                     <td class="px-4 py-3 text-slate-600">{{ transaction.remark || '-' }}</td>
@@ -187,8 +187,8 @@ const MetricTile = defineComponent({
         };
 
         return () => h('div', { class: ['rounded-lg border p-4', classes()] }, [
-            h('p', { class: 'text-2xl font-black' }, tileProps.value),
-            h('p', { class: 'mt-1 text-xs font-black uppercase tracking-wide' }, tileProps.label),
+            h('p', { class: 'text-2xl font-semibold' }, tileProps.value),
+            h('p', { class: 'mt-1 text-xs font-semibold uppercase tracking-wide' }, tileProps.label),
         ]);
     },
 });
@@ -200,8 +200,8 @@ const Panel = defineComponent({
     },
     setup(panelProps, { slots }) {
         return () => h('section', { class: 'rounded-lg border border-slate-200 bg-white p-5 shadow-sm' }, [
-            h('p', { class: 'text-xs font-black uppercase tracking-wide text-teal-700' }, panelProps.eyebrow),
-            h('h3', { class: 'mt-1 text-xl font-black text-slate-950' }, panelProps.title),
+            h('p', { class: 'text-xs font-semibold uppercase tracking-wide text-teal-700' }, panelProps.eyebrow),
+            h('h3', { class: 'mt-1 text-xl font-semibold text-slate-950' }, panelProps.title),
             h('div', { class: 'mt-4' }, slots.default?.()),
         ]);
     },
@@ -213,7 +213,7 @@ const InfoList = defineComponent({
     },
     setup(infoProps) {
         return () => h('dl', { class: 'grid gap-3' }, infoProps.items.map(([label, value]) => h('div', { class: 'grid gap-1 sm:grid-cols-[140px_1fr]' }, [
-            h('dt', { class: 'text-xs font-black uppercase tracking-wide text-slate-500' }, label),
+            h('dt', { class: 'text-xs font-semibold uppercase tracking-wide text-slate-500' }, label),
             h('dd', { class: 'break-words text-sm font-bold text-slate-800' }, value || 'N/A'),
         ])));
     },
@@ -229,7 +229,7 @@ const ProfileBar = defineComponent({
                     style: { width: `${Math.min(100, Math.max(0, barProps.value))}%` },
                 }),
             ]),
-            h('p', { class: 'mt-2 text-sm font-black text-slate-700' }, `${barProps.value}% completed`),
+            h('p', { class: 'mt-2 text-sm font-semibold text-slate-700' }, `${barProps.value}% completed`),
         ]);
     },
 });
@@ -249,7 +249,7 @@ const StatusBadge = defineComponent({
     setup(badgeProps) {
         return () => h('span', {
             class: [
-                'inline-flex w-fit rounded-md px-2.5 py-1 text-xs font-black capitalize',
+                'inline-flex w-fit rounded-md px-2.5 py-1 text-xs font-semibold capitalize',
                 badgeProps.status === 'approved'
                     ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100'
                     : badgeProps.status === 'pending'

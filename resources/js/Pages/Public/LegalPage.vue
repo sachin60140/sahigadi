@@ -18,16 +18,16 @@
                 </nav>
                 <div class="mt-7 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end">
                     <div>
-                        <span class="inline-flex items-center gap-2 rounded-lg border border-teal-100 bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-teal-700 shadow-sm">
+                        <span class="inline-flex items-center gap-2 rounded-lg border border-teal-100 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-teal-700 shadow-sm">
                             <Scale class="h-4 w-4" />
                             Legal information
                         </span>
-                        <h1 class="mt-5 text-3xl font-black leading-tight text-slate-950 sm:text-5xl">{{ title }}</h1>
+                        <h1 class="mt-5 text-3xl font-semibold leading-tight text-slate-950 sm:text-5xl">{{ title }}</h1>
                         <p class="mt-5 max-w-3xl text-base font-medium leading-8 text-slate-600 sm:text-lg">{{ description }}</p>
                     </div>
                     <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-600">Last updated</p>
-                        <p class="mt-2 text-xl font-black text-slate-950">{{ lastUpdated }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Last updated</p>
+                        <p class="mt-2 text-xl font-semibold text-slate-950">{{ lastUpdated }}</p>
                         <p class="mt-3 text-sm font-medium leading-6 text-slate-600">Questions can be sent to support@sahigadi.com.</p>
                     </div>
                 </div>
@@ -38,7 +38,7 @@
             <div class="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-8">
                 <aside class="hidden lg:block">
                     <nav class="sticky top-24 rounded-lg border border-slate-200 bg-white p-4 shadow-sm" aria-label="Page sections">
-                        <p class="px-2 text-xs font-black uppercase tracking-wide text-slate-400">On this page</p>
+                        <p class="px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">On this page</p>
                         <div class="mt-3 grid gap-1">
                             <a
                                 v-for="section in sections"
@@ -60,9 +60,9 @@
                         class="scroll-mt-24 border-b border-slate-100 py-7 first:pt-0 last:border-0 last:pb-0"
                     >
                         <div class="flex items-start gap-4">
-                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-teal-50 text-sm font-black text-teal-700">{{ section.number }}</span>
+                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-teal-50 text-sm font-semibold text-teal-700">{{ section.number }}</span>
                             <div class="min-w-0 flex-1">
-                                <h2 class="text-xl font-black text-slate-950 sm:text-2xl">{{ section.title }}</h2>
+                                <h2 class="text-xl font-semibold text-slate-950 sm:text-2xl">{{ section.title }}</h2>
                                 <p v-for="paragraph in section.paragraphs" :key="paragraph" class="mt-4 text-sm font-medium leading-7 text-slate-700 sm:text-base">
                                     {{ paragraph }}
                                 </p>

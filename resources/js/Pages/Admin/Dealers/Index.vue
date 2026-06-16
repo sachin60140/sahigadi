@@ -5,13 +5,13 @@
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Dealer network</p>
-                    <h2 class="mt-2 text-3xl font-black text-slate-950">Review and manage registered dealers.</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Dealer network</p>
+                    <h2 class="mt-2 text-3xl font-semibold text-slate-950">Review and manage registered dealers.</h2>
                     <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
                         Track approvals, wallet balance, listing volume and GST readiness from one responsive admin view.
                     </p>
                 </div>
-                <Link href="/admin/dealers/create" class="inline-flex w-fit rounded-lg bg-orange-500 px-5 py-3 text-sm font-black text-white transition hover:bg-orange-600">
+                <Link href="/admin/dealers/create" class="inline-flex w-fit rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-orange-600">
                     Add Dealer
                 </Link>
             </div>
@@ -27,7 +27,7 @@
         <section class="mt-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <form class="grid gap-3 md:grid-cols-[220px_1fr_auto]" @submit.prevent="applyFilters">
                 <label class="block">
-                    <span class="mb-2 block text-sm font-black text-slate-700">Status</span>
+                    <span class="mb-2 block text-sm font-semibold text-slate-700">Status</span>
                     <select v-model="filterForm.status" class="admin-input">
                         <option value="all">All Status</option>
                         <option value="pending">Pending</option>
@@ -36,12 +36,12 @@
                     </select>
                 </label>
                 <label class="block">
-                    <span class="mb-2 block text-sm font-black text-slate-700">Search</span>
+                    <span class="mb-2 block text-sm font-semibold text-slate-700">Search</span>
                     <input v-model="filterForm.search" class="admin-input" type="search" placeholder="ID, name, email or phone" />
                 </label>
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="h-12 rounded-lg bg-slate-950 px-5 text-sm font-black text-white transition hover:bg-teal-700">Filter</button>
-                    <Link href="/admin/dealers" class="grid h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+                    <button type="submit" class="h-12 rounded-lg bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-teal-700">Filter</button>
+                    <Link href="/admin/dealers" class="grid h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                         Clear
                     </Link>
                 </div>
@@ -51,7 +51,7 @@
         <section class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
                 <table class="min-w-[1080px] w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Dealer</th>
                             <th class="px-5 py-3">Contact</th>
@@ -66,10 +66,10 @@
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="dealer in dealers.data" :key="dealer.id" class="hover:bg-slate-50">
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">{{ dealer.name }}</p>
+                                <p class="font-semibold text-slate-950">{{ dealer.name }}</p>
                                 <p class="mt-1 text-xs font-bold text-slate-500">{{ dealer.dealer_unique_id }}</p>
                                 <p v-if="dealer.company_name" class="mt-1 max-w-[240px] truncate text-xs font-semibold text-slate-500">{{ dealer.company_name }}</p>
-                                <span v-if="dealer.gst_verified" class="mt-2 inline-flex rounded-md bg-teal-50 px-2.5 py-1 text-xs font-black text-teal-700 ring-1 ring-teal-100">
+                                <span v-if="dealer.gst_verified" class="mt-2 inline-flex rounded-md bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700 ring-1 ring-teal-100">
                                     GST verified
                                 </span>
                             </td>
@@ -81,20 +81,20 @@
                                 <p class="font-bold text-slate-700">{{ dealer.city || 'N/A' }}</p>
                                 <p class="mt-1 text-xs font-semibold text-slate-500">{{ dealer.state || 'N/A' }}</p>
                             </td>
-                            <td class="px-5 py-4 font-black text-teal-700">{{ formatCurrency(dealer.wallet_balance) }}</td>
-                            <td class="px-5 py-4 font-black text-slate-950">{{ dealer.cars_count }}</td>
+                            <td class="px-5 py-4 font-semibold text-teal-700">{{ formatCurrency(dealer.wallet_balance) }}</td>
+                            <td class="px-5 py-4 font-semibold text-slate-950">{{ dealer.cars_count }}</td>
                             <td class="px-5 py-4">
                                 <StatusBadge :status="dealer.status" />
                             </td>
                             <td class="px-5 py-4 text-sm font-semibold text-slate-600">{{ dealer.joined_at || 'N/A' }}</td>
                             <td class="px-5 py-4">
                                 <div class="flex justify-end gap-2">
-                                    <Link :href="dealer.show_url" class="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-black text-teal-700 transition hover:bg-white">
+                                    <Link :href="dealer.show_url" class="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-semibold text-teal-700 transition hover:bg-white">
                                         View
                                     </Link>
                                     <button
                                         type="button"
-                                        class="rounded-lg border px-4 py-2 text-xs font-black transition"
+                                        class="rounded-lg border px-4 py-2 text-xs font-semibold transition"
                                         :class="dealer.status === 'approved' ? 'border-red-200 bg-red-50 text-red-700 hover:bg-white' : 'border-teal-200 bg-teal-50 text-teal-700 hover:bg-white'"
                                         @click="toggleDealer(dealer)"
                                     >
@@ -105,7 +105,7 @@
                         </tr>
                         <tr v-if="!dealers.data.length">
                             <td colspan="8" class="px-5 py-14 text-center">
-                                <p class="text-lg font-black text-slate-950">No dealers found</p>
+                                <p class="text-lg font-semibold text-slate-950">No dealers found</p>
                                 <p class="mt-2 text-sm font-semibold text-slate-500">Try another search term or status filter.</p>
                             </td>
                         </tr>
@@ -191,8 +191,8 @@ const MetricTile = defineComponent({
         };
 
         return () => h('div', { class: ['rounded-lg border p-4', classes()] }, [
-            h('p', { class: 'text-2xl font-black' }, tileProps.value),
-            h('p', { class: 'mt-1 text-xs font-black uppercase tracking-wide' }, tileProps.label),
+            h('p', { class: 'text-2xl font-semibold' }, tileProps.value),
+            h('p', { class: 'mt-1 text-xs font-semibold uppercase tracking-wide' }, tileProps.label),
         ]);
     },
 });
@@ -202,7 +202,7 @@ const StatusBadge = defineComponent({
     setup(badgeProps) {
         return () => h('span', {
             class: [
-                'inline-flex rounded-md px-2.5 py-1 text-xs font-black capitalize',
+                'inline-flex rounded-md px-2.5 py-1 text-xs font-semibold capitalize',
                 badgeProps.status === 'approved'
                     ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100'
                     : badgeProps.status === 'pending'

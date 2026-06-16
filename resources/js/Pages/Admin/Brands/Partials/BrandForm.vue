@@ -16,31 +16,31 @@
                     <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
                         <input v-model="form.is_active" class="mt-1 h-5 w-5 accent-teal-700" type="checkbox" />
                         <span>
-                            <span class="block text-sm font-black text-slate-950">Active brand</span>
+                            <span class="block text-sm font-semibold text-slate-950">Active brand</span>
                             <span class="mt-1 block text-xs font-semibold leading-5 text-slate-500">Available in vehicle listing forms and public filters.</span>
                         </span>
                     </label>
                 </div>
 
                 <div class="rounded-lg border border-slate-200 bg-slate-50 p-5">
-                    <p class="text-xs font-black uppercase tracking-wide text-slate-400">Logo preview</p>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Logo preview</p>
                     <div class="mt-4 grid aspect-square place-items-center overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white p-6">
                         <img v-if="previewUrl" :src="previewUrl" :alt="form.name || 'Brand logo preview'" class="max-h-full max-w-full object-contain" />
                         <div v-else class="text-center">
-                            <p class="text-3xl font-black text-slate-300">{{ brandInitial }}</p>
+                            <p class="text-3xl font-semibold text-slate-300">{{ brandInitial }}</p>
                             <p class="mt-2 text-xs font-bold text-slate-400">No logo selected</p>
                         </div>
                     </div>
-                    <p class="mt-4 break-all text-sm font-black text-slate-700">{{ form.name || 'Brand name' }}</p>
+                    <p class="mt-4 break-all text-sm font-semibold text-slate-700">{{ form.name || 'Brand name' }}</p>
                 </div>
             </div>
         </section>
 
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <Link :href="cancelUrl" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+            <Link :href="cancelUrl" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                 Cancel
             </Link>
-            <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-700 disabled:opacity-60" :disabled="form.processing">
+            <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60" :disabled="form.processing">
                 {{ form.processing ? 'Saving...' : submitLabel }}
             </button>
         </div>
@@ -84,7 +84,7 @@ const Field = defineComponent({
     },
     setup(fieldProps, { slots }) {
         return () => h('label', { class: 'block' }, [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, [
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, [
                 fieldProps.label,
                 fieldProps.required ? h('span', { class: 'text-red-600' }, ' *') : null,
             ]),

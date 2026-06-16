@@ -30,8 +30,8 @@
                             <IconMenu class="h-5 w-5" />
                         </button>
                         <div class="min-w-0">
-                            <p class="text-xs font-black uppercase tracking-wide text-teal-700">{{ eyebrow }}</p>
-                            <h1 class="truncate text-xl font-black text-slate-950 sm:text-2xl">{{ title }}</h1>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">{{ eyebrow }}</p>
+                            <h1 class="truncate text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">{{ title }}</h1>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -40,12 +40,12 @@
                             :href="`/catalog/${dealer.slug}`"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="hidden rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700 sm:inline-flex"
+                            class="hidden rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700 sm:inline-flex"
                         >
                             View catalog
                         </a>
                         <div class="hidden min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 sm:block">
-                            <p class="max-w-[180px] truncate text-sm font-black text-slate-900">{{ dealer?.company_name || dealer?.name || 'Dealer' }}</p>
+                            <p class="max-w-[180px] truncate text-sm font-semibold text-slate-900">{{ dealer?.company_name || dealer?.name || 'Dealer' }}</p>
                             <p class="max-w-[180px] truncate text-xs font-semibold capitalize text-slate-500">{{ dealer?.status || 'Account' }}</p>
                         </div>
                     </div>
@@ -149,12 +149,12 @@ const BrandBlock = defineComponent({
                     h(IconCar, { class: 'h-5 w-5' }),
                 ]),
                 h('div', { class: 'min-w-0' }, [
-                    h('p', { class: 'text-lg font-black leading-none text-slate-950' }, ['SAHI', h('span', { class: 'text-orange-500' }, 'GADI')]),
+                    h('p', { class: 'text-lg font-bold leading-none tracking-tight text-slate-950' }, ['SAHI', h('span', { class: 'text-orange-500' }, 'GADI')]),
                     h('p', { class: 'mt-1 text-xs font-bold uppercase tracking-wide text-slate-500' }, 'Dealer portal'),
                 ]),
             ]),
             dealer.value ? h('div', { class: 'mt-4 rounded-lg bg-slate-50 p-3' }, [
-                h('p', { class: 'truncate text-sm font-black text-slate-900' }, dealer.value.name),
+                h('p', { class: 'truncate text-sm font-semibold text-slate-900' }, dealer.value.name),
                 h('p', { class: 'mt-1 truncate text-xs font-semibold text-slate-500' }, dealer.value.dealer_unique_id || dealer.value.phone),
             ]) : null,
         ]);
@@ -166,7 +166,7 @@ const NavGroup = defineComponent({
     emits: ['navigate'],
     setup(groupProps, { emit }) {
         return () => h('div', { class: 'mb-6' }, [
-            h('p', { class: 'mb-2 px-3 text-xs font-black uppercase tracking-wide text-slate-400' }, groupProps.group.title),
+            h('p', { class: 'mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-slate-400' }, groupProps.group.title),
             h('div', { class: 'grid gap-1' }, groupProps.group.items.map((item) => h(Link, {
                 key: item.href,
                 href: item.href,
@@ -179,7 +179,7 @@ const NavGroup = defineComponent({
                 h(item.icon, { class: 'h-5 w-5 shrink-0' }),
                 h('span', { class: 'min-w-0 flex-1 truncate' }, item.label),
                 item.badge && item.badge() > 0
-                    ? h('span', { class: 'rounded-full bg-red-100 px-2 py-0.5 text-xs font-black text-red-700' }, item.badge())
+                    ? h('span', { class: 'rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700' }, item.badge())
                     : null,
             ]))),
         ]);

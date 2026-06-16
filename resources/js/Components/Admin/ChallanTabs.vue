@@ -5,7 +5,7 @@
                 v-for="item in items"
                 :key="item.href"
                 :href="item.href"
-                class="rounded-lg px-4 py-2.5 text-sm font-black transition"
+                class="rounded-lg px-4 py-2.5 text-sm font-semibold transition"
                 :class="isActive(item)
                     ? 'bg-slate-950 text-white shadow-sm'
                     : 'border border-slate-200 bg-white text-slate-600 hover:border-teal-200 hover:text-teal-700'"

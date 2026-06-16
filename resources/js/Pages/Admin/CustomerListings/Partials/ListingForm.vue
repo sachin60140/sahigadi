@@ -64,8 +64,8 @@
         </section>
 
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <p class="text-xs font-black uppercase tracking-wide text-teal-700">Owner details</p>
-            <h3 class="mt-1 text-xl font-black text-slate-950">Customer contact</h3>
+            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Owner details</p>
+            <h3 class="mt-1 text-xl font-semibold text-slate-950">Customer contact</h3>
             <div class="mt-4 grid gap-4 lg:grid-cols-2">
                 <Field label="Owner Phone" :error="form.errors.owner_phone" required>
                     <input v-model="form.owner_phone" class="admin-input" required type="text" />
@@ -87,10 +87,10 @@
         </section>
 
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <Link :href="cancelUrl" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+            <Link :href="cancelUrl" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                 Cancel
             </Link>
-            <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-700" :disabled="form.processing">
+            <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-700" :disabled="form.processing">
                 {{ form.processing ? 'Saving...' : submitLabel }}
             </button>
         </div>
@@ -133,7 +133,7 @@ const Field = defineComponent({
     },
     setup(fieldProps, { slots }) {
         return () => h('label', { class: 'block' }, [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, [
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, [
                 fieldProps.label,
                 fieldProps.required ? h('span', { class: 'text-red-600' }, ' *') : null,
             ]),

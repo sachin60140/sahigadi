@@ -2,15 +2,15 @@
     <div class="relative z-10 mx-auto w-full max-w-md rounded-lg border border-white/70 bg-white p-5 shadow-2xl shadow-slate-950/20 sm:p-6 md:p-7 xl:ml-auto xl:mr-0">
         <div class="mb-5 flex items-start justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-black text-slate-950">Find your car</h2>
+                <h2 class="text-2xl font-semibold text-slate-950">Find your car</h2>
                 <p class="mt-1 text-sm font-medium text-slate-500">Search verified cars across Bihar</p>
             </div>
-            <span class="rounded-lg bg-teal-50 px-3 py-2 text-xs font-black text-teal-700">Verified</span>
+            <span class="rounded-lg bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-700">Verified</span>
         </div>
 
         <form class="space-y-4" @submit.prevent="submitSearch">
             <div>
-                <label class="mb-1 block text-xs font-black uppercase tracking-wide text-slate-600">Search</label>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">Search</label>
                 <input
                     v-model="form.keyword"
                     type="search"
@@ -41,7 +41,7 @@
                 </FieldSelect>
             </div>
 
-            <button type="submit" class="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-3.5 font-black text-white shadow-md transition hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-lg">
+            <button type="submit" class="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-3.5 font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-lg">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -93,7 +93,7 @@ const FieldSelect = defineComponent({
     emits: ['update:modelValue'],
     setup(props, { slots, emit }) {
         return () => h('div', [
-            h('label', { class: 'mb-1 block text-xs font-black uppercase tracking-wide text-slate-600' }, props.label),
+            h('label', { class: 'mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600' }, props.label),
             h('div', { class: 'relative' }, [
                 h('select', {
                     value: props.modelValue,

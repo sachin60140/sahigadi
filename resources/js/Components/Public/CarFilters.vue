@@ -2,10 +2,10 @@
     <div class="space-y-6 bg-white p-5">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-                <h2 class="text-lg font-black text-slate-950">Filters</h2>
+                <h2 class="text-lg font-semibold text-slate-950">Filters</h2>
                 <p class="mt-1 text-xs font-semibold text-slate-500">Refine cars by your buying intent</p>
             </div>
-            <button type="button" class="rounded-md px-2 py-1 text-sm font-black text-orange-600 transition hover:bg-orange-50 hover:text-orange-700" @click="$emit('clear')">
+            <button type="button" class="rounded-md px-2 py-1 text-sm font-semibold text-orange-600 transition hover:bg-orange-50 hover:text-orange-700" @click="$emit('clear')">
                 Clear
             </button>
         </div>
@@ -56,7 +56,7 @@
         </FilterField>
 
         <div class="border-t border-slate-100 pt-4">
-            <button type="button" class="flex h-12 w-full items-center justify-center rounded-lg bg-slate-950 px-4 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-700" @click="updateFilters">
+            <button type="button" class="flex h-12 w-full items-center justify-center rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-700" @click="updateFilters">
                 Apply Filters
             </button>
         </div>
@@ -111,7 +111,7 @@ const FilterField = defineComponent({
     },
     setup(props, { slots }) {
         return () => h('div', { class: 'space-y-2' }, [
-            h('label', { class: 'text-sm font-black text-slate-800' }, props.label),
+            h('label', { class: 'text-sm font-semibold text-slate-800' }, props.label),
             slots.default?.(),
         ]);
     },
@@ -127,7 +127,7 @@ const FilterRadio = defineComponent({
     setup(props, { emit }) {
         return () => h('label', {
             class: [
-                'flex min-h-10 cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-center text-xs font-black transition',
+                'flex min-h-10 cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-center text-xs font-semibold transition',
                 props.modelValue === props.value ? 'border-teal-600 bg-teal-50 text-teal-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50',
             ],
         }, [

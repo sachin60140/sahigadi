@@ -5,8 +5,8 @@
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Customer network</p>
-                    <h2 class="mt-2 text-3xl font-black text-slate-950">Manage registered customer profiles.</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Customer network</p>
+                    <h2 class="mt-2 text-3xl font-semibold text-slate-950">Manage registered customer profiles.</h2>
                     <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
                         Review contact details, profile completion, wallet balance and customer-listed inventory.
                     </p>
@@ -22,12 +22,12 @@
         <section class="mt-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <form class="grid gap-3 md:grid-cols-[1fr_auto]" @submit.prevent="applyFilters">
                 <label class="block">
-                    <span class="mb-2 block text-sm font-black text-slate-700">Search</span>
+                    <span class="mb-2 block text-sm font-semibold text-slate-700">Search</span>
                     <input v-model="filterForm.search" class="admin-input" type="search" placeholder="ID, name, email, phone or company" />
                 </label>
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="h-12 rounded-lg bg-slate-950 px-5 text-sm font-black text-white transition hover:bg-teal-700">Filter</button>
-                    <Link href="/admin/customers" class="grid h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+                    <button type="submit" class="h-12 rounded-lg bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-teal-700">Filter</button>
+                    <Link href="/admin/customers" class="grid h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                         Clear
                     </Link>
                 </div>
@@ -37,7 +37,7 @@
         <section class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
                 <table class="min-w-[1080px] w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Customer</th>
                             <th class="px-5 py-3">Contact</th>
@@ -52,7 +52,7 @@
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="customer in customers.data" :key="customer.id" class="hover:bg-slate-50">
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">{{ customer.name }}</p>
+                                <p class="font-semibold text-slate-950">{{ customer.name }}</p>
                                 <p class="mt-1 text-xs font-bold text-slate-500">{{ customer.customer_unique_id }}</p>
                                 <p v-if="customer.company_name" class="mt-1 max-w-[240px] truncate text-xs font-semibold text-slate-500">{{ customer.company_name }}</p>
                             </td>
@@ -64,21 +64,21 @@
                                 <p class="font-bold text-slate-700">{{ customer.city || 'N/A' }}</p>
                                 <p class="mt-1 text-xs font-semibold text-slate-500">{{ customer.state || 'N/A' }}</p>
                             </td>
-                            <td class="px-5 py-4 font-black text-teal-700">{{ formatCurrency(customer.wallet_balance) }}</td>
-                            <td class="px-5 py-4 font-black text-slate-950">{{ customer.listings_count }}</td>
+                            <td class="px-5 py-4 font-semibold text-teal-700">{{ formatCurrency(customer.wallet_balance) }}</td>
+                            <td class="px-5 py-4 font-semibold text-slate-950">{{ customer.listings_count }}</td>
                             <td class="px-5 py-4">
                                 <ProfileBar :value="customer.profile_completion_percentage" />
                             </td>
                             <td class="px-5 py-4 text-sm font-semibold text-slate-600">{{ customer.joined_at || 'N/A' }}</td>
                             <td class="px-5 py-4 text-right">
-                                <Link :href="customer.show_url" class="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-black text-teal-700 transition hover:bg-white">
+                                <Link :href="customer.show_url" class="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-semibold text-teal-700 transition hover:bg-white">
                                     View
                                 </Link>
                             </td>
                         </tr>
                         <tr v-if="!customers.data.length">
                             <td colspan="8" class="px-5 py-14 text-center">
-                                <p class="text-lg font-black text-slate-950">No customers found</p>
+                                <p class="text-lg font-semibold text-slate-950">No customers found</p>
                                 <p class="mt-2 text-sm font-semibold text-slate-500">Try another search term.</p>
                             </td>
                         </tr>
@@ -143,8 +143,8 @@ const MetricTile = defineComponent({
         };
 
         return () => h('div', { class: ['rounded-lg border p-4', classes()] }, [
-            h('p', { class: 'text-2xl font-black' }, tileProps.value),
-            h('p', { class: 'mt-1 text-xs font-black uppercase tracking-wide' }, tileProps.label),
+            h('p', { class: 'text-2xl font-semibold' }, tileProps.value),
+            h('p', { class: 'mt-1 text-xs font-semibold uppercase tracking-wide' }, tileProps.label),
         ]);
     },
 });

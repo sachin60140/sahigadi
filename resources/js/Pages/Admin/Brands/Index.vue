@@ -7,13 +7,13 @@
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Vehicle taxonomy</p>
-                    <h2 class="mt-2 text-3xl font-black text-slate-950">Keep inventory brands clean and consistent.</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Vehicle taxonomy</p>
+                    <h2 class="mt-2 text-3xl font-semibold text-slate-950">Keep inventory brands clean and consistent.</h2>
                     <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
                         Manage the brand names and logos used across dealer cars, customer listings and public filters.
                     </p>
                 </div>
-                <Link :href="actions.create" class="inline-flex w-fit rounded-lg bg-orange-500 px-4 py-3 text-sm font-black text-white transition hover:bg-orange-600">
+                <Link :href="actions.create" class="inline-flex w-fit rounded-lg bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-600">
                     Add brand
                 </Link>
             </div>
@@ -29,7 +29,7 @@
         <section class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[820px] text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Brand</th>
                             <th class="px-5 py-3">Slug</th>
@@ -44,21 +44,21 @@
                                 <div class="flex items-center gap-3">
                                     <span class="grid h-12 w-16 shrink-0 place-items-center overflow-hidden rounded-lg border border-slate-200 bg-white p-2">
                                         <img v-if="brand.logo_url" :src="brand.logo_url" :alt="brand.name" class="max-h-full max-w-full object-contain" />
-                                        <span v-else class="text-lg font-black text-slate-300">{{ brand.name.charAt(0) }}</span>
+                                        <span v-else class="text-lg font-semibold text-slate-300">{{ brand.name.charAt(0) }}</span>
                                     </span>
-                                    <p class="font-black text-slate-950">{{ brand.name }}</p>
+                                    <p class="font-semibold text-slate-950">{{ brand.name }}</p>
                                 </div>
                             </td>
                             <td class="px-5 py-4"><code class="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{{ brand.slug }}</code></td>
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">{{ brand.inventory_count }} vehicles</p>
+                                <p class="font-semibold text-slate-950">{{ brand.inventory_count }} vehicles</p>
                                 <p class="mt-1 text-xs font-semibold text-slate-500">{{ brand.cars_count }} dealer / {{ brand.customer_listings_count }} customer</p>
                             </td>
                             <td class="px-5 py-4"><StatusBadge :active="brand.is_active" /></td>
                             <td class="px-5 py-4">
                                 <div class="flex justify-end gap-2">
-                                    <Link :href="brand.actions.edit" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-white">Edit</Link>
-                                    <button type="button" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700 transition hover:bg-white" @click="deleteBrand(brand)">
+                                    <Link :href="brand.actions.edit" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-white">Edit</Link>
+                                    <button type="button" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-white" @click="deleteBrand(brand)">
                                         Delete
                                     </button>
                                 </div>
@@ -66,7 +66,7 @@
                         </tr>
                         <tr v-if="!brands.length">
                             <td colspan="5" class="px-5 py-14 text-center">
-                                <p class="text-lg font-black text-slate-950">No brands configured</p>
+                                <p class="text-lg font-semibold text-slate-950">No brands configured</p>
                                 <p class="mt-2 text-sm font-semibold text-slate-500">Add the first vehicle brand to start organizing inventory.</p>
                             </td>
                         </tr>
@@ -120,8 +120,8 @@ const MetricTile = defineComponent({
             return 'border-slate-200 bg-slate-50 text-slate-900';
         };
         return () => h('div', { class: ['rounded-lg border p-4', classes()] }, [
-            h('p', { class: 'text-2xl font-black' }, new Intl.NumberFormat('en-IN').format(tileProps.value)),
-            h('p', { class: 'mt-1 text-xs font-black uppercase tracking-wide' }, tileProps.label),
+            h('p', { class: 'text-2xl font-semibold' }, new Intl.NumberFormat('en-IN').format(tileProps.value)),
+            h('p', { class: 'mt-1 text-xs font-semibold uppercase tracking-wide' }, tileProps.label),
         ]);
     },
 });
@@ -131,7 +131,7 @@ const StatusBadge = defineComponent({
     setup(badgeProps) {
         return () => h('span', {
             class: [
-                'inline-flex rounded-md px-2.5 py-1 text-xs font-black',
+                'inline-flex rounded-md px-2.5 py-1 text-xs font-semibold',
                 badgeProps.active
                     ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100'
                     : 'bg-slate-100 text-slate-600 ring-1 ring-slate-200',

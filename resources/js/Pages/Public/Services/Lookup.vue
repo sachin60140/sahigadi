@@ -13,16 +13,16 @@
             <div :class="service.customerAuthenticated ? '' : 'mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8'">
                 <div v-if="!service.customerAuthenticated" class="grid gap-7 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
                     <div>
-                        <span class="inline-flex items-center gap-2 rounded-lg border border-teal-100 bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-teal-700 shadow-sm">
+                        <span class="inline-flex items-center gap-2 rounded-lg border border-teal-100 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-teal-700 shadow-sm">
                             <ShieldCheck class="h-4 w-4" />
                             {{ service.eyebrow }}
                         </span>
-                        <h1 class="mt-5 max-w-4xl text-3xl font-black leading-tight text-slate-950 sm:text-5xl">{{ service.title }}</h1>
+                        <h1 class="mt-5 max-w-4xl text-3xl font-semibold leading-tight text-slate-950 sm:text-5xl">{{ service.title }}</h1>
                         <p class="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">{{ service.description }}</p>
                     </div>
                     <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70">
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-600">Report charge</p>
-                        <p class="mt-2 text-4xl font-black text-slate-950">{{ money(service.charge) }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Report charge</p>
+                        <p class="mt-2 text-4xl font-semibold text-slate-950">{{ money(service.charge) }}</p>
                         <p class="mt-3 text-sm font-semibold leading-6 text-slate-600">One report, securely processed. Cached reports may be shown when available.</p>
                     </div>
                 </div>
@@ -42,14 +42,14 @@
                                 <CarFront class="h-6 w-6" />
                             </span>
                             <div>
-                                <p class="text-xs font-black uppercase tracking-wide text-teal-700">Start a new report</p>
-                                <h2 class="mt-1 text-2xl font-black text-slate-950">{{ service.title }}</h2>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Start a new report</p>
+                                <h2 class="mt-1 text-2xl font-semibold text-slate-950">{{ service.title }}</h2>
                                 <p class="mt-2 text-sm font-medium leading-6 text-slate-600">{{ service.description }}</p>
                             </div>
                         </div>
 
                         <div class="mt-7">
-                            <label :for="service.numberField" class="mb-2 block text-sm font-black text-slate-800">{{ service.numberLabel }}</label>
+                            <label :for="service.numberField" class="mb-2 block text-sm font-semibold text-slate-800">{{ service.numberLabel }}</label>
                             <div class="relative">
                                 <Hash class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                                 <input
@@ -68,17 +68,17 @@
 
                         <div v-if="service.requiresGuestDetails" class="mt-5 grid gap-4 md:grid-cols-2">
                             <label class="block">
-                                <span class="mb-2 block text-sm font-black text-slate-800">Your name</span>
+                                <span class="mb-2 block text-sm font-semibold text-slate-800">Your name</span>
                                 <input v-model="form.customer_name" type="text" class="sg-input min-h-12" placeholder="Enter your name" autocomplete="name" required />
                                 <span v-if="form.errors.customer_name" class="mt-2 block text-sm font-bold text-red-600">{{ form.errors.customer_name }}</span>
                             </label>
                             <label class="block">
-                                <span class="mb-2 block text-sm font-black text-slate-800">Phone number</span>
+                                <span class="mb-2 block text-sm font-semibold text-slate-800">Phone number</span>
                                 <input v-model="form.customer_phone" type="tel" class="sg-input min-h-12" placeholder="Enter phone number" autocomplete="tel" required />
                                 <span v-if="form.errors.customer_phone" class="mt-2 block text-sm font-bold text-red-600">{{ form.errors.customer_phone }}</span>
                             </label>
                             <label class="block md:col-span-2">
-                                <span class="mb-2 block text-sm font-black text-slate-800">Email address <span class="font-semibold text-slate-400">(optional)</span></span>
+                                <span class="mb-2 block text-sm font-semibold text-slate-800">Email address <span class="font-semibold text-slate-400">(optional)</span></span>
                                 <input v-model="form.customer_email" type="email" class="sg-input min-h-12" placeholder="you@example.com" autocomplete="email" />
                                 <span v-if="form.errors.customer_email" class="mt-2 block text-sm font-bold text-red-600">{{ form.errors.customer_email }}</span>
                             </label>
@@ -86,12 +86,12 @@
 
                         <div class="mt-6 flex flex-col gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <p class="text-xs font-black uppercase tracking-wide text-slate-400">Report charge</p>
-                                <p class="mt-1 text-2xl font-black text-slate-950">{{ money(service.charge) }}</p>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Report charge</p>
+                                <p class="mt-1 text-2xl font-semibold text-slate-950">{{ money(service.charge) }}</p>
                             </div>
                             <button
                                 type="submit"
-                                class="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-black text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+                                class="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
                                 :disabled="form.processing"
                             >
                                 <LoaderCircle v-if="form.processing" class="h-5 w-5 animate-spin" />
@@ -102,7 +102,7 @@
                     </form>
 
                     <aside class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-600">What this report helps verify</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">What this report helps verify</p>
                         <div class="mt-5 grid gap-4">
                             <div v-for="feature in service.features" :key="feature" class="flex gap-3">
                                 <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-teal-50 text-teal-700">
@@ -123,11 +123,11 @@
                 <section v-if="service.customerAuthenticated" class="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                     <div class="flex items-center gap-3">
                         <History class="h-5 w-5 text-teal-700" />
-                        <h2 class="text-xl font-black text-slate-950">Your search history</h2>
+                        <h2 class="text-xl font-semibold text-slate-950">Your search history</h2>
                     </div>
                     <div v-if="history.length" class="mt-5 overflow-x-auto">
                         <table class="min-w-full text-left text-sm">
-                            <thead class="border-y border-slate-200 bg-slate-50 text-xs font-black uppercase text-slate-500">
+                            <thead class="border-y border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-500">
                                 <tr>
                                     <th class="px-4 py-3">Date</th>
                                     <th class="px-4 py-3">Vehicle</th>
@@ -138,9 +138,9 @@
                             <tbody class="divide-y divide-slate-100">
                                 <tr v-for="item in history" :key="item.id">
                                     <td class="whitespace-nowrap px-4 py-4 font-semibold text-slate-600">{{ formatDate(item.created_at) }}</td>
-                                    <td class="whitespace-nowrap px-4 py-4 font-black uppercase text-slate-950">{{ item.number }}</td>
+                                    <td class="whitespace-nowrap px-4 py-4 font-semibold uppercase text-slate-950">{{ item.number }}</td>
                                     <td class="px-4 py-4">
-                                        <span :class="item.is_success ? 'bg-teal-50 text-teal-700' : 'bg-red-50 text-red-700'" class="inline-flex rounded-md px-2.5 py-1 text-xs font-black">
+                                        <span :class="item.is_success ? 'bg-teal-50 text-teal-700' : 'bg-red-50 text-red-700'" class="inline-flex rounded-md px-2.5 py-1 text-xs font-semibold">
                                             {{ item.is_success ? 'Success' : 'Failed' }}
                                         </span>
                                     </td>

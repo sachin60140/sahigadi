@@ -20,17 +20,17 @@
                     <ol class="inline-flex flex-wrap items-center gap-2">
                         <li><Link href="/" class="transition hover:text-teal-700">Home</Link></li>
                         <li class="text-slate-300">/</li>
-                        <li class="font-black text-teal-700">Verified Dealers</li>
+                        <li class="font-semibold text-teal-700">Verified Dealers</li>
                     </ol>
                 </nav>
 
                 <div class="grid gap-7 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center">
                     <div>
-                        <div class="mb-5 inline-flex w-fit items-center gap-2 rounded-lg border border-teal-100 bg-white/85 px-3 py-2 text-xs font-black uppercase tracking-wide text-teal-700 shadow-sm">
+                        <div class="mb-5 inline-flex w-fit items-center gap-2 rounded-lg border border-teal-100 bg-white/85 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-teal-700 shadow-sm">
                             <IconShield class="h-4 w-4" />
                             Trusted dealer network
                         </div>
-                        <h1 class="max-w-4xl text-3xl font-black leading-tight tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">
+                        <h1 class="max-w-4xl text-3xl font-semibold leading-tight tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">
                             Browse verified car dealers with cleaner inventory pages.
                         </h1>
                         <p class="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
@@ -45,8 +45,8 @@
                     </div>
 
                     <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70">
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-600">Dealer discovery</p>
-                        <h2 class="mt-2 text-2xl font-black leading-tight text-slate-950 sm:text-3xl">Shortlist trusted dealers before you visit.</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Dealer discovery</p>
+                        <h2 class="mt-2 text-2xl font-semibold leading-tight text-slate-950 sm:text-3xl">Shortlist trusted dealers before you visit.</h2>
                         <p class="mt-3 text-sm font-medium leading-7 text-slate-600">
                             Start from a verified profile, view available cars and call the dealer with the right context.
                         </p>
@@ -64,12 +64,12 @@
                 <div class="mb-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                         <div>
-                            <p class="text-xs font-black uppercase tracking-wide text-teal-700">Verified dealers</p>
-                            <h2 class="mt-2 text-2xl font-black text-slate-950">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Verified dealers</p>
+                            <h2 class="mt-2 text-2xl font-semibold text-slate-950">
                                 Browse {{ formatNumber(totalDealers) }} trusted car dealers
                             </h2>
                         </div>
-                        <Link href="/dealer/register" class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-orange-200 bg-orange-50 px-5 py-3 text-sm font-black text-orange-700 transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white sm:w-fit">
+                        <Link href="/dealer/register" class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-orange-200 bg-orange-50 px-5 py-3 text-sm font-semibold text-orange-700 transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white sm:w-fit">
                             <IconShop class="h-4 w-4" />
                             Register Dealer
                         </Link>
@@ -83,20 +83,20 @@
                                 <IconShop class="h-6 w-6" />
                             </span>
                             <div class="min-w-0 flex-1">
-                                <h3 class="truncate text-xl font-black text-slate-950">{{ dealer.name }}</h3>
+                                <h3 class="truncate text-xl font-semibold text-slate-950">{{ dealer.name }}</h3>
                                 <p class="mt-1 truncate text-sm font-semibold text-slate-500">
                                     {{ dealer.company_name || 'SAHI GADI dealer partner' }}
                                 </p>
                                 <div class="mt-3 flex flex-wrap gap-2">
-                                    <span v-if="dealer.gst_verified" class="inline-flex items-center gap-1 rounded-md border border-teal-100 bg-teal-50 px-2.5 py-1.5 text-xs font-black text-teal-700">
+                                    <span v-if="dealer.gst_verified" class="inline-flex items-center gap-1 rounded-md border border-teal-100 bg-teal-50 px-2.5 py-1.5 text-xs font-semibold text-teal-700">
                                         <IconShield class="h-3.5 w-3.5" />
                                         GST verified
                                     </span>
-                                    <span v-else-if="dealer.email_verified" class="inline-flex items-center gap-1 rounded-md border border-sky-100 bg-sky-50 px-2.5 py-1.5 text-xs font-black text-sky-700">
+                                    <span v-else-if="dealer.email_verified" class="inline-flex items-center gap-1 rounded-md border border-sky-100 bg-sky-50 px-2.5 py-1.5 text-xs font-semibold text-sky-700">
                                         <IconCheck class="h-3.5 w-3.5" />
                                         Email verified
                                     </span>
-                                    <span v-else class="inline-flex items-center gap-1 rounded-md border border-teal-100 bg-teal-50 px-2.5 py-1.5 text-xs font-black text-teal-700">
+                                    <span v-else class="inline-flex items-center gap-1 rounded-md border border-teal-100 bg-teal-50 px-2.5 py-1.5 text-xs font-semibold text-teal-700">
                                         <IconCheck class="h-3.5 w-3.5" />
                                         Profile reviewed
                                     </span>
@@ -112,11 +112,11 @@
                         </div>
 
                         <div class="mt-5 grid gap-2 sm:grid-cols-2">
-                            <Link :href="`/catalog/${dealer.slug}`" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-teal-800">
+                            <Link :href="`/catalog/${dealer.slug}`" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-teal-800">
                                 View Inventory
                                 <IconArrow class="h-4 w-4" />
                             </Link>
-                            <a v-if="dealer.phone" :href="`tel:${dealer.phone}`" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm font-black text-orange-700 transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white">
+                            <a v-if="dealer.phone" :href="`tel:${dealer.phone}`" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700 transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white">
                                 <IconPhone class="h-4 w-4" />
                                 Call Dealer
                             </a>
@@ -128,11 +128,11 @@
                     <span class="mx-auto grid h-16 w-16 place-items-center rounded-lg bg-teal-50 text-teal-700">
                         <IconShop class="h-8 w-8" />
                     </span>
-                    <h2 class="mt-5 text-2xl font-black text-slate-950">No verified dealers found</h2>
+                    <h2 class="mt-5 text-2xl font-semibold text-slate-950">No verified dealers found</h2>
                     <p class="mx-auto mt-3 max-w-xl text-sm font-medium leading-7 text-slate-600">
                         Check back soon for trusted dealer catalogs and verified showroom inventory.
                     </p>
-                    <Link href="/cars" class="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-teal-700 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-800">
+                    <Link href="/cars" class="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800">
                         Browse Cars
                         <IconArrow class="h-4 w-4" />
                     </Link>
@@ -146,13 +146,13 @@
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-6 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-600">Why verified dealers</p>
-                        <h2 class="mt-2 text-2xl font-black text-slate-950 sm:text-3xl">A better way to connect with local used car showrooms.</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Why verified dealers</p>
+                        <h2 class="mt-2 text-2xl font-semibold text-slate-950 sm:text-3xl">A better way to connect with local used car showrooms.</h2>
                         <p class="mt-3 max-w-3xl text-sm font-medium leading-7 text-slate-600">
                             SahiGadi dealer pages help buyers review seller identity, showroom location and active inventory before making a call.
                         </p>
                     </div>
-                    <Link href="/cars" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-800 sm:w-fit">
+                    <Link href="/cars" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800 sm:w-fit">
                         Browse Used Cars
                         <IconArrow class="h-4 w-4" />
                     </Link>
@@ -266,7 +266,7 @@ const TrustChip = defineComponent({
     props: { label: { type: String, required: true } },
     setup(chipProps) {
         const slots = useSlots();
-        return () => h('span', { class: 'inline-flex items-center gap-2 rounded-md border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-black text-teal-700' }, [
+        return () => h('span', { class: 'inline-flex items-center gap-2 rounded-md border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-700' }, [
             slots.default?.(),
             chipProps.label,
         ]);
@@ -280,7 +280,7 @@ const StatTile = defineComponent({
     },
     setup(tileProps) {
         return () => h('div', { class: 'rounded-lg border border-slate-200 bg-slate-50 p-4' }, [
-            h('p', { class: 'text-2xl font-black text-slate-950' }, tileProps.value),
+            h('p', { class: 'text-2xl font-semibold text-slate-950' }, tileProps.value),
             h('p', { class: 'mt-2 text-sm font-bold text-slate-500' }, tileProps.label),
         ]);
     },
@@ -294,8 +294,8 @@ const MetaBox = defineComponent({
     setup(metaProps) {
         const slots = useSlots();
         return () => h('div', { class: 'rounded-lg border border-slate-200 bg-slate-50 p-3' }, [
-            h('span', { class: 'block text-[0.72rem] font-black uppercase tracking-wide text-slate-500' }, metaProps.label),
-            h('span', { class: 'mt-2 block text-sm font-black text-slate-950' }, [
+            h('span', { class: 'block text-[0.72rem] font-semibold uppercase tracking-wide text-slate-500' }, metaProps.label),
+            h('span', { class: 'mt-2 block text-sm font-semibold text-slate-950' }, [
                 slots.default?.(),
                 metaProps.value,
             ]),
@@ -312,7 +312,7 @@ const InfoCard = defineComponent({
         const slots = useSlots();
         return () => h('div', { class: 'h-full rounded-lg border border-slate-200 bg-white p-5 shadow-sm' }, [
             h('span', { class: 'grid h-11 w-11 place-items-center rounded-lg bg-teal-50 text-teal-700' }, slots.default?.()),
-            h('h3', { class: 'mt-4 text-lg font-black text-slate-950' }, cardProps.title),
+            h('h3', { class: 'mt-4 text-lg font-semibold text-slate-950' }, cardProps.title),
             h('p', { class: 'mt-2 text-sm font-medium leading-7 text-slate-600' }, cardProps.text),
         ]);
     },

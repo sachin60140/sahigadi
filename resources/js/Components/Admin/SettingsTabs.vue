@@ -6,7 +6,7 @@
                 :key="item.href"
                 :href="item.href"
                 :class="[
-                    'border-b-2 px-4 py-3 text-sm font-black transition',
+                    'border-b-2 px-4 py-3 text-sm font-semibold transition',
                     isActive(item)
                         ? 'border-teal-700 text-teal-700'
                         : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-950',

@@ -30,16 +30,16 @@
                             <Menu class="h-5 w-5" />
                         </button>
                         <div class="min-w-0">
-                            <p class="text-xs font-black uppercase tracking-wide text-teal-700">{{ eyebrow }}</p>
-                            <h1 class="truncate text-xl font-black text-slate-950 sm:text-2xl">{{ title }}</h1>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">{{ eyebrow }}</p>
+                            <h1 class="truncate text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">{{ title }}</h1>
                         </div>
                     </div>
                     <div class="hidden items-center gap-3 sm:flex">
                         <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-right">
                             <p class="text-xs font-bold text-slate-500">Wallet balance</p>
-                            <p class="text-sm font-black text-teal-700">{{ money(customer?.wallet_balance) }}</p>
+                            <p class="text-sm font-semibold text-teal-700">{{ money(customer?.wallet_balance) }}</p>
                         </div>
-                        <Link href="/" class="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-50">
+                        <Link href="/" class="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                             Marketplace
                         </Link>
                     </div>
@@ -126,7 +126,7 @@ const BrandBlock = defineComponent({
                     h(CarFront, { class: 'h-5 w-5' }),
                 ]),
                 h('div', { class: 'min-w-0' }, [
-                    h('p', { class: 'text-lg font-black leading-none text-slate-950' }, ['SAHI', h('span', { class: 'text-orange-500' }, 'GADI')]),
+                    h('p', { class: 'text-lg font-bold leading-none tracking-tight text-slate-950' }, ['SAHI', h('span', { class: 'text-orange-500' }, 'GADI')]),
                     h('p', { class: 'mt-1 text-xs font-bold uppercase tracking-wide text-slate-500' }, 'Customer account'),
                 ]),
             ]),
@@ -137,7 +137,7 @@ const BrandBlock = defineComponent({
                         h(UserRound, { class: 'h-5 w-5' }),
                     ]),
                 h('div', { class: 'min-w-0' }, [
-                    h('p', { class: 'truncate text-sm font-black text-slate-900' }, customer.value.name || 'Customer'),
+                    h('p', { class: 'truncate text-sm font-semibold text-slate-900' }, customer.value.name || 'Customer'),
                     h('p', { class: 'mt-1 truncate text-xs font-semibold text-slate-500' }, customer.value.customer_unique_id || customer.value.phone),
                 ]),
             ]) : null,
@@ -150,7 +150,7 @@ const NavGroup = defineComponent({
     emits: ['navigate'],
     setup(groupProps, { emit }) {
         return () => h('div', { class: 'mb-6' }, [
-            h('p', { class: 'mb-2 px-3 text-xs font-black uppercase tracking-wide text-slate-400' }, groupProps.group.title),
+            h('p', { class: 'mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-slate-400' }, groupProps.group.title),
             h('div', { class: 'grid gap-1' }, groupProps.group.items.map((item) => h(Link, {
                 key: item.href,
                 href: item.href,

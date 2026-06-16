@@ -4,8 +4,8 @@
     <AdminLayout title="Change Password" eyebrow="Account security">
         <section class="mx-auto max-w-3xl">
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <p class="text-xs font-black uppercase tracking-wide text-teal-700">Administrator credentials</p>
-                <h2 class="mt-2 text-3xl font-black text-slate-950">Set a new password.</h2>
+                <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Administrator credentials</p>
+                <h2 class="mt-2 text-3xl font-semibold text-slate-950">Set a new password.</h2>
                 <p class="mt-2 text-sm font-semibold leading-7 text-slate-600">
                     Confirm your current password, then choose a new password with at least six characters.
                 </p>
@@ -36,7 +36,7 @@
                     </div>
 
                     <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-sm font-black text-slate-800">Password requirements</p>
+                        <p class="text-sm font-semibold text-slate-800">Password requirements</p>
                         <div class="mt-3 grid gap-2 text-xs font-bold sm:grid-cols-2">
                             <Requirement :met="form.new_password.length >= 6" label="At least 6 characters" />
                             <Requirement :met="passwordsMatch" label="Confirmation matches" />
@@ -44,12 +44,12 @@
                     </div>
 
                     <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
-                        <Link :href="actions.cancel" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+                        <Link :href="actions.cancel" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                             Cancel
                         </Link>
                         <button
                             type="submit"
-                            class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
                             :disabled="form.processing || !passwordReady"
                         >
                             {{ form.processing ? 'Updating...' : 'Update Password' }}
@@ -93,7 +93,7 @@ const PasswordField = defineComponent({
     setup(fieldProps, { emit }) {
         const visible = ref(false);
         return () => h('label', { class: 'block' }, [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, fieldProps.label),
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, fieldProps.label),
             h('div', { class: 'relative' }, [
                 h('input', {
                     id: fieldProps.id,
@@ -112,7 +112,7 @@ const PasswordField = defineComponent({
                 }),
                 h('button', {
                     type: 'button',
-                    class: 'absolute inset-y-1 right-1 rounded-md px-3 text-xs font-black text-slate-500 transition hover:bg-white hover:text-teal-700',
+                    class: 'absolute inset-y-1 right-1 rounded-md px-3 text-xs font-semibold text-slate-500 transition hover:bg-white hover:text-teal-700',
                     onClick: () => { visible.value = !visible.value; },
                 }, visible.value ? 'Hide' : 'Show'),
             ]),

@@ -3,8 +3,8 @@
     <AdminLayout :title="`Edit ${plan.name}`" eyebrow="Revenue settings">
         <SettingsTabs />
         <section class="mb-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <p class="text-xs font-black uppercase tracking-wide text-teal-700">Promotion maintenance</p>
-            <h2 class="mt-2 text-3xl font-black text-slate-950">Update {{ plan.name }}.</h2>
+            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Promotion maintenance</p>
+            <h2 class="mt-2 text-3xl font-semibold text-slate-950">Update {{ plan.name }}.</h2>
             <p class="mt-2 text-sm font-semibold text-slate-600">{{ plan.active_featured_listings_count }} active / {{ plan.featured_listings_count }} total linked promotions</p>
         </section>
         <FeaturedPlanForm :form="form" :cancel-url="actions.back" submit-label="Update Featured Plan" @submit="submit" />

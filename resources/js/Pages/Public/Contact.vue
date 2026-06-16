@@ -17,17 +17,17 @@
                     <ol class="inline-flex flex-wrap items-center gap-2">
                         <li><Link href="/" class="transition hover:text-teal-700">Home</Link></li>
                         <li class="text-slate-300">/</li>
-                        <li class="font-black text-teal-700">Contact</li>
+                        <li class="font-semibold text-teal-700">Contact</li>
                     </ol>
                 </nav>
 
                 <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
                     <div>
-                        <div class="mb-5 inline-flex w-fit items-center gap-2 rounded-lg border border-orange-100 bg-white/85 px-3 py-2 text-xs font-black uppercase tracking-wide text-orange-700 shadow-sm">
+                        <div class="mb-5 inline-flex w-fit items-center gap-2 rounded-lg border border-orange-100 bg-white/85 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-orange-700 shadow-sm">
                             <IconChat class="h-4 w-4" />
                             SahiGadi support
                         </div>
-                        <h1 class="max-w-4xl text-3xl font-black leading-tight tracking-normal text-slate-950 sm:text-5xl">
+                        <h1 class="max-w-4xl text-3xl font-semibold leading-tight tracking-normal text-slate-950 sm:text-5xl">
                             Talk to us about buying, selling or listing cars.
                         </h1>
                         <p class="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
@@ -36,8 +36,8 @@
                     </div>
 
                     <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70">
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-600">Fast assistance</p>
-                        <h2 class="mt-2 text-xl font-black leading-tight text-slate-950 sm:text-2xl">Choose the right support path.</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Fast assistance</p>
+                        <h2 class="mt-2 text-xl font-semibold leading-tight text-slate-950 sm:text-2xl">Choose the right support path.</h2>
                         <p class="mt-3 text-sm font-medium leading-7 text-slate-600">
                             Message us directly or use the quick links below to continue your buying or selling journey.
                         </p>
@@ -69,8 +69,8 @@
                                 <IconLocation class="h-5 w-5" />
                             </span>
                             <div>
-                                <h2 class="text-sm font-black text-slate-950">Office</h2>
-                                <p class="mt-1 text-sm font-black text-slate-800">Awani Enterprises</p>
+                                <h2 class="text-sm font-semibold text-slate-950">Office</h2>
+                                <p class="mt-1 text-sm font-semibold text-slate-800">Awani Enterprises</p>
                                 <p class="mt-2 text-sm font-medium leading-6 text-slate-600">A-5, Sector 65, Noida, UP</p>
                             </div>
                         </div>
@@ -79,8 +79,8 @@
 
                 <div class="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
                     <aside class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                        <p class="text-xs font-black uppercase tracking-wide text-teal-700">Quick routes</p>
-                        <h2 class="mt-2 text-2xl font-black text-slate-950 sm:text-3xl">Keep moving without waiting.</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Quick routes</p>
+                        <h2 class="mt-2 text-2xl font-semibold text-slate-950 sm:text-3xl">Keep moving without waiting.</h2>
                         <p class="mt-3 text-sm font-medium leading-7 text-slate-600">Use these shortcuts if you already know what you need.</p>
 
                         <div class="mt-6 grid gap-3">
@@ -97,8 +97,8 @@
                     </aside>
 
                     <form class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6" @submit.prevent="submit">
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-600">Send a message</p>
-                        <h2 class="mt-2 text-2xl font-black text-slate-950 sm:text-3xl">Tell us what you need help with.</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Send a message</p>
+                        <h2 class="mt-2 text-2xl font-semibold text-slate-950 sm:text-3xl">Tell us what you need help with.</h2>
 
                         <div class="mt-6 grid gap-4 md:grid-cols-2">
                             <Field label="Your Name" error-key="name">
@@ -117,7 +117,7 @@
 
                         <button
                             type="submit"
-                            class="mt-5 inline-flex min-h-[50px] w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
+                            class="mt-5 inline-flex min-h-[50px] w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
                             :disabled="form.processing"
                         >
                             {{ form.processing ? 'Sending...' : 'Send Message' }}
@@ -200,8 +200,8 @@ const InfoCard = defineComponent({
             h('div', { class: 'flex gap-3' }, [
                 h('span', { class: 'grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-teal-50 text-teal-700' }, slots.default?.()),
                 h('div', [
-                    h('h2', { class: 'text-sm font-black text-slate-950' }, props.title),
-                    h('a', { href: props.href, class: 'mt-1 block text-sm font-black text-slate-800 transition hover:text-teal-700' }, props.detail),
+                    h('h2', { class: 'text-sm font-semibold text-slate-950' }, props.title),
+                    h('a', { href: props.href, class: 'mt-1 block text-sm font-semibold text-slate-800 transition hover:text-teal-700' }, props.detail),
                     h('p', { class: 'mt-2 text-sm font-medium leading-6 text-slate-600' }, props.text),
                 ]),
             ]),
@@ -223,7 +223,7 @@ const QuickRoute = defineComponent({
         }, () => h('div', { class: 'flex items-center gap-3' }, [
             h('span', { class: 'grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-teal-50 text-teal-700 group-hover:bg-teal-700 group-hover:text-white' }, slots.default?.()),
             h('div', [
-                h('h3', { class: 'text-sm font-black text-slate-950' }, props.title),
+                h('h3', { class: 'text-sm font-semibold text-slate-950' }, props.title),
                 h('p', { class: 'mt-1 text-sm font-medium leading-6 text-slate-600' }, props.text),
             ]),
         ]));
@@ -239,7 +239,7 @@ const Field = defineComponent({
     setup(props) {
         const slots = useSlots();
         return () => h('label', { class: ['block', props.wrapperClass] }, [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, props.label),
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, props.label),
             slots.default?.(),
             form.errors[props.errorKey]
                 ? h('span', { class: 'mt-2 block text-xs font-bold text-red-600' }, form.errors[props.errorKey])

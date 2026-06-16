@@ -8,7 +8,7 @@
                     </svg>
                 </span>
                 <span class="min-w-0 leading-none">
-                    <span class="block text-lg font-black tracking-normal text-slate-950 sm:text-xl">SAHI<span class="text-orange-500">GADI</span></span>
+                    <span class="block text-lg font-bold tracking-tight text-slate-950 sm:text-xl">SAHI<span class="text-orange-500">GADI</span></span>
                     <span class="mt-1 block max-w-[138px] truncate text-[0.58rem] font-bold uppercase tracking-[0.14em] text-slate-500 sm:max-w-none sm:text-[0.62rem] sm:tracking-[0.16em]">Verified used cars</span>
                 </span>
             </Link>
@@ -23,20 +23,20 @@
 
             <div class="hidden items-center gap-3 lg:flex">
                 <template v-if="auth.customer">
-                    <Link href="/customer/dashboard" class="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700">
+                    <Link href="/customer/dashboard" class="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700">
                         Dashboard
                     </Link>
                 </template>
                 <template v-else-if="auth.dealer">
-                    <Link href="/dealer/dashboard" class="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700">
+                    <Link href="/dealer/dashboard" class="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700">
                         Dealer Panel
                     </Link>
                 </template>
                 <template v-else>
-                    <Link href="/customer/login" class="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700">
+                    <Link href="/customer/login" class="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700">
                         Login
                     </Link>
-                    <Link href="/dealer/register" class="rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-lg">
+                    <Link href="/dealer/register" class="rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-lg">
                         Register Dealer
                     </Link>
                 </template>
@@ -69,14 +69,14 @@
                 </div>
                 <div class="mt-4 grid grid-cols-1 gap-3 border-t border-slate-200 pt-4 sm:grid-cols-2">
                     <template v-if="auth.customer">
-                        <Link href="/customer/dashboard" class="rounded-lg border border-slate-200 px-4 py-3 text-center text-sm font-black text-slate-700 sm:col-span-2">Dashboard</Link>
+                        <Link href="/customer/dashboard" class="rounded-lg border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 sm:col-span-2">Dashboard</Link>
                     </template>
                     <template v-else-if="auth.dealer">
-                        <Link href="/dealer/dashboard" class="rounded-lg border border-slate-200 px-4 py-3 text-center text-sm font-black text-slate-700 sm:col-span-2">Dealer Panel</Link>
+                        <Link href="/dealer/dashboard" class="rounded-lg border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 sm:col-span-2">Dealer Panel</Link>
                     </template>
                     <template v-else>
-                        <Link href="/customer/login" class="rounded-lg border border-slate-200 px-4 py-3 text-center text-sm font-black text-slate-700">Login</Link>
-                        <Link href="/dealer/register" class="rounded-lg bg-orange-500 px-4 py-3 text-center text-sm font-black text-white">Dealer</Link>
+                        <Link href="/customer/login" class="rounded-lg border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700">Login</Link>
+                        <Link href="/dealer/register" class="rounded-lg bg-orange-500 px-4 py-3 text-center text-sm font-semibold text-white">Dealer</Link>
                     </template>
                 </div>
             </div>
@@ -122,7 +122,7 @@ const MobileLink = defineComponent({
         return () => h(Link, {
             href: props.href,
             class: [
-                'block rounded-lg border px-3 py-3 text-sm font-black transition',
+                'block rounded-lg border px-3 py-3 text-sm font-semibold transition',
                 props.active ? 'border-teal-100 bg-teal-50 text-teal-700' : 'border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50',
             ],
         }, () => props.label);

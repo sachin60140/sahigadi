@@ -12,15 +12,15 @@
 
         <section class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
             <form class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6" @submit.prevent="submit">
-                <p class="text-xs font-black uppercase tracking-wide text-teal-700">Charge configuration</p>
-                <h2 class="mt-2 text-2xl font-black text-slate-950">Control availability and lookup pricing.</h2>
+                <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Charge configuration</p>
+                <h2 class="mt-2 text-2xl font-semibold text-slate-950">Control availability and lookup pricing.</h2>
                 <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
                     These prices apply to new customer payments and dealer wallet debits. Existing records remain unchanged.
                 </p>
 
                 <label class="mt-6 flex cursor-pointer items-start justify-between gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
                     <span>
-                        <span class="block text-sm font-black text-slate-950">Enable Challan PDF service</span>
+                        <span class="block text-sm font-semibold text-slate-950">Enable Challan PDF service</span>
                         <span class="mt-1 block text-sm font-semibold leading-6 text-slate-500">
                             Allow customers and dealers to request paid Challan PDF reports.
                         </span>
@@ -48,14 +48,14 @@
                 <div class="mt-6 flex flex-wrap gap-3">
                     <button
                         type="submit"
-                        class="rounded-lg bg-teal-700 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
+                        class="rounded-lg bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
                         :disabled="form.processing"
                     >
                         {{ form.processing ? 'Saving...' : 'Save settings' }}
                     </button>
                     <Link
                         :href="actions.logs"
-                        class="rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                        class="rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                     >
                         View search logs
                     </Link>
@@ -63,10 +63,10 @@
             </form>
 
             <aside class="rounded-lg border p-5" :class="settings.active ? 'border-teal-100 bg-teal-50' : 'border-orange-100 bg-orange-50'">
-                <p class="text-xs font-black uppercase tracking-wide" :class="settings.active ? 'text-teal-700' : 'text-orange-700'">
+                <p class="text-xs font-semibold uppercase tracking-wide" :class="settings.active ? 'text-teal-700' : 'text-orange-700'">
                     Current service status
                 </p>
-                <h3 class="mt-2 text-xl font-black text-slate-950">
+                <h3 class="mt-2 text-xl font-semibold text-slate-950">
                     {{ settings.active ? 'Challan PDF is accepting requests.' : 'Challan PDF is currently paused.' }}
                 </h3>
                 <p class="mt-3 text-sm font-semibold leading-7 text-slate-600">
@@ -112,10 +112,10 @@ const Metric = defineComponent({
             blue: 'border-blue-100 bg-blue-50',
         };
         return () => h('div', { class: ['rounded-lg border p-4 shadow-sm', tones[metricProps.tone]] }, [
-            h('p', { class: 'text-2xl font-black text-slate-950' }, typeof metricProps.value === 'number'
+            h('p', { class: 'text-2xl font-semibold text-slate-950' }, typeof metricProps.value === 'number'
                 ? new Intl.NumberFormat('en-IN').format(metricProps.value)
                 : metricProps.value),
-            h('p', { class: 'mt-1 text-xs font-black uppercase tracking-wide text-slate-500' }, metricProps.label),
+            h('p', { class: 'mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500' }, metricProps.label),
         ]);
     },
 });
@@ -129,9 +129,9 @@ const PriceField = defineComponent({
     emits: ['update:modelValue'],
     setup(fieldProps, { emit }) {
         return () => h('label', [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, fieldProps.label),
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, fieldProps.label),
             h('div', { class: 'relative' }, [
-                h('span', { class: 'pointer-events-none absolute inset-y-0 left-0 grid w-11 place-items-center font-black text-slate-500' }, 'Rs'),
+                h('span', { class: 'pointer-events-none absolute inset-y-0 left-0 grid w-11 place-items-center font-semibold text-slate-500' }, 'Rs'),
                 h('input', {
                     class: 'admin-input pl-11',
                     type: 'number',

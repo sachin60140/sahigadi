@@ -4,19 +4,19 @@
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
                 <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-teal-700">SahiGadi marketplace</p>
-                        <h2 class="mt-2 max-w-2xl text-2xl font-black leading-tight text-slate-950 sm:text-3xl">
-                            Browse, sell, and connect with trusted car sellers from one place.
+                        <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">SahiGadi marketplace</p>
+                        <h2 class="mt-2 max-w-2xl text-2xl font-bold leading-tight tracking-tight text-slate-950 sm:text-3xl">
+                            Browse, sell, and connect with trusted car sellers from one place
                         </h2>
                         <p class="mt-3 max-w-2xl text-sm font-medium leading-7 text-slate-600">
                             A light, transparent used-car experience for buyers, sellers, and dealers across Bihar.
                         </p>
                     </div>
                     <div class="flex flex-col gap-3 sm:flex-row lg:justify-end">
-                        <Link href="/cars" class="inline-flex items-center justify-center rounded-lg bg-teal-700 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-800">
+                        <Link href="/cars" class="inline-flex items-center justify-center rounded-lg bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800">
                             Browse Cars
                         </Link>
-                        <Link href="/sell-your-car" class="inline-flex items-center justify-center rounded-lg border border-orange-200 bg-orange-50 px-5 py-3 text-sm font-black text-orange-700 transition hover:border-orange-300 hover:bg-white">
+                        <Link href="/sell-your-car" class="inline-flex items-center justify-center rounded-lg border border-orange-200 bg-orange-50 px-5 py-3 text-sm font-semibold text-orange-700 transition hover:border-orange-300 hover:bg-white">
                             Sell Your Car
                         </Link>
                     </div>
@@ -32,7 +32,7 @@
                             </svg>
                         </span>
                         <span>
-                            <span class="block text-2xl font-black tracking-normal text-slate-950">SAHI<span class="text-orange-500">GADI</span></span>
+                            <span class="block text-2xl font-bold tracking-tight text-slate-950">SAHI<span class="text-orange-500">GADI</span></span>
                             <span class="mt-1 block text-[0.62rem] font-bold uppercase tracking-[0.18em] text-slate-500">Verified used cars</span>
                         </span>
                     </Link>
@@ -40,7 +40,7 @@
                         Verified used cars, dealer catalogs, and owner listings for smarter buying decisions across Bihar.
                     </p>
                     <div class="mt-5 flex flex-wrap gap-2">
-                        <span v-for="badge in trustBadges" :key="badge" class="rounded-md border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-black text-teal-700">
+                        <span v-for="badge in trustBadges" :key="badge" class="rounded-md border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-700">
                             {{ badge }}
                         </span>
                     </div>
@@ -50,7 +50,7 @@
                 <FooterColumn title="Popular Cities" :links="cityLinks" />
 
                 <div>
-                    <h2 class="text-sm font-black uppercase tracking-wide text-slate-950">Contact</h2>
+                    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-950">Contact</h2>
                     <div class="mt-5 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                         <ul class="space-y-3 text-sm font-medium text-slate-600">
                             <li class="flex gap-2">
@@ -64,7 +64,7 @@
                                 <a href="tel:+919818823408" class="transition hover:text-teal-700">+91 98188 23408</a>
                             </li>
                         </ul>
-                        <Link href="/dealer/register" class="mt-5 inline-flex w-full justify-center rounded-lg bg-teal-700 px-4 py-3 text-sm font-black text-white transition hover:bg-teal-800">
+                        <Link href="/dealer/register" class="mt-5 inline-flex w-full justify-center rounded-lg bg-teal-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-800">
                             Register Dealer
                         </Link>
                     </div>
@@ -112,7 +112,7 @@ const FooterColumn = defineComponent({
     },
     setup(props) {
         return () => h('div', [
-            h('h2', { class: 'text-sm font-black uppercase tracking-wide text-slate-950' }, props.title),
+            h('h2', { class: 'text-sm font-semibold uppercase tracking-wide text-slate-950' }, props.title),
             h('ul', { class: 'mt-5 space-y-3 text-sm font-semibold text-slate-600' },
                 props.links.map((link) => {
                     const isFullPageRoute = fullPageRoutes.has(link.href);

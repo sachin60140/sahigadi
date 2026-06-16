@@ -14,7 +14,7 @@
                 <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
                     <input v-model="form.is_active" class="mt-1 h-5 w-5 accent-teal-700" type="checkbox" />
                     <span>
-                        <span class="block text-sm font-black text-slate-950">Active featured plan</span>
+                        <span class="block text-sm font-semibold text-slate-950">Active featured plan</span>
                         <span class="mt-1 block text-xs font-semibold leading-5 text-slate-500">Visible when users promote a vehicle listing.</span>
                     </span>
                 </label>
@@ -22,8 +22,8 @@
         </section>
 
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <Link :href="cancelUrl" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50">Cancel</Link>
-            <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-700 disabled:opacity-60" :disabled="form.processing">
+            <Link :href="cancelUrl" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Cancel</Link>
+            <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60" :disabled="form.processing">
                 {{ form.processing ? 'Saving...' : submitLabel }}
             </button>
         </div>
@@ -41,7 +41,7 @@ const Field = defineComponent({
     props: { label: { type: String, required: true }, error: { type: String, default: '' }, required: { type: Boolean, default: false } },
     setup(fieldProps, { slots }) {
         return () => h('label', { class: 'block' }, [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, [
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, [
                 fieldProps.label,
                 fieldProps.required ? h('span', { class: 'text-red-600' }, ' *') : null,
             ]),

@@ -1,6 +1,6 @@
 <template>
     <div class="flex w-full items-center gap-2 md:w-auto">
-        <label for="sort" class="whitespace-nowrap text-sm font-black text-slate-700">Sort</label>
+        <label for="sort" class="whitespace-nowrap text-sm font-semibold text-slate-700">Sort</label>
         <select 
             id="sort" 
             :value="modelValue"

@@ -5,18 +5,18 @@
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Wallet reports</p>
-                    <h2 class="mt-2 text-3xl font-black text-slate-950">Trace customer wallet movement.</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Wallet reports</p>
+                    <h2 class="mt-2 text-3xl font-semibold text-slate-950">Trace customer wallet movement.</h2>
                     <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
                         Review customer credits, direct deposits, gateway payments and admin deductions.
                     </p>
                 </div>
                 <div class="grid gap-2 sm:grid-cols-3">
-                    <button type="button" class="rounded-lg bg-orange-500 px-4 py-3 text-sm font-black text-white hover:bg-orange-600" @click="showDeduct = true">
+                    <button type="button" class="rounded-lg bg-orange-500 px-4 py-3 text-sm font-semibold text-white hover:bg-orange-600" @click="showDeduct = true">
                         Deduct Balance
                     </button>
-                    <a :href="exportUrls.excel" class="rounded-lg bg-teal-700 px-4 py-3 text-center text-sm font-black text-white hover:bg-teal-800">Export Excel</a>
-                    <a :href="exportUrls.pdf" class="rounded-lg bg-red-600 px-4 py-3 text-center text-sm font-black text-white hover:bg-red-700">Export PDF</a>
+                    <a :href="exportUrls.excel" class="rounded-lg bg-teal-700 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-teal-800">Export Excel</a>
+                    <a :href="exportUrls.pdf" class="rounded-lg bg-red-600 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-red-700">Export PDF</a>
                 </div>
             </div>
         </section>
@@ -26,7 +26,7 @@
         <section class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
                 <table class="min-w-[1060px] w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Transaction</th>
                             <th class="px-5 py-3">Customer</th>
@@ -38,33 +38,33 @@
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="txn in transactions.data" :key="txn.id" class="hover:bg-slate-50">
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">{{ txn.date }}</p>
+                                <p class="font-semibold text-slate-950">{{ txn.date }}</p>
                                 <p class="mt-1 text-xs font-semibold text-slate-500">{{ txn.time }}</p>
-                                <span class="mt-2 inline-flex rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-black text-slate-600">{{ txn.receipt }}</span>
+                                <span class="mt-2 inline-flex rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">{{ txn.receipt }}</span>
                             </td>
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">{{ txn.customer.name }}</p>
+                                <p class="font-semibold text-slate-950">{{ txn.customer.name }}</p>
                                 <p class="mt-1 text-xs font-bold text-slate-500">{{ txn.customer.unique_id }} <span v-if="txn.customer.phone">/ {{ txn.customer.phone }}</span></p>
-                                <span class="mt-2 inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600">
+                                <span class="mt-2 inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
                                     {{ txn.customer.gst_number ? `GST: ${txn.customer.gst_number}` : 'Unregistered' }}
                                 </span>
                             </td>
                             <td class="px-5 py-4">
-                                <div v-if="txn.type === 'debit'" class="font-black text-red-600">-{{ formatCurrency(txn.amount) }}</div>
+                                <div v-if="txn.type === 'debit'" class="font-semibold text-red-600">-{{ formatCurrency(txn.amount) }}</div>
                                 <AmountStack v-else :amount="txn.amount" :gst="txn.gst" :total="txn.total" />
                             </td>
                             <td class="px-5 py-4">
                                 <GatewayBlock :transaction="txn" />
                             </td>
                             <td class="px-5 py-4 text-right">
-                                <a v-if="txn.receipt_url" :href="txn.receipt_url" class="inline-flex rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-black text-teal-700 transition hover:bg-white">
+                                <a v-if="txn.receipt_url" :href="txn.receipt_url" class="inline-flex rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-semibold text-teal-700 transition hover:bg-white">
                                     Receipt
                                 </a>
                             </td>
                         </tr>
                         <tr v-if="!transactions.data.length">
                             <td colspan="5" class="px-5 py-14 text-center">
-                                <p class="text-lg font-black text-slate-950">No customer wallet records found</p>
+                                <p class="text-lg font-semibold text-slate-950">No customer wallet records found</p>
                                 <p class="mt-2 text-sm font-semibold text-slate-500">Try changing the filters.</p>
                             </td>
                         </tr>
@@ -81,26 +81,26 @@
             <form class="relative w-full max-w-xl rounded-lg bg-white p-5 shadow-2xl sm:p-6" @submit.prevent="deduct">
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-600">Admin deduction</p>
-                        <h2 class="mt-1 text-2xl font-black text-slate-950">Deduct customer balance</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Admin deduction</p>
+                        <h2 class="mt-1 text-2xl font-semibold text-slate-950">Deduct customer balance</h2>
                     </div>
-                    <button type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-black text-slate-600" @click="showDeduct = false">Close</button>
+                    <button type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600" @click="showDeduct = false">Close</button>
                 </div>
 
                 <div class="mt-5 grid gap-4">
                     <label class="block">
-                        <span class="mb-2 block text-sm font-black text-slate-700">Customer</span>
+                        <span class="mb-2 block text-sm font-semibold text-slate-700">Customer</span>
                         <select v-model="deductForm.customer_id" class="admin-input" required>
                             <option value="">Choose customer</option>
                             <option v-for="customer in customers" :key="customer.id" :value="customer.id">{{ customer.label }}</option>
                         </select>
                     </label>
                     <label class="block">
-                        <span class="mb-2 block text-sm font-black text-slate-700">Amount</span>
+                        <span class="mb-2 block text-sm font-semibold text-slate-700">Amount</span>
                         <input v-model="deductForm.amount" class="admin-input" min="1" step="0.01" required type="number" />
                     </label>
                     <label class="block">
-                        <span class="mb-2 block text-sm font-black text-slate-700">Remark / Reason</span>
+                        <span class="mb-2 block text-sm font-semibold text-slate-700">Remark / Reason</span>
                         <input v-model="deductForm.remark" class="admin-input" required type="text" />
                     </label>
                 </div>
@@ -108,8 +108,8 @@
                 <div v-if="firstError" class="mt-4 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{{ firstError }}</div>
 
                 <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                    <button type="button" class="rounded-lg border border-slate-200 px-5 py-3 text-sm font-black text-slate-700" @click="showDeduct = false">Cancel</button>
-                    <button type="submit" class="rounded-lg bg-orange-500 px-5 py-3 text-sm font-black text-white hover:bg-orange-600" :disabled="deductForm.processing">
+                    <button type="button" class="rounded-lg border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700" @click="showDeduct = false">Cancel</button>
+                    <button type="submit" class="rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white hover:bg-orange-600" :disabled="deductForm.processing">
                         {{ deductForm.processing ? 'Deducting...' : 'Confirm Deduction' }}
                     </button>
                 </div>
@@ -188,8 +188,8 @@ const FilterPanel = defineComponent({
                 selectGateway(local),
                 input('Search Customer', 'search', 'text', local, 'ID, name, email, phone'),
                 h('div', { class: 'flex items-end gap-2' }, [
-                    h('button', { type: 'submit', class: 'h-12 rounded-lg bg-slate-950 px-4 text-sm font-black text-white hover:bg-teal-700' }, 'Filter'),
-                    h('a', { href: '/admin/customer-wallet-recharges', class: 'grid h-12 place-items-center rounded-lg border border-slate-200 px-4 text-sm font-black text-slate-700' }, 'Clear'),
+                    h('button', { type: 'submit', class: 'h-12 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-teal-700' }, 'Filter'),
+                    h('a', { href: '/admin/customer-wallet-recharges', class: 'grid h-12 place-items-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-700' }, 'Clear'),
                 ]),
             ]),
         ]);
@@ -197,7 +197,7 @@ const FilterPanel = defineComponent({
 });
 
 const input = (label: string, key: string, type: string, local: Record<string, string>, placeholder = '') => h('label', { class: 'block' }, [
-    h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, label),
+    h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, label),
     h('input', {
         type,
         value: local[key] || '',
@@ -208,7 +208,7 @@ const input = (label: string, key: string, type: string, local: Record<string, s
 ]);
 
 const selectGateway = (local: Record<string, string>) => h('label', { class: 'block' }, [
-    h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, 'Gateway'),
+    h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, 'Gateway'),
     h('select', {
         value: local.payment_gateway || '',
         class: 'h-12 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-800 outline-none focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-100',
@@ -227,7 +227,7 @@ const AmountStack = defineComponent({
         return () => h('div', { class: 'grid gap-1 text-sm' }, [
             h('p', { class: 'flex justify-between gap-4 font-semibold text-slate-600' }, [h('span', 'Base'), h('span', { class: 'text-teal-700' }, formatCurrency(amountProps.amount))]),
             h('p', { class: 'flex justify-between gap-4 font-semibold text-slate-600' }, [h('span', 'GST 18%'), h('span', { class: 'text-red-600' }, formatCurrency(amountProps.gst))]),
-            h('p', { class: 'mt-1 flex justify-between gap-4 border-t border-slate-200 pt-2 font-black text-slate-950' }, [h('span', 'Total'), h('span', formatCurrency(amountProps.total))]),
+            h('p', { class: 'mt-1 flex justify-between gap-4 border-t border-slate-200 pt-2 font-semibold text-slate-950' }, [h('span', 'Total'), h('span', formatCurrency(amountProps.total))]),
         ]);
     },
 });
@@ -236,7 +236,7 @@ const GatewayBlock = defineComponent({
     props: { transaction: { type: Object as () => Transaction, required: true } },
     setup(blockProps) {
         return () => h('div', [
-            h('span', { class: 'inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-700' }, blockProps.transaction.gateway),
+            h('span', { class: 'inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700' }, blockProps.transaction.gateway),
             h('p', { class: 'mt-2 max-w-[260px] break-all text-xs font-semibold text-slate-500' }, blockProps.transaction.type === 'debit' ? `Remark: ${blockProps.transaction.remark || 'N/A'}` : `Txn: ${blockProps.transaction.reference_id || 'N/A'}`),
             blockProps.transaction.secondary_reference
                 ? h('p', { class: 'mt-1 max-w-[260px] break-all text-xs font-semibold text-slate-500' }, `${blockProps.transaction.secondary_reference_label}: ${blockProps.transaction.secondary_reference}`)

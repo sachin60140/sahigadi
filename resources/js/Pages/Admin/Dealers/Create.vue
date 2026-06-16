@@ -5,13 +5,13 @@
         <section class="mb-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">New network account</p>
-                    <h2 class="mt-2 text-3xl font-black text-slate-950">Create a complete dealer profile.</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">New network account</p>
+                    <h2 class="mt-2 text-3xl font-semibold text-slate-950">Create a complete dealer profile.</h2>
                     <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
                         Add account, showroom, identity and tax information, then optionally activate a subscription plan.
                     </p>
                 </div>
-                <Link :href="actions.back" class="w-fit rounded-lg border border-slate-200 px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50">Back</Link>
+                <Link :href="actions.back" class="w-fit rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Back</Link>
             </div>
         </section>
 

@@ -37,12 +37,12 @@
                         <input v-model="form.to_date" class="admin-input" type="date" />
                     </Field>
                     <div class="flex items-end gap-2 sm:col-span-2 xl:col-span-1">
-                        <button class="h-12 rounded-lg bg-slate-950 px-5 text-sm font-black text-white transition hover:bg-teal-700">
+                        <button class="h-12 rounded-lg bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-teal-700">
                             Filter
                         </button>
                         <Link
                             href="/admin/challan-pdf/logs"
-                            class="grid h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                            class="grid h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                         >
                             Clear
                         </Link>
@@ -50,7 +50,7 @@
                 </form>
                 <a
                     :href="actions.export"
-                    class="inline-flex h-12 shrink-0 items-center justify-center rounded-lg bg-teal-700 px-5 text-sm font-black text-white transition hover:bg-teal-800"
+                    class="inline-flex h-12 shrink-0 items-center justify-center rounded-lg bg-teal-700 px-5 text-sm font-semibold text-white transition hover:bg-teal-800"
                 >
                     Export CSV
                 </a>
@@ -60,7 +60,7 @@
         <section class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[1120px] text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Vehicle</th>
                             <th class="px-5 py-3">User</th>
@@ -74,17 +74,17 @@
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="log in logs.data" :key="log.id" class="hover:bg-slate-50">
                             <td class="px-5 py-4">
-                                <p class="font-black uppercase text-slate-950">{{ log.vehicle_number }}</p>
-                                <p class="mt-1 text-xs font-black text-slate-400">#{{ log.id }}</p>
+                                <p class="font-semibold uppercase text-slate-950">{{ log.vehicle_number }}</p>
+                                <p class="mt-1 text-xs font-semibold text-slate-400">#{{ log.id }}</p>
                             </td>
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">{{ log.user_name || 'Unknown user' }}</p>
+                                <p class="font-semibold text-slate-950">{{ log.user_name || 'Unknown user' }}</p>
                                 <p class="mt-1 text-xs font-semibold text-slate-500">
                                     {{ [log.user_id, log.user_phone].filter(Boolean).join(' / ') || 'No account details' }}
                                 </p>
                             </td>
                             <td class="px-5 py-4">
-                                <span class="inline-flex rounded-md bg-blue-50 px-2.5 py-1 text-xs font-black capitalize text-blue-700 ring-1 ring-blue-100">
+                                <span class="inline-flex rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold capitalize text-blue-700 ring-1 ring-blue-100">
                                     {{ log.channel }}
                                 </span>
                             </td>
@@ -94,7 +94,7 @@
                                     {{ log.error_message }}
                                 </p>
                             </td>
-                            <td class="px-5 py-4 font-black text-slate-950">{{ money(log.charge_amount) }}</td>
+                            <td class="px-5 py-4 font-semibold text-slate-950">{{ money(log.charge_amount) }}</td>
                             <td class="px-5 py-4 font-semibold text-slate-600">{{ log.created_at || 'N/A' }}</td>
                             <td class="px-5 py-4">
                                 <div class="flex justify-end gap-2">
@@ -103,13 +103,13 @@
                                         :href="log.pdf_url"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50"
+                                        class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                                     >
                                         PDF
                                     </a>
                                     <button
                                         type="button"
-                                        class="rounded-lg bg-slate-950 px-3 py-2 text-xs font-black text-white transition hover:bg-teal-700"
+                                        class="rounded-lg bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-teal-700"
                                         @click="selectedLog = log"
                                     >
                                         Details
@@ -119,7 +119,7 @@
                         </tr>
                         <tr v-if="!logs.data.length">
                             <td colspan="7" class="px-5 py-14 text-center">
-                                <p class="text-lg font-black text-slate-950">No Challan PDF logs found</p>
+                                <p class="text-lg font-semibold text-slate-950">No Challan PDF logs found</p>
                                 <p class="mt-2 text-sm font-semibold text-slate-500">Try changing or clearing the filters.</p>
                             </td>
                         </tr>
@@ -146,8 +146,8 @@
             >
                 <header class="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4 sm:px-6">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-teal-700">API request #{{ selectedLog.id }}</p>
-                        <h2 id="log-details-title" class="mt-1 text-xl font-black uppercase text-slate-950">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">API request #{{ selectedLog.id }}</p>
+                        <h2 id="log-details-title" class="mt-1 text-xl font-semibold uppercase text-slate-950">
                             {{ selectedLog.vehicle_number }}
                         </h2>
                     </div>
@@ -162,7 +162,7 @@
                 </header>
                 <div class="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
                     <div v-if="selectedLog.error_message" class="mb-5 rounded-lg border border-red-100 bg-red-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-red-700">Error message</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-red-700">Error message</p>
                         <p class="mt-2 break-words text-sm font-semibold leading-6 text-red-700">{{ selectedLog.error_message }}</p>
                     </div>
                     <JsonBlock title="API request" :value="selectedLog.api_request" />
@@ -218,7 +218,7 @@ const Field = defineComponent({
     props: { label: { type: String, required: true } },
     setup(fieldProps, { slots }) {
         return () => h('label', [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, fieldProps.label),
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, fieldProps.label),
             slots.default?.(),
         ]);
     },
@@ -238,10 +238,10 @@ const Metric = defineComponent({
             blue: 'border-blue-100 bg-blue-50',
         };
         return () => h('div', { class: ['rounded-lg border p-4 shadow-sm', tones[metricProps.tone]] }, [
-            h('p', { class: 'text-2xl font-black text-slate-950' }, typeof metricProps.value === 'number'
+            h('p', { class: 'text-2xl font-semibold text-slate-950' }, typeof metricProps.value === 'number'
                 ? new Intl.NumberFormat('en-IN').format(metricProps.value)
                 : metricProps.value),
-            h('p', { class: 'mt-1 text-xs font-black uppercase tracking-wide text-slate-500' }, metricProps.label),
+            h('p', { class: 'mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500' }, metricProps.label),
         ]);
     },
 });
@@ -251,7 +251,7 @@ const Status = defineComponent({
     setup(statusProps) {
         return () => h('span', {
             class: [
-                'inline-flex rounded-md px-2.5 py-1 text-xs font-black',
+                'inline-flex rounded-md px-2.5 py-1 text-xs font-semibold',
                 statusProps.success
                     ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100'
                     : 'bg-red-50 text-red-700 ring-1 ring-red-100',
@@ -272,7 +272,7 @@ const JsonBlock = defineComponent({
             return JSON.stringify(jsonProps.value, null, 2);
         };
         return () => h('section', [
-            h('h3', { class: 'text-sm font-black text-slate-950' }, jsonProps.title),
+            h('h3', { class: 'text-sm font-semibold text-slate-950' }, jsonProps.title),
             h('pre', {
                 class: 'mt-2 max-h-[420px] overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-950 p-4 text-xs leading-6 text-slate-100',
             }, formatted()),

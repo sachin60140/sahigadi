@@ -4,8 +4,8 @@
     <AdminLayout :title="`Edit ${brand.name}`" eyebrow="Catalog settings">
         <SettingsTabs />
         <section class="mb-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <p class="text-xs font-black uppercase tracking-wide text-teal-700">Brand maintenance</p>
-            <h2 class="mt-2 text-3xl font-black text-slate-950">Update {{ brand.name }}.</h2>
+            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Brand maintenance</p>
+            <h2 class="mt-2 text-3xl font-semibold text-slate-950">Update {{ brand.name }}.</h2>
             <p class="mt-2 text-sm font-semibold text-slate-600">{{ brand.inventory_count }} linked vehicle records / slug: {{ brand.slug }}</p>
         </section>
         <BrandForm :form="form" :cancel-url="actions.back" :current-logo-url="brand.logo_url" submit-label="Update Brand" @submit="submit" />

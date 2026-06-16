@@ -9,7 +9,7 @@
             
             <div class="relative z-10">
                 <Link href="/" class="flex mb-16">
-                    <span class="text-4xl font-black tracking-tight text-white">SAHI<span class="text-[#f97316]">GADI</span></span>
+                    <span class="text-4xl font-semibold tracking-tight text-white">SAHI<span class="text-[#f97316]">GADI</span></span>
                 </Link>
                 
                 <h1 class="text-4xl font-extrabold leading-tight mb-6">
@@ -63,7 +63,7 @@
             <div class="w-full max-w-md lg:max-w-xl">
                 <!-- Mobile Logo -->
                 <Link href="/" class="flex lg:hidden mb-8">
-                    <span class="text-3xl font-black text-[#0f172a] tracking-tight">SAHI<span class="text-[#f97316]">GADI</span></span>
+                    <span class="text-3xl font-semibold text-[#0f172a] tracking-tight">SAHI<span class="text-[#f97316]">GADI</span></span>
                 </Link>
                 
                 <h2 class="text-3xl font-extrabold text-[#0f172a] mb-2">Dealer Registration</h2>

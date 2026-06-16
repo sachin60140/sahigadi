@@ -44,7 +44,7 @@ const TrustItem = defineComponent({
                 ]),
             ]),
             h('span', [
-                h('span', { class: 'block text-sm font-black text-slate-950' }, props.title),
+                h('span', { class: 'block text-sm font-semibold text-slate-950' }, props.title),
                 h('span', { class: 'mt-1 block text-xs font-semibold text-slate-500' }, props.subtitle),
             ]),
         ]);

@@ -10,10 +10,10 @@
             
             <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-slate-950/75 to-transparent p-4">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-wide text-white/80">Gallery</p>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-white/80">Gallery</p>
                     <p class="mt-1 text-sm font-bold text-white">{{ activeIndex + 1 }} of {{ photoCount }} photos</p>
                 </div>
-                <div v-if="isVerified" class="flex items-center rounded-lg bg-teal-700/95 px-3 py-1.5 text-sm font-black text-white shadow-md backdrop-blur-sm">
+                <div v-if="isVerified" class="flex items-center rounded-lg bg-teal-700/95 px-3 py-1.5 text-sm font-semibold text-white shadow-md backdrop-blur-sm">
                     <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     Verified
                 </div>

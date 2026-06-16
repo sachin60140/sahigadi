@@ -1,8 +1,8 @@
 <template>
     <aside class="rounded-lg border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/80 lg:sticky lg:top-24 xl:p-6">
         <div class="border-b border-slate-100 pb-5">
-            <p class="text-xs font-black uppercase tracking-wide text-teal-700">Seller access</p>
-            <h2 class="mt-2 text-xl font-black leading-tight tracking-normal text-slate-950">Price and contact</h2>
+            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Seller access</p>
+            <h2 class="mt-2 text-xl font-semibold leading-tight tracking-normal text-slate-950">Price and contact</h2>
             <p class="mt-2 text-sm font-semibold text-slate-500">{{ variant || model || 'Used car listing' }}</p>
             <p class="mt-3 flex items-center gap-1.5 text-sm font-bold text-slate-500">
                 <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,8 +14,8 @@
         </div>
 
         <div class="border-b border-slate-100 py-5">
-            <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-400">Asking Price</p>
-            <p class="mt-2 text-3xl font-black text-slate-950 sm:text-4xl">&#8377;{{ formattedPrice }}</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Asking Price</p>
+            <p class="mt-2 text-3xl font-semibold text-slate-950 sm:text-4xl">&#8377;{{ formattedPrice }}</p>
             <p class="mt-2 flex items-center gap-1.5 text-sm font-semibold text-slate-500">
                 <svg class="h-4 w-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -27,7 +27,7 @@
         <div class="space-y-3 pt-5">
             <button
                 v-if="!revealedContact"
-                class="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-4 text-base font-black text-white shadow-md transition hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-lg"
+                class="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-4 text-base font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-lg"
                 @click="$emit('request-contact')"
             >
                 View Seller Contact
@@ -37,20 +37,20 @@
             </button>
 
             <div v-else class="space-y-3">
-                <div class="rounded-lg border border-teal-200 bg-teal-50 p-4 text-center text-xl font-black text-teal-800">
+                <div class="rounded-lg border border-teal-200 bg-teal-50 p-4 text-center text-xl font-semibold text-teal-800">
                     {{ revealedContact }}
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <a :href="'tel:' + revealedContact" class="flex items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-teal-700">
+                    <a :href="'tel:' + revealedContact" class="flex items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-700">
                         Call
                     </a>
-                    <a :href="'https://wa.me/91' + revealedContact + '?text=Hi, I am interested in your ' + title" target="_blank" class="flex items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-3 text-sm font-black text-white transition hover:bg-[#1DA851]">
+                    <a :href="'https://wa.me/91' + revealedContact + '?text=Hi, I am interested in your ' + title" target="_blank" class="flex items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1DA851]">
                         WhatsApp
                     </a>
                 </div>
             </div>
 
-            <button class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3.5 text-sm font-black text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700">
+            <button class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700">
                 Send Enquiry
             </button>
         </div>

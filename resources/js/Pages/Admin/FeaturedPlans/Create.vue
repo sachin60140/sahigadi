@@ -3,8 +3,8 @@
     <AdminLayout title="Add Featured Plan" eyebrow="Revenue settings">
         <SettingsTabs />
         <section class="mb-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <p class="text-xs font-black uppercase tracking-wide text-teal-700">New promotion offer</p>
-            <h2 class="mt-2 text-3xl font-black text-slate-950">Create a featured listing plan.</h2>
+            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">New promotion offer</p>
+            <h2 class="mt-2 text-3xl font-semibold text-slate-950">Create a featured listing plan.</h2>
             <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-slate-600">Set how long a paid vehicle promotion runs and what the seller pays.</p>
         </section>
         <FeaturedPlanForm :form="form" :cancel-url="actions.back" submit-label="Create Featured Plan" @submit="submit" />

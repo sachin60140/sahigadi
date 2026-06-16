@@ -5,16 +5,16 @@
         <section class="mb-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Account maintenance</p>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Account maintenance</p>
                     <div class="mt-2 flex flex-wrap items-center gap-3">
-                        <h2 class="text-3xl font-black text-slate-950">{{ dealer.name }}</h2>
+                        <h2 class="text-3xl font-semibold text-slate-950">{{ dealer.name }}</h2>
                         <StatusBadge :status="dealer.status" />
                     </div>
                     <p class="mt-2 text-sm font-semibold text-slate-600">
                         {{ dealer.dealer_unique_id || 'Dealer account' }} / profile {{ dealer.profile_completion }}% complete
                     </p>
                 </div>
-                <Link :href="actions.back" class="w-fit rounded-lg border border-slate-200 px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50">Back to details</Link>
+                <Link :href="actions.back" class="w-fit rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Back to details</Link>
             </div>
         </section>
 
@@ -92,7 +92,7 @@ const StatusBadge = defineComponent({
     setup(badgeProps) {
         return () => h('span', {
             class: [
-                'inline-flex rounded-md px-2.5 py-1 text-xs font-black capitalize',
+                'inline-flex rounded-md px-2.5 py-1 text-xs font-semibold capitalize',
                 badgeProps.status === 'approved'
                     ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100'
                     : badgeProps.status === 'pending'

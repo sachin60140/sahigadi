@@ -5,7 +5,7 @@
         <div class="relative ml-auto flex h-full w-full max-w-sm flex-col overflow-y-auto bg-white pb-20 shadow-2xl">
             <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-4">
                 <div>
-                    <h2 class="text-lg font-black text-slate-950">Filters</h2>
+                    <h2 class="text-lg font-semibold text-slate-950">Filters</h2>
                     <p class="text-xs font-semibold text-slate-500">Find cars faster</p>
                 </div>
                 <button type="button" class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500" @click="$emit('close')">
@@ -31,7 +31,7 @@
 
             <!-- Sticky apply button at bottom -->
             <div class="fixed bottom-0 right-0 w-full max-w-sm border-t border-slate-200 bg-white p-4">
-                <button @click="$emit('close')" class="w-full rounded-lg bg-orange-500 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-orange-600">
+                <button @click="$emit('close')" class="w-full rounded-lg bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600">
                     Apply Filters
                 </button>
             </div>

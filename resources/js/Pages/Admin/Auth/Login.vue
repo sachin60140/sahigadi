@@ -6,16 +6,16 @@
             <section class="flex flex-col justify-between bg-teal-800 p-6 text-white sm:p-10 lg:p-12">
                 <div>
                     <a :href="actions.home" class="inline-flex items-center gap-3" aria-label="SahiGadi home">
-                        <span class="grid h-12 w-12 place-items-center rounded-lg bg-white text-lg font-black text-teal-800">SG</span>
+                        <span class="grid h-12 w-12 place-items-center rounded-lg bg-white text-lg font-semibold text-teal-800">SG</span>
                         <span>
-                            <span class="block text-2xl font-black leading-none">SAHI<span class="text-orange-400">GADI</span></span>
-                            <span class="mt-1 block text-xs font-black uppercase tracking-wide text-teal-100">Administration</span>
+                            <span class="block text-2xl font-semibold leading-none">SAHI<span class="text-orange-400">GADI</span></span>
+                            <span class="mt-1 block text-xs font-semibold uppercase tracking-wide text-teal-100">Administration</span>
                         </span>
                     </a>
 
                     <div class="mt-14 max-w-md">
-                        <p class="text-xs font-black uppercase tracking-wide text-orange-300">Operations access</p>
-                        <h1 class="mt-3 text-4xl font-black leading-tight sm:text-5xl">Manage inventory, partners and revenue with clarity.</h1>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-orange-300">Operations access</p>
+                        <h1 class="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">Manage inventory, partners and revenue with clarity.</h1>
                         <p class="mt-5 text-sm font-semibold leading-7 text-teal-50">
                             Secure access for the SahiGadi administration team.
                         </p>
@@ -31,8 +31,8 @@
 
             <section class="flex items-center p-6 sm:p-10 lg:p-14">
                 <div class="mx-auto w-full max-w-md">
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Authorized users</p>
-                    <h2 class="mt-2 text-3xl font-black text-slate-950">Sign in to admin.</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Authorized users</p>
+                    <h2 class="mt-2 text-3xl font-semibold text-slate-950">Sign in to admin.</h2>
                     <p class="mt-2 text-sm font-semibold leading-6 text-slate-500">Use your administrator email address and password.</p>
 
                     <div v-if="flashSuccess" class="mt-6 rounded-lg border border-teal-100 bg-teal-50 px-4 py-3 text-sm font-bold text-teal-800">
@@ -44,7 +44,7 @@
 
                     <form class="mt-7 grid gap-5" @submit.prevent="submit">
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-700">Email address</span>
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">Email address</span>
                             <input
                                 v-model="form.email"
                                 class="admin-input"
@@ -58,7 +58,7 @@
                         </label>
 
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-700">Password</span>
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">Password</span>
                             <div class="relative">
                                 <input
                                     v-model="form.password"
@@ -70,7 +70,7 @@
                                 />
                                 <button
                                     type="button"
-                                    class="absolute inset-y-1 right-1 rounded-md px-3 text-xs font-black text-slate-500 transition hover:bg-white hover:text-teal-700"
+                                    class="absolute inset-y-1 right-1 rounded-md px-3 text-xs font-semibold text-slate-500 transition hover:bg-white hover:text-teal-700"
                                     @click="showPassword = !showPassword"
                                 >
                                     {{ showPassword ? 'Hide' : 'Show' }}
@@ -81,7 +81,7 @@
 
                         <button
                             type="submit"
-                            class="mt-1 min-h-12 rounded-lg bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            class="mt-1 min-h-12 rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
                             :disabled="form.processing"
                         >
                             {{ form.processing ? 'Signing in...' : 'Sign In' }}
@@ -125,8 +125,8 @@ const AccessPoint = defineComponent({
     },
     setup(accessProps) {
         return () => h('div', { class: 'border-t border-teal-600 pt-3' }, [
-            h('p', { class: 'text-xs font-black text-orange-300' }, accessProps.number),
-            h('p', { class: 'mt-1 text-sm font-black text-white' }, accessProps.label),
+            h('p', { class: 'text-xs font-semibold text-orange-300' }, accessProps.number),
+            h('p', { class: 'mt-1 text-sm font-semibold text-white' }, accessProps.label),
         ]);
     },
 });

@@ -9,7 +9,7 @@
         <FilterChip v-if="filters.fuel_type" :label="`Fuel: ${formatLabel(filters.fuel_type)}`" @remove="remove('fuel_type')" />
         <FilterChip v-if="filters.transmission" :label="`Trans: ${formatLabel(filters.transmission)}`" @remove="remove('transmission')" />
 
-        <button type="button" class="ml-1 text-sm font-black text-orange-600 transition hover:text-orange-700" @click="$emit('clear')">
+        <button type="button" class="ml-1 text-sm font-semibold text-orange-600 transition hover:text-orange-700" @click="$emit('clear')">
             Clear all
         </button>
     </div>
@@ -61,7 +61,7 @@ const FilterChip = defineComponent({
     emits: ['remove'],
     setup(props, { emit }) {
         return () => h('span', {
-            class: 'inline-flex items-center gap-1.5 rounded-lg border border-teal-100 bg-teal-50 px-3 py-1.5 text-xs font-black text-teal-800',
+            class: 'inline-flex items-center gap-1.5 rounded-lg border border-teal-100 bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-800',
         }, [
             props.label,
             h('button', {

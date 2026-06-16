@@ -122,10 +122,10 @@
         </section>
 
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <Link :href="cancelUrl" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+            <Link :href="cancelUrl" class="grid min-h-12 place-items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                 Cancel
             </Link>
-            <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-700 disabled:opacity-60" :disabled="form.processing">
+            <button type="submit" class="rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60" :disabled="form.processing">
                 {{ form.processing ? 'Saving...' : submitLabel }}
             </button>
         </div>
@@ -160,8 +160,8 @@ const SectionHeading = defineComponent({
     props: { eyebrow: { type: String, required: true }, title: { type: String, required: true } },
     setup(sectionProps) {
         return () => h('div', [
-            h('p', { class: 'text-xs font-black uppercase tracking-wide text-teal-700' }, sectionProps.eyebrow),
-            h('h3', { class: 'mt-1 text-xl font-black text-slate-950' }, sectionProps.title),
+            h('p', { class: 'text-xs font-semibold uppercase tracking-wide text-teal-700' }, sectionProps.eyebrow),
+            h('h3', { class: 'mt-1 text-xl font-semibold text-slate-950' }, sectionProps.title),
         ]);
     },
 });
@@ -174,7 +174,7 @@ const Field = defineComponent({
     },
     setup(fieldProps, { slots }) {
         return () => h('label', { class: 'block' }, [
-            h('span', { class: 'mb-2 block text-sm font-black text-slate-700' }, [
+            h('span', { class: 'mb-2 block text-sm font-semibold text-slate-700' }, [
                 fieldProps.label,
                 fieldProps.required ? h('span', { class: 'text-red-600' }, ' *') : null,
             ]),
@@ -193,13 +193,13 @@ const DocumentPanel = defineComponent({
     setup(panelProps, { slots }) {
         return () => h('div', { class: panelProps.compact ? '' : 'border-l-2 border-slate-200 pl-4 sm:pl-5' }, [
             h('div', { class: 'mb-4 flex flex-wrap items-center justify-between gap-2' }, [
-                h('h4', { class: 'text-sm font-black text-slate-950' }, panelProps.title),
+                h('h4', { class: 'text-sm font-semibold text-slate-950' }, panelProps.title),
                 panelProps.currentUrl
                     ? h('a', {
                         href: panelProps.currentUrl,
                         target: '_blank',
                         rel: 'noreferrer',
-                        class: 'rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 text-xs font-black text-teal-700',
+                        class: 'rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-700',
                     }, 'View current')
                     : h('span', { class: 'text-xs font-bold text-slate-400' }, 'Not uploaded'),
             ]),

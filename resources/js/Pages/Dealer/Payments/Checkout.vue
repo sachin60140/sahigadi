@@ -4,7 +4,7 @@
         <div class="mx-auto max-w-6xl">
             <Link
                 :href="actions.wallet"
-                class="inline-flex items-center gap-2 text-sm font-black text-teal-700 transition hover:text-teal-900"
+                class="inline-flex items-center gap-2 text-sm font-semibold text-teal-700 transition hover:text-teal-900"
             >
                 <ArrowLeft class="h-4 w-4" />
                 Back to wallet
@@ -12,8 +12,8 @@
 
             <section class="mt-5 grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
                 <aside class="rounded-lg bg-slate-950 p-5 text-white shadow-sm sm:p-6">
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-300">Order summary</p>
-                    <h2 class="mt-3 text-2xl font-black">{{ typeLabel }}</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-300">Order summary</p>
+                    <h2 class="mt-3 text-2xl font-semibold">{{ typeLabel }}</h2>
                     <p class="mt-2 text-sm font-semibold leading-6 text-slate-300">
                         Review the amount and choose an available secure payment gateway.
                     </p>
@@ -21,11 +21,11 @@
                     <dl class="mt-7 divide-y divide-white/10 rounded-lg bg-white/5 px-4">
                         <div class="flex items-center justify-between gap-4 py-4">
                             <dt class="text-sm font-bold text-slate-300">Payment type</dt>
-                            <dd class="text-right text-sm font-black">{{ typeLabel }}</dd>
+                            <dd class="text-right text-sm font-semibold">{{ typeLabel }}</dd>
                         </div>
                         <div class="flex items-center justify-between gap-4 py-4">
                             <dt class="text-sm font-bold text-slate-300">Total payable</dt>
-                            <dd class="text-2xl font-black text-orange-300">{{ money(amount) }}</dd>
+                            <dd class="text-2xl font-semibold text-orange-300">{{ money(amount) }}</dd>
                         </div>
                     </dl>
 
@@ -40,8 +40,8 @@
                 <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                     <div class="flex items-start justify-between gap-4">
                         <div>
-                            <p class="text-xs font-black uppercase tracking-wide text-teal-700">Payment method</p>
-                            <h2 class="mt-1 text-2xl font-black text-slate-950">Choose how to pay</h2>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Payment method</p>
+                            <h2 class="mt-1 text-2xl font-semibold text-slate-950">Choose how to pay</h2>
                         </div>
                         <LockKeyhole class="h-6 w-6 text-slate-400" />
                     </div>
@@ -63,11 +63,11 @@
                                     <CreditCard class="h-5 w-5" />
                                 </span>
                                 <span class="min-w-0">
-                                    <span class="block font-black text-slate-950">Razorpay</span>
+                                    <span class="block font-semibold text-slate-950">Razorpay</span>
                                     <span class="mt-1 block text-sm font-semibold text-slate-500">Cards, UPI, net banking and wallets</span>
                                 </span>
                             </span>
-                            <span class="shrink-0 text-sm font-black text-teal-700">
+                            <span class="shrink-0 text-sm font-semibold text-teal-700">
                                 {{ processing === 'razorpay' ? 'Opening...' : money(amount) }}
                             </span>
                         </button>
@@ -84,11 +84,11 @@
                                         <Smartphone class="h-5 w-5" />
                                     </span>
                                     <span class="min-w-0">
-                                        <span class="block font-black text-slate-950">PhonePe</span>
+                                        <span class="block font-semibold text-slate-950">PhonePe</span>
                                         <span class="mt-1 block text-sm font-semibold text-slate-500">Continue to PhonePe secure checkout</span>
                                     </span>
                                 </span>
-                                <span class="shrink-0 text-sm font-black text-orange-600">
+                                <span class="shrink-0 text-sm font-semibold text-orange-600">
                                     {{ processing === 'phonepe' ? 'Redirecting...' : money(amount) }}
                                 </span>
                         </button>

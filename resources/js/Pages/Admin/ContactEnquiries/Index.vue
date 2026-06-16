@@ -4,8 +4,8 @@
     <AdminLayout title="Contact Enquiries" eyebrow="Support inbox">
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div>
-                <p class="text-xs font-black uppercase tracking-wide text-teal-700">Website messages</p>
-                <h2 class="mt-2 text-3xl font-black text-slate-950">Keep the public contact inbox clear and current.</h2>
+                <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Website messages</p>
+                <h2 class="mt-2 text-3xl font-semibold text-slate-950">Keep the public contact inbox clear and current.</h2>
                 <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
                     Review contact form submissions, reply by email and track which messages still need attention.
                 </p>
@@ -21,7 +21,7 @@
         <section class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[980px] text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Status</th>
                             <th class="px-5 py-3">Sender</th>
@@ -34,28 +34,28 @@
                         <tr v-for="enquiry in enquiries.data" :key="enquiry.id" :class="enquiry.is_read ? 'hover:bg-slate-50' : 'bg-orange-50/40 hover:bg-orange-50/70'">
                             <td class="px-5 py-4"><ReadBadge :is-read="enquiry.is_read" /></td>
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">{{ enquiry.name }}</p>
+                                <p class="font-semibold text-slate-950">{{ enquiry.name }}</p>
                                 <a :href="enquiry.email_url" class="mt-1 block max-w-[260px] truncate text-xs font-bold text-teal-700">{{ enquiry.email }}</a>
                             </td>
                             <td class="px-5 py-4">
-                                <Link :href="enquiry.actions.show" class="block max-w-[360px] truncate font-black text-slate-800 hover:text-teal-700">{{ enquiry.subject }}</Link>
-                                <p class="mt-1 text-xs font-black text-slate-400">Message #{{ enquiry.id }}</p>
+                                <Link :href="enquiry.actions.show" class="block max-w-[360px] truncate font-semibold text-slate-800 hover:text-teal-700">{{ enquiry.subject }}</Link>
+                                <p class="mt-1 text-xs font-semibold text-slate-400">Message #{{ enquiry.id }}</p>
                             </td>
                             <td class="px-5 py-4 font-bold text-slate-600">{{ enquiry.created_at || 'N/A' }}</td>
                             <td class="px-5 py-4">
                                 <div class="flex justify-end gap-2">
-                                    <Link :href="enquiry.actions.show" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-white">View</Link>
+                                    <Link :href="enquiry.actions.show" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-white">View</Link>
                                     <button
                                         v-if="!enquiry.is_read"
                                         type="button"
-                                        class="rounded-lg bg-teal-700 px-3 py-2 text-xs font-black text-white transition hover:bg-teal-800"
+                                        class="rounded-lg bg-teal-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-teal-800"
                                         @click="markRead(enquiry)"
                                     >
                                         Mark read
                                     </button>
                                     <button
                                         type="button"
-                                        class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700 transition hover:bg-white"
+                                        class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-white"
                                         @click="deleteEnquiry(enquiry)"
                                     >
                                         Delete
@@ -65,7 +65,7 @@
                         </tr>
                         <tr v-if="!enquiries.data.length">
                             <td colspan="5" class="px-5 py-14 text-center">
-                                <p class="text-lg font-black text-slate-950">No contact messages yet</p>
+                                <p class="text-lg font-semibold text-slate-950">No contact messages yet</p>
                                 <p class="mt-2 text-sm font-semibold text-slate-500">New public contact form submissions will appear here.</p>
                             </td>
                         </tr>
@@ -121,8 +121,8 @@ const MetricTile = defineComponent({
             return 'border-slate-200 bg-slate-50 text-slate-900';
         };
         return () => h('div', { class: ['rounded-lg border p-4', classes()] }, [
-            h('p', { class: 'text-2xl font-black' }, new Intl.NumberFormat('en-IN').format(tileProps.value)),
-            h('p', { class: 'mt-1 text-xs font-black uppercase tracking-wide' }, tileProps.label),
+            h('p', { class: 'text-2xl font-semibold' }, new Intl.NumberFormat('en-IN').format(tileProps.value)),
+            h('p', { class: 'mt-1 text-xs font-semibold uppercase tracking-wide' }, tileProps.label),
         ]);
     },
 });
@@ -132,7 +132,7 @@ const ReadBadge = defineComponent({
     setup(badgeProps) {
         return () => h('span', {
             class: [
-                'inline-flex rounded-md px-2.5 py-1 text-xs font-black',
+                'inline-flex rounded-md px-2.5 py-1 text-xs font-semibold',
                 badgeProps.isRead
                     ? 'bg-slate-100 text-slate-600 ring-1 ring-slate-200'
                     : 'bg-orange-50 text-orange-700 ring-1 ring-orange-100',

@@ -11,15 +11,15 @@
                     <CircleCheck v-if="paid" class="h-9 w-9" />
                     <ClockAlert v-else class="h-9 w-9" />
                 </span>
-                <p class="mt-6 text-xs font-black uppercase tracking-wide" :class="paid ? 'text-teal-700' : 'text-red-600'">
+                <p class="mt-6 text-xs font-semibold uppercase tracking-wide" :class="paid ? 'text-teal-700' : 'text-red-600'">
                     {{ paid ? 'Payment verified' : 'Link unavailable' }}
                 </p>
-                <h1 class="mt-2 text-3xl font-black text-slate-950">{{ paid ? 'Payment already completed' : 'Payment link expired' }}</h1>
+                <h1 class="mt-2 text-3xl font-semibold text-slate-950">{{ paid ? 'Payment already completed' : 'Payment link expired' }}</h1>
                 <p class="mt-4 text-sm font-semibold leading-7 text-slate-600">
                     {{ paid ? 'This payment link has been successfully processed.' : 'This link is no longer valid. Please contact the issuer to request a new payment link.' }}
                 </p>
                 <p v-if="purpose" class="mt-4 rounded-lg bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700">{{ purpose }}</p>
-                <Link :href="homeUrl" class="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-2.5 text-sm font-black text-white hover:bg-slate-800">
+                <Link :href="homeUrl" class="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
                     <Home class="h-4 w-4" />
                     Return home
                 </Link>

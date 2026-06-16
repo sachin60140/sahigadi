@@ -5,15 +5,15 @@
         <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-wide text-teal-700">Payment links</p>
-                    <h2 class="mt-2 text-3xl font-black text-slate-950">Generate and manage collection links.</h2>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Payment links</p>
+                    <h2 class="mt-2 text-3xl font-semibold text-slate-950">Generate and manage collection links.</h2>
                     <p class="mt-2 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
                         Create links for registered dealers or direct customers, then track payment status from one clean table.
                     </p>
                 </div>
                 <button
                     type="button"
-                    class="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-orange-500 px-5 py-3 text-sm font-black text-white transition hover:bg-orange-600 sm:w-fit"
+                    class="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-orange-600 sm:w-fit"
                     @click="showCreate = true"
                 >
                     Generate New Link
@@ -24,7 +24,7 @@
         <section class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
                 <table class="min-w-[980px] w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Date</th>
                             <th class="px-5 py-3">Payee</th>
@@ -38,28 +38,28 @@
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="link in paymentLinks.data" :key="link.id" class="hover:bg-slate-50">
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">{{ link.created_date }}</p>
+                                <p class="font-semibold text-slate-950">{{ link.created_date }}</p>
                                 <p class="mt-1 text-xs font-semibold text-slate-500">{{ link.created_time }}</p>
                             </td>
                             <td class="px-5 py-4">
-                                <p class="font-black text-slate-950">{{ link.payee_name }}</p>
+                                <p class="font-semibold text-slate-950">{{ link.payee_name }}</p>
                                 <p class="mt-1 text-xs font-semibold text-slate-500">{{ link.payee_detail || 'No detail' }}</p>
                             </td>
-                            <td class="px-5 py-4 text-right font-black text-slate-950">{{ formatCurrency(link.amount) }}</td>
+                            <td class="px-5 py-4 text-right font-semibold text-slate-950">{{ formatCurrency(link.amount) }}</td>
                             <td class="px-5 py-4">
                                 <p class="font-bold text-slate-800">{{ link.purpose }}</p>
-                                <span class="mt-2 inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-black uppercase text-slate-600">{{ link.gateway }}</span>
+                                <span class="mt-2 inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase text-slate-600">{{ link.gateway }}</span>
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex max-w-[280px] items-center gap-2">
                                     <input class="h-10 min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-600" :value="link.public_url" readonly />
-                                    <button type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-50" @click="copyLink(link.public_url)">
+                                    <button type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" @click="copyLink(link.public_url)">
                                         Copy
                                     </button>
                                 </div>
                             </td>
                             <td class="px-5 py-4">
-                                <span class="rounded-md px-2.5 py-1 text-xs font-black" :class="statusClass(link.status)">
+                                <span class="rounded-md px-2.5 py-1 text-xs font-semibold" :class="statusClass(link.status)">
                                     {{ formatLabel(link.status) }}
                                 </span>
                             </td>
@@ -68,14 +68,14 @@
                                     <button
                                         v-if="link.status === 'pending'"
                                         type="button"
-                                        class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-black text-sky-700 hover:bg-white"
+                                        class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-white"
                                         @click="refreshLink(link.refresh_url)"
                                     >
                                         Sync
                                     </button>
                                     <button
                                         type="button"
-                                        class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700 hover:bg-white"
+                                        class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-white"
                                         @click="deleteLink(link.delete_url)"
                                     >
                                         Delete
@@ -85,7 +85,7 @@
                         </tr>
                         <tr v-if="!paymentLinks.data.length">
                             <td colspan="7" class="px-5 py-14 text-center">
-                                <p class="text-lg font-black text-slate-950">No payment links found</p>
+                                <p class="text-lg font-semibold text-slate-950">No payment links found</p>
                                 <p class="mt-2 text-sm font-semibold text-slate-500">Generate a link to start collecting custom payments.</p>
                             </td>
                         </tr>
@@ -102,15 +102,15 @@
             <form class="relative max-h-[calc(100vh-1.5rem)] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-5 shadow-2xl sm:p-6" @submit.prevent="submit">
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-wide text-teal-700">New payment link</p>
-                        <h2 class="mt-1 text-2xl font-black text-slate-950">Generate payment link</h2>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">New payment link</p>
+                        <h2 class="mt-1 text-2xl font-semibold text-slate-950">Generate payment link</h2>
                     </div>
-                    <button type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-black text-slate-600" @click="showCreate = false">Close</button>
+                    <button type="button" class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600" @click="showCreate = false">Close</button>
                 </div>
 
                 <div class="mt-5 grid gap-4">
                     <label class="block">
-                        <span class="mb-2 block text-sm font-black text-slate-700">Payee Type</span>
+                        <span class="mb-2 block text-sm font-semibold text-slate-700">Payee Type</span>
                         <select v-model="payeeType" class="admin-input">
                             <option value="customer">Direct Customer</option>
                             <option value="dealer">Registered Dealer</option>
@@ -118,7 +118,7 @@
                     </label>
 
                     <label v-if="payeeType === 'dealer'" class="block">
-                        <span class="mb-2 block text-sm font-black text-slate-700">Dealer</span>
+                        <span class="mb-2 block text-sm font-semibold text-slate-700">Dealer</span>
                         <select v-model="form.dealer_id" class="admin-input" required>
                             <option value="">Choose dealer</option>
                             <option v-for="dealer in dealers" :key="dealer.id" :value="dealer.id">{{ dealer.label }}</option>
@@ -127,26 +127,26 @@
 
                     <div v-else class="grid gap-4 md:grid-cols-2">
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-700">Customer Name</span>
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">Customer Name</span>
                             <input v-model="form.customer_name" class="admin-input" :required="payeeType === 'customer'" type="text" />
                         </label>
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-700">Mobile</span>
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">Mobile</span>
                             <input v-model="form.customer_mobile" class="admin-input" :required="payeeType === 'customer'" type="text" />
                         </label>
                         <label class="block md:col-span-2">
-                            <span class="mb-2 block text-sm font-black text-slate-700">Email</span>
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">Email</span>
                             <input v-model="form.customer_email" class="admin-input" type="email" />
                         </label>
                     </div>
 
                     <div class="grid gap-4 md:grid-cols-2">
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-700">Amount</span>
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">Amount</span>
                             <input v-model="form.amount" class="admin-input" min="1" step="0.01" required type="number" />
                         </label>
                         <label class="block">
-                            <span class="mb-2 block text-sm font-black text-slate-700">Gateway</span>
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">Gateway</span>
                             <select v-model="form.gateway" class="admin-input" required>
                                 <option value="any">Any Available Gateway</option>
                                 <option value="razorpay">Razorpay</option>
@@ -156,7 +156,7 @@
                     </div>
 
                     <label class="block">
-                        <span class="mb-2 block text-sm font-black text-slate-700">Purpose</span>
+                        <span class="mb-2 block text-sm font-semibold text-slate-700">Purpose</span>
                         <input v-model="form.purpose" class="admin-input" required type="text" placeholder="Wallet Recharge, Featured Listing..." />
                     </label>
                 </div>
@@ -166,8 +166,8 @@
                 </div>
 
                 <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                    <button type="button" class="rounded-lg border border-slate-200 px-5 py-3 text-sm font-black text-slate-700" @click="showCreate = false">Cancel</button>
-                    <button type="submit" class="rounded-lg bg-orange-500 px-5 py-3 text-sm font-black text-white hover:bg-orange-600" :disabled="form.processing">
+                    <button type="button" class="rounded-lg border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700" @click="showCreate = false">Cancel</button>
+                    <button type="submit" class="rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white hover:bg-orange-600" :disabled="form.processing">
                         {{ form.processing ? 'Generating...' : 'Generate Link' }}
                     </button>
                 </div>

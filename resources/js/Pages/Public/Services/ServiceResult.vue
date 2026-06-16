@@ -9,7 +9,7 @@
             <div :class="customer ? '' : 'mx-auto max-w-7xl'">
                 <div v-if="!report" class="rounded-lg border border-red-100 bg-white p-7 text-center shadow-sm">
                     <CircleAlert class="mx-auto h-10 w-10 text-red-500" />
-                    <h1 class="mt-4 text-2xl font-black text-slate-950">Report unavailable</h1>
+                    <h1 class="mt-4 text-2xl font-semibold text-slate-950">Report unavailable</h1>
                     <p class="mt-2 text-sm font-semibold text-slate-600">{{ message || 'No service-history report was returned.' }}</p>
                 </div>
 
@@ -20,22 +20,22 @@
                                 <CircleCheck v-if="report.is_success" class="mt-0.5 h-7 w-7 shrink-0 text-teal-700" />
                                 <CircleAlert v-else class="mt-0.5 h-7 w-7 shrink-0 text-red-600" />
                                 <div>
-                                    <p class="text-xs font-black uppercase tracking-wide" :class="report.is_success ? 'text-teal-700' : 'text-red-700'">
+                                    <p class="text-xs font-semibold uppercase tracking-wide" :class="report.is_success ? 'text-teal-700' : 'text-red-700'">
                                         {{ report.is_success ? 'Verified service report' : 'Search unsuccessful' }}
                                     </p>
-                                    <h1 class="mt-1 text-2xl font-black text-slate-950 sm:text-3xl">{{ serviceTitle }}</h1>
+                                    <h1 class="mt-1 text-2xl font-semibold text-slate-950 sm:text-3xl">{{ serviceTitle }}</h1>
                                     <p class="mt-2 text-sm font-semibold text-slate-600">
-                                        Vehicle <span class="font-black uppercase text-slate-950">{{ report.vehicle_number }}</span>
+                                        Vehicle <span class="font-semibold uppercase text-slate-950">{{ report.vehicle_number }}</span>
                                         <span v-if="report.customer_name"> · Requested by {{ report.customer_name }}</span>
                                     </p>
                                 </div>
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                <span v-if="report.is_success" class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-teal-200 bg-white px-4 py-2.5 text-sm font-black text-teal-700">
+                                <span v-if="report.is_success" class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-teal-200 bg-white px-4 py-2.5 text-sm font-semibold text-teal-700">
                                     <BadgeCheck class="h-4 w-4" />
                                     {{ records.length }} records
                                 </span>
-                                <a v-if="pdfUrl && report.is_success" :href="pdfUrl" class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-black text-white hover:bg-slate-800">
+                                <a v-if="pdfUrl && report.is_success" :href="pdfUrl" class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
                                     <Download class="h-4 w-4" />
                                     Download PDF
                                 </a>
@@ -48,7 +48,7 @@
                             <Clock3 class="h-5 w-5 shrink-0" />
                             Retrieved from a report generated within the last 24 hours.
                         </div>
-                        <button type="button" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-black text-amber-900 hover:bg-amber-100" :disabled="freshForm.processing" @click="freshSearch">
+                        <button type="button" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100" :disabled="freshForm.processing" @click="freshSearch">
                             <RefreshCw class="h-4 w-4" :class="{ 'animate-spin': freshForm.processing }" />
                             Run fresh search
                         </button>
@@ -61,22 +61,22 @@
                     <template v-if="report.is_success && records.length">
                         <section class="mt-6 rounded-lg border border-slate-200 bg-white shadow-sm">
                             <div class="border-b border-slate-200 px-5 py-4">
-                                <p class="text-xs font-black uppercase tracking-wide text-teal-700">Service timeline</p>
-                                <h2 class="mt-1 text-xl font-black text-slate-950">Recorded workshop visits</h2>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Service timeline</p>
+                                <h2 class="mt-1 text-xl font-semibold text-slate-950">Recorded workshop visits</h2>
                             </div>
 
                             <div class="grid gap-4 p-4 md:hidden">
                                 <article v-for="(record, index) in records" :key="record.id || index" class="rounded-lg border border-slate-200 p-4">
                                     <div class="flex items-start justify-between gap-3">
                                         <div>
-                                            <p class="text-xs font-black uppercase tracking-wide text-slate-400">Service date</p>
-                                            <p class="mt-1 text-sm font-black text-slate-950">{{ formatDate(record.svc_date) }}</p>
+                                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Service date</p>
+                                            <p class="mt-1 text-sm font-semibold text-slate-950">{{ formatDate(record.svc_date) }}</p>
                                         </div>
-                                        <span class="rounded-md bg-teal-50 px-2.5 py-1 text-xs font-black text-teal-700">{{ record.service_cate || record.work_type || 'Service' }}</span>
+                                        <span class="rounded-md bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700">{{ record.service_cate || record.work_type || 'Service' }}</span>
                                     </div>
                                     <dl class="mt-4 grid gap-3 sm:grid-cols-2">
                                         <div v-for="column in mobileColumns" :key="column.key">
-                                            <dt class="text-xs font-black uppercase tracking-wide text-slate-400">{{ column.label }}</dt>
+                                            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ column.label }}</dt>
                                             <dd class="mt-1 break-words text-sm font-bold text-slate-700">{{ formatCell(record, column) }}</dd>
                                         </div>
                                     </dl>
@@ -85,7 +85,7 @@
 
                             <div class="hidden overflow-x-auto md:block">
                                 <table class="min-w-full text-left text-sm">
-                                    <thead class="bg-slate-50 text-xs font-black uppercase text-slate-500">
+                                    <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
                                         <tr>
                                             <th v-for="column in columns" :key="column.key" class="whitespace-nowrap px-4 py-3">{{ column.label }}</th>
                                         </tr>
@@ -102,11 +102,11 @@
                         </section>
 
                         <section v-if="summary.length && variant !== 'generic'" class="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                            <p class="text-xs font-black uppercase tracking-wide text-orange-600">Bill summary</p>
-                            <h2 class="mt-1 text-xl font-black text-slate-950">Spend by service category</h2>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-orange-600">Bill summary</p>
+                            <h2 class="mt-1 text-xl font-semibold text-slate-950">Spend by service category</h2>
                             <div class="mt-5 overflow-x-auto">
                                 <table class="min-w-full text-left text-sm">
-                                    <thead class="border-y border-slate-200 bg-slate-50 text-xs font-black uppercase text-slate-500">
+                                    <thead class="border-y border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-500">
                                         <tr>
                                             <th class="px-4 py-3">Category</th>
                                             <th class="px-4 py-3 text-right">Parts</th>
@@ -117,11 +117,11 @@
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
                                         <tr v-for="item in summary" :key="item.category">
-                                            <td class="px-4 py-4 font-black text-slate-900">{{ item.category }}</td>
+                                            <td class="px-4 py-4 font-semibold text-slate-900">{{ item.category }}</td>
                                             <td class="px-4 py-4 text-right font-semibold text-slate-600">{{ money(item.parts) }}</td>
                                             <td class="px-4 py-4 text-right font-semibold text-slate-600">{{ money(item.labour) }}</td>
-                                            <td class="px-4 py-4 text-right font-black text-teal-700">{{ money(item.total) }}</td>
-                                            <td class="px-4 py-4 text-right font-black text-slate-900">{{ item.count }}</td>
+                                            <td class="px-4 py-4 text-right font-semibold text-teal-700">{{ money(item.total) }}</td>
+                                            <td class="px-4 py-4 text-right font-semibold text-slate-900">{{ item.count }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -145,7 +145,7 @@
                 </template>
 
                 <div class="mt-6">
-                    <Link :href="indexUrl" class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 shadow-sm hover:bg-slate-50">
+                    <Link :href="indexUrl" class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
                         <ArrowLeft class="h-4 w-4" />
                         Search another vehicle
                     </Link>

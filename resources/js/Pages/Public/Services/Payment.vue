@@ -12,14 +12,14 @@
                         <span class="mx-auto grid h-14 w-14 place-items-center rounded-lg bg-teal-50 text-teal-700">
                             <CreditCard class="h-7 w-7" />
                         </span>
-                        <p class="mt-5 text-xs font-black uppercase tracking-wide text-orange-600">Secure report payment</p>
-                        <h1 class="mt-2 text-3xl font-black text-slate-950">Complete payment</h1>
-                        <p class="mt-3 text-sm font-semibold text-slate-600">Vehicle <span class="font-black uppercase text-slate-950">{{ vehicleNumber }}</span></p>
+                        <p class="mt-5 text-xs font-semibold uppercase tracking-wide text-orange-600">Secure report payment</p>
+                        <h1 class="mt-2 text-3xl font-semibold text-slate-950">Complete payment</h1>
+                        <p class="mt-3 text-sm font-semibold text-slate-600">Vehicle <span class="font-semibold uppercase text-slate-950">{{ vehicleNumber }}</span></p>
                     </div>
 
                     <div class="mt-7 rounded-lg border border-slate-200 bg-slate-50 p-5 text-center">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">{{ reportLabel }}</p>
-                        <p class="mt-2 text-4xl font-black text-slate-950">{{ money(amount) }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ reportLabel }}</p>
+                        <p class="mt-2 text-4xl font-semibold text-slate-950">{{ money(amount) }}</p>
                     </div>
 
                     <div v-if="errorMessage" class="mt-5 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
@@ -28,7 +28,7 @@
 
                     <button
                         type="button"
-                        class="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+                        class="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
                         :disabled="loading"
                         @click="openCheckout"
                     >
@@ -42,7 +42,7 @@
                         Secure payment via Razorpay
                     </div>
 
-                    <Link :href="cancelUrl" class="mt-5 flex items-center justify-center gap-2 text-sm font-black text-slate-600 hover:text-slate-950">
+                    <Link :href="cancelUrl" class="mt-5 flex items-center justify-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-950">
                         <ArrowLeft class="h-4 w-4" />
                         Return to search
                     </Link>

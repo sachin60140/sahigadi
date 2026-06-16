@@ -103,8 +103,26 @@ class DashboardController extends Controller
                 'created_at' => optional($payment->created_at)->format('d M, h:i A'),
             ]);
 
+        $trendStart = now()->subDays(29)->startOfDay();
+        $trendRows = Payment::where('status', 'completed')
+            ->where('created_at', '>=', $trendStart)
+            ->selectRaw('DATE(created_at) as day, COALESCE(SUM(amount), 0) as total')
+            ->groupBy('day')
+            ->pluck('total', 'day');
+
+        $revenueTrend = collect(range(0, 29))->map(function ($offset) use ($trendStart, $trendRows) {
+            $day = $trendStart->copy()->addDays($offset);
+            $key = $day->format('Y-m-d');
+
+            return [
+                'date' => $day->format('d M'),
+                'amount' => (float) ($trendRows[$key] ?? 0),
+            ];
+        })->values();
+
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
+            'revenueTrend' => $revenueTrend,
             'gatewaySummary' => $gatewaySummary,
             'paymentLinks' => $paymentLinks,
             'recentPayments' => $recentPayments,
