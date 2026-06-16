@@ -46,8 +46,8 @@ class AuthController extends Controller
 
         try {
             Http::timeout(5)->get($apiUrl, [
-                'username' => 'sarsinfo.trans',
-                'password' => '6E5s8aI_',
+                'username' => config('services.smartping.username'),
+                'password' => config('services.smartping.password'),
                 'unicode' => 'false',
                 'from' => 'INSARS',
                 'text' => $text,

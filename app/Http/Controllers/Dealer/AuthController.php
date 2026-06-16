@@ -56,9 +56,9 @@ class AuthController extends Controller
             'gst_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
-        $kycPath = $request->file('kyc_document')->store('dealers/kyc', 'public');
-        $panPath = $request->file('pan_document')->store('dealers/pan', 'public');
-        $gstPath = $request->hasFile('gst_document') ? $request->file('gst_document')->store('dealers/gst', 'public') : null;
+        $kycPath = $request->file('kyc_document')->store('dealers/kyc', 'local');
+        $panPath = $request->file('pan_document')->store('dealers/pan', 'local');
+        $gstPath = $request->hasFile('gst_document') ? $request->file('gst_document')->store('dealers/gst', 'local') : null;
 
         if (session('dealer_phone_verified') !== $request->phone) {
             return redirect()->back()->withInput()->with('error', 'Please verify your phone number via OTP before completing registration.');
@@ -107,8 +107,8 @@ class AuthController extends Controller
         $text = "Hi! Your verification code is {$otp}. It is valid for 10 minutes. Please keep it confidential. - Sars Infotech Pvt Ltd";
         
         $response = \Illuminate\Support\Facades\Http::get($apiUrl, [
-            'username' => 'sarsinfo.trans',
-            'password' => '6E5s8aI_',
+            'username' => config('services.smartping.username'),
+            'password' => config('services.smartping.password'),
             'unicode' => 'false',
             'from' => 'INSARS',
             'text' => $text,
@@ -179,8 +179,8 @@ class AuthController extends Controller
         $text = "Hi! Your verification code is {$otp}. It is valid for 10 minutes. Please keep it confidential. - Sars Infotech Pvt Ltd";
         
         $response = \Illuminate\Support\Facades\Http::get($apiUrl, [
-            'username' => 'sarsinfo.trans',
-            'password' => '6E5s8aI_',
+            'username' => config('services.smartping.username'),
+            'password' => config('services.smartping.password'),
             'unicode' => 'false',
             'from' => 'INSARS',
             'text' => $text,

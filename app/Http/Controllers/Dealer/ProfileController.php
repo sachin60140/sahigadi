@@ -27,10 +27,10 @@ class ProfileController extends Controller
                 'state' => $dealer->state,
                 'pincode' => $dealer->pincode,
                 'pan_number' => $dealer->pan_number,
-                'pan_document_url' => $dealer->pan_document_path ? Storage::url($dealer->pan_document_path) : null,
+                'pan_document_url' => $dealer->pan_document_path ? route('dealer.profile.document', 'pan') : null,
                 'kyc_document_type' => $dealer->kyc_document_type,
                 'kyc_document_number' => $dealer->kyc_document_number,
-                'kyc_document_url' => $dealer->kyc_document_path ? Storage::url($dealer->kyc_document_path) : null,
+                'kyc_document_url' => $dealer->kyc_document_path ? route('dealer.profile.document', 'kyc') : null,
                 'completion' => $dealer->calculateProfileCompletion(),
                 'missing_fields' => $dealer->getMissingProfileFields(),
             ],
@@ -77,16 +77,16 @@ class ProfileController extends Controller
 
         if ($request->hasFile('pan_document_path')) {
             if ($dealer->pan_document_path) {
-                Storage::disk('public')->delete($dealer->pan_document_path);
+                Storage::disk('local')->delete($dealer->pan_document_path);
             }
-            $data['pan_document_path'] = $request->file('pan_document_path')->store('dealers/documents', 'public');
+            $data['pan_document_path'] = $request->file('pan_document_path')->store('dealers/documents', 'local');
         }
 
         if ($request->hasFile('kyc_document_path')) {
             if ($dealer->kyc_document_path) {
-                Storage::disk('public')->delete($dealer->kyc_document_path);
+                Storage::disk('local')->delete($dealer->kyc_document_path);
             }
-            $data['kyc_document_path'] = $request->file('kyc_document_path')->store('dealers/documents', 'public');
+            $data['kyc_document_path'] = $request->file('kyc_document_path')->store('dealers/documents', 'local');
         }
 
         $dealer->update($data);
@@ -184,12 +184,30 @@ class ProfileController extends Controller
         return back()->with('success', 'Password updated successfully!');
     }
 
+    public function document(string $type)
+    {
+        $dealer = auth('dealer')->user();
+
+        $paths = [
+            'pan' => $dealer->pan_document_path,
+            'kyc' => $dealer->kyc_document_path,
+            'gst' => $dealer->gst_document_path,
+        ];
+
+        abort_unless(array_key_exists($type, $paths), 404);
+
+        $path = $paths[$type];
+        abort_if(! $path || ! Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->response($path);
+    }
+
     private function sendSms($phone, $text)
     {
         $apiUrl = "https://pgapi.sparc.smartping.io/fe/api/v1/send";
         \Illuminate\Support\Facades\Http::get($apiUrl, [
-            'username' => 'sarsinfo.trans',
-            'password' => '6E5s8aI_',
+            'username' => config('services.smartping.username'),
+            'password' => config('services.smartping.password'),
             'unicode' => 'false',
             'from' => 'INSARS',
             'text' => $text,

@@ -39,8 +39,8 @@ class CustomerController extends Controller
         $text = "Hi! Your verification code is {$otp}. It is valid for 10 minutes. Please keep it confidential. - Sars Infotech Pvt Ltd";
         
         Http::get($apiUrl, [
-            'username' => 'sarsinfo.trans',
-            'password' => '6E5s8aI_',
+            'username' => config('services.smartping.username'),
+            'password' => config('services.smartping.password'),
             'unicode' => 'false',
             'from' => 'INSARS',
             'text' => $text,
@@ -248,8 +248,8 @@ class CustomerController extends Controller
         $text = "Hi! Your verification code is {$otp}. It is valid for 10 minutes. Please keep it confidential. - Sars Infotech Pvt Ltd";
         
         Http::get($apiUrl, [
-            'username' => 'sarsinfo.trans',
-            'password' => '6E5s8aI_',
+            'username' => config('services.smartping.username'),
+            'password' => config('services.smartping.password'),
             'unicode' => 'false',
             'from' => 'INSARS',
             'text' => $text,

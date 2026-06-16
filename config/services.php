@@ -60,15 +60,15 @@ return [
 
     'service_history_api' => [
         'url' => env('SERVICE_HISTORY_API_URL', 'https://api.invincibleocean.com/invincible/mahindra-service-history'),
-        'secret_key' => env('SERVICE_HISTORY_SECRET_KEY', 'ONsoB7pAonpp1FYJ0Bf6sHFuGLYGEbytHxURPsEmK64gt3HR8yDtxwDafwMuCaonL'),
-        'client_id' => env('SERVICE_HISTORY_CLIENT_ID', '8f16f6344cbdcc74620cfdf7c87554f2:045cb470d3ae8da988c7e0982917e1ea'),
+        'secret_key' => env('SERVICE_HISTORY_SECRET_KEY'),
+        'client_id' => env('SERVICE_HISTORY_CLIENT_ID'),
         'charge' => env('SERVICE_HISTORY_CHARGE', 20.00),
     ],
 
     'smartping' => [
         'api_url' => env('SMARTPING_API_URL', 'https://pgapi.sparc.smartping.io/fe/api/v1/send'),
-        'username' => env('SMARTPING_USERNAME', 'sarsinfo.trans'),
-        'password' => env('SMARTPING_PASSWORD', '6E5s8aI_'),
+        'username' => env('SMARTPING_USERNAME'),
+        'password' => env('SMARTPING_PASSWORD'),
         'sender_id' => env('SMARTPING_SENDER_ID', 'INSARS'),
         'dlt_content_id' => env('SMARTPING_DLT_CONTENT_ID', '1707177677498830200'),
         'dlt_principal_id' => env('SMARTPING_DLT_PRINCIPAL_ID', '1701166126846262605'),

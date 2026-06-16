@@ -84,9 +84,9 @@ class DealerController extends Controller
             'assign_plan' => 'nullable|exists:plans,id',
         ]);
 
-        $kycPath = $request->hasFile('kyc_document') ? $request->file('kyc_document')->store('dealers/kyc', 'public') : null;
-        $panPath = $request->hasFile('pan_document') ? $request->file('pan_document')->store('dealers/pan', 'public') : null;
-        $gstPath = $request->hasFile('gst_document') ? $request->file('gst_document')->store('dealers/gst', 'public') : null;
+        $kycPath = $request->hasFile('kyc_document') ? $request->file('kyc_document')->store('dealers/kyc', 'local') : null;
+        $panPath = $request->hasFile('pan_document') ? $request->file('pan_document')->store('dealers/pan', 'local') : null;
+        $gstPath = $request->hasFile('gst_document') ? $request->file('gst_document')->store('dealers/gst', 'local') : null;
 
         $dealer = Dealer::create([
             'name' => $validated['name'],
@@ -178,15 +178,15 @@ class DealerController extends Controller
         }
 
         if ($request->hasFile('kyc_document')) {
-            $data['kyc_document_path'] = $request->file('kyc_document')->store('dealers/kyc', 'public');
+            $data['kyc_document_path'] = $request->file('kyc_document')->store('dealers/kyc', 'local');
         }
 
         if ($request->hasFile('pan_document')) {
-            $data['pan_document_path'] = $request->file('pan_document')->store('dealers/pan', 'public');
+            $data['pan_document_path'] = $request->file('pan_document')->store('dealers/pan', 'local');
         }
 
         if ($request->hasFile('gst_document')) {
-            $data['gst_document_path'] = $request->file('gst_document')->store('dealers/gst', 'public');
+            $data['gst_document_path'] = $request->file('gst_document')->store('dealers/gst', 'local');
         }
 
         $dealer->update($data);
@@ -368,9 +368,9 @@ class DealerController extends Controller
             'profile_completion' => $dealer->calculateProfileCompletion(),
             'missing_profile_fields' => $dealer->getMissingProfileFields(),
             'documents' => [
-                'kyc' => $this->documentUrl($dealer->kyc_document_path),
-                'pan' => $this->documentUrl($dealer->pan_document_path),
-                'gst' => $this->documentUrl($dealer->gst_document_path),
+                'kyc' => $dealer->kyc_document_path ? route('admin.dealers.document', ['dealer' => $dealer, 'type' => 'kyc']) : null,
+                'pan' => $dealer->pan_document_path ? route('admin.dealers.document', ['dealer' => $dealer, 'type' => 'pan']) : null,
+                'gst' => $dealer->gst_document_path ? route('admin.dealers.document', ['dealer' => $dealer, 'type' => 'gst']) : null,
             ],
             'cars' => $dealer->cars->map(fn ($car) => [
                 'id' => $car->id,
@@ -427,9 +427,9 @@ class DealerController extends Controller
             'pan_number' => $dealer->pan_number,
             'profile_completion' => $dealer->calculateProfileCompletion(),
             'documents' => [
-                'kyc' => $this->documentUrl($dealer->kyc_document_path),
-                'pan' => $this->documentUrl($dealer->pan_document_path),
-                'gst' => $this->documentUrl($dealer->gst_document_path),
+                'kyc' => $dealer->kyc_document_path ? route('admin.dealers.document', ['dealer' => $dealer, 'type' => 'kyc']) : null,
+                'pan' => $dealer->pan_document_path ? route('admin.dealers.document', ['dealer' => $dealer, 'type' => 'pan']) : null,
+                'gst' => $dealer->gst_document_path ? route('admin.dealers.document', ['dealer' => $dealer, 'type' => 'gst']) : null,
             ],
         ];
     }
@@ -457,6 +457,22 @@ class DealerController extends Controller
             'duration_days' => (int) $plan->duration_days,
             'is_active' => (bool) $plan->is_active,
         ];
+    }
+
+    public function document(Dealer $dealer, string $type)
+    {
+        $paths = [
+            'kyc' => $dealer->kyc_document_path,
+            'pan' => $dealer->pan_document_path,
+            'gst' => $dealer->gst_document_path,
+        ];
+
+        abort_unless(array_key_exists($type, $paths), 404);
+
+        $path = $paths[$type];
+        abort_if(! $path || ! \Illuminate\Support\Facades\Storage::disk('local')->exists($path), 404);
+
+        return \Illuminate\Support\Facades\Storage::disk('local')->response($path);
     }
 
     private function documentUrl(?string $path): ?string

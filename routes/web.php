@@ -39,12 +39,12 @@ Route::get('/car/{slug}', [CarController::class, 'show'])->name('car.detail');
 Route::post('/car/{slug}/enquiry', [CarController::class, 'enquiry'])->name('car.enquiry');
 
 // Contact Unlock OTP Routes
-Route::post('/otp/send-contact-unlock', [ContactUnlockController::class, 'sendOtp'])->name('otp.send_contact_unlock');
-Route::post('/otp/verify-contact-unlock', [ContactUnlockController::class, 'verifyOtp'])->name('otp.verify_contact_unlock');
+Route::post('/otp/send-contact-unlock', [ContactUnlockController::class, 'sendOtp'])->middleware('throttle:otp')->name('otp.send_contact_unlock');
+Route::post('/otp/verify-contact-unlock', [ContactUnlockController::class, 'verifyOtp'])->middleware('throttle:auth')->name('otp.verify_contact_unlock');
 
 // Contact Unlock OTP Routes
-Route::post('/api/enquiry/send-otp', [\App\Http\Controllers\Frontend\EnquiryApiController::class, 'sendOtp'])->name('api.enquiry.send-otp');
-Route::post('/api/enquiry/verify-otp', [\App\Http\Controllers\Frontend\EnquiryApiController::class, 'verifyOtp'])->name('api.enquiry.verify-otp');
+Route::post('/api/enquiry/send-otp', [\App\Http\Controllers\Frontend\EnquiryApiController::class, 'sendOtp'])->middleware('throttle:otp')->name('api.enquiry.send-otp');
+Route::post('/api/enquiry/verify-otp', [\App\Http\Controllers\Frontend\EnquiryApiController::class, 'verifyOtp'])->middleware('throttle:auth')->name('api.enquiry.verify-otp');
 Route::get('/used-cars-in-{city}', [CarController::class, 'byCity'])
     ->name('cars.city');
 Route::get('/used-{brand}-cars', [CarController::class, 'byBrand'])
@@ -59,8 +59,8 @@ Route::get('/verified-dealers', [CarController::class, 'verifiedDealers'])->name
 
 Route::get('/sell-your-car', [SellCarController::class, 'index'])->name('sell-car.index');
 Route::post('/sell-your-car', [SellCarController::class, 'store'])->name('sell-car.store');
-Route::post('/sell-your-car/send-otp', [SellCarController::class, 'sendOtp'])->name('sell-car.send-otp');
-Route::post('/sell-your-car/verify-otp', [SellCarController::class, 'verifyOtp'])->name('sell-car.verify-otp');
+Route::post('/sell-your-car/send-otp', [SellCarController::class, 'sendOtp'])->middleware('throttle:otp')->name('sell-car.send-otp');
+Route::post('/sell-your-car/verify-otp', [SellCarController::class, 'verifyOtp'])->middleware('throttle:auth')->name('sell-car.verify-otp');
 
 Route::prefix('customer')->name('customer.')->group(function () {
     Route::get('/', function () {
@@ -69,13 +69,13 @@ Route::prefix('customer')->name('customer.')->group(function () {
 
     Route::middleware('guest:customer')->group(function () {
         Route::get('/login', [CustomerController::class, 'showLogin'])->name('login');
-        Route::post('/send-otp', [CustomerController::class, 'sendOtp'])->name('send-otp');
-        Route::post('/verify-otp', [CustomerController::class, 'verifyOtp'])->name('verify-otp');
+        Route::post('/send-otp', [CustomerController::class, 'sendOtp'])->middleware('throttle:otp')->name('send-otp');
+        Route::post('/verify-otp', [CustomerController::class, 'verifyOtp'])->middleware('throttle:auth')->name('verify-otp');
     });
 
     Route::middleware(['auth:customer', 'customer.profile.complete'])->group(function () {
         Route::get('/dashboard', [CustomerController::class, 'dashboard'])->name('dashboard');
-        Route::post('/send-delete-otp', [CustomerController::class, 'sendDeleteOtp'])->name('listing.delete.otp');
+        Route::post('/send-delete-otp', [CustomerController::class, 'sendDeleteOtp'])->middleware('throttle:otp')->name('listing.delete.otp');
         Route::delete('/listing/{id}', [CustomerController::class, 'deleteListing'])->name('listing.delete');
         Route::get('/listing/{id}/edit', [CustomerController::class, 'editListing'])->name('listing.edit');
         Route::put('/listing/{id}', [CustomerController::class, 'updateListing'])->name('listing.update');
@@ -113,15 +113,15 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
 
     Route::middleware('guest:dealer')->group(function () {
         Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:auth');
         Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
         Route::post('/register', [AuthController::class, 'register']);
-        Route::post('/send-otp', [AuthController::class, 'sendOtp'])->name('send-otp');
-        Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verify-otp');
+        Route::post('/send-otp', [AuthController::class, 'sendOtp'])->middleware('throttle:otp')->name('send-otp');
+        Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->middleware('throttle:auth')->name('verify-otp');
 
         Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
-        Route::post('/forgot-password/send-otp', [AuthController::class, 'sendResetOtp'])->name('forgot-password.send-otp');
-        Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword'])->name('forgot-password.reset');
+        Route::post('/forgot-password/send-otp', [AuthController::class, 'sendResetOtp'])->middleware('throttle:otp')->name('forgot-password.send-otp');
+        Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword'])->middleware('throttle:auth')->name('forgot-password.reset');
     });
 
     Route::middleware('auth:dealer')->group(function () {
@@ -130,9 +130,10 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
 
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::post('/profile/phone-otp', [ProfileController::class, 'sendPhoneOtp'])->name('profile.phone-otp');
-        Route::post('/profile/verify-phone', [ProfileController::class, 'verifyPhoneOtp'])->name('profile.verify-phone');
+        Route::post('/profile/phone-otp', [ProfileController::class, 'sendPhoneOtp'])->middleware('throttle:otp')->name('profile.phone-otp');
+        Route::post('/profile/verify-phone', [ProfileController::class, 'verifyPhoneOtp'])->middleware('throttle:auth')->name('profile.verify-phone');
         Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+        Route::get('/profile/document/{type}', [ProfileController::class, 'document'])->whereIn('type', ['kyc', 'pan', 'gst'])->name('profile.document');
 
         Route::middleware('dealer.approval')->group(function () {
             Route::resource('cars', DealerCarController::class);
@@ -200,7 +201,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AdminDashboardController::class, 'login'])->name('login');
-        Route::post('/authenticate', [AdminDashboardController::class, 'authenticate'])->name('authenticate');
+        Route::post('/authenticate', [AdminDashboardController::class, 'authenticate'])->middleware('throttle:auth')->name('authenticate');
     });
 
     Route::middleware('admin.access')->group(function () {
@@ -218,6 +219,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/dealers/{dealer}/assign-plan', [DealerController::class, 'assignPlan'])->name('dealers.assign-plan');
         Route::post('/dealers/{dealer}/verify-gst', [DealerController::class, 'verifyGst'])->name('dealers.verify-gst');
         Route::post('/dealers/{dealer}/unverify-gst', [DealerController::class, 'unverifyGst'])->name('dealers.unverify-gst');
+        Route::get('/dealers/{dealer}/document/{type}', [DealerController::class, 'document'])->whereIn('type', ['kyc', 'pan', 'gst'])->name('dealers.document');
 
         Route::resource('cars', AdminCarController::class);
         Route::post('/cars/{car}/approve', [AdminCarController::class, 'approve'])->name('cars.approve');

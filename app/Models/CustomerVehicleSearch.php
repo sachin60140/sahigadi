@@ -28,6 +28,20 @@ class CustomerVehicleSearch extends Model
         'vehicle_data' => 'array',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     public static function checkCache(string $registrationNumber): ?self
     {
         return static::where('registration_number', strtoupper($registrationNumber))

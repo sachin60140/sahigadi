@@ -25,6 +25,20 @@ class CustomerMahindraServiceHistory extends Model
         'raw_response' => 'array',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     public function records()
     {
         return $this->hasMany(CustomerMahindraServiceHistoryRecord::class, 'customer_mahindra_service_history_id');

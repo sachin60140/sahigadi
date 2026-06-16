@@ -6,9 +6,9 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PublicController;
 
 // Public Auth Routes
-Route::post('/auth/send-otp', [AuthController::class, 'sendOtp']);
-Route::post('/auth/verify-otp', [AuthController::class, 'verifyOtp']);
-Route::post('/auth/dealer-login', [AuthController::class, 'dealerLogin']);
+Route::post('/auth/send-otp', [AuthController::class, 'sendOtp'])->middleware('throttle:otp');
+Route::post('/auth/verify-otp', [AuthController::class, 'verifyOtp'])->middleware('throttle:auth');
+Route::post('/auth/dealer-login', [AuthController::class, 'dealerLogin'])->middleware('throttle:auth');
 
 // Public Data Routes
 Route::get('/public/home', [PublicController::class, 'home']);
