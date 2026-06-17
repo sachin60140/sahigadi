@@ -33,9 +33,9 @@ class CustomerMahindraServiceHistoryService
 
     public function search(string $vehicleNumber, array $customerInfo): array
     {
-        $vehicleNum = strtoupper(preg_replace('/[^A-Z0-9]/', '', $vehicleNumber));
+        $vehicleNum = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $vehicleNumber));
 
-        $vehicleNum = strtoupper(preg_replace('/[^A-Z0-9]/', '', $vehicleNumber));
+        $vehicleNum = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $vehicleNumber));
 
         // Cache disabled per user request: "search always fresh no old record required"
 

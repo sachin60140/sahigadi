@@ -29,7 +29,7 @@ class VehicleSearchService
 
     public function search(Dealer $dealer, string $registrationNumber): array
     {
-        $regNumber = strtoupper(preg_replace('/[^A-Z0-9]/', '', $registrationNumber));
+        $regNumber = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $registrationNumber));
 
         $existing = VehicleDetail::where('dealer_id', $dealer->id)
             ->where('registration_number', $regNumber)

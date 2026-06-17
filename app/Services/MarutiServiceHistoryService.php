@@ -35,7 +35,7 @@ class MarutiServiceHistoryService
 
     public function search(Dealer $dealer, string $vehicleNumber): array
     {
-        $vehicleNum = strtoupper(preg_replace('/[^A-Z0-9]/', '', $vehicleNumber));
+        $vehicleNum = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $vehicleNumber));
 
         $existing = MarutiServiceHistory::where('dealer_id', $dealer->id)
             ->where('vehicle_number', $vehicleNum)

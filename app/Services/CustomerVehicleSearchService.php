@@ -32,7 +32,7 @@ class CustomerVehicleSearchService
 
     public function search(string $registrationNumber, array $customerInfo): array
     {
-        $regNumber = strtoupper(preg_replace('/[^A-Z0-9]/', '', $registrationNumber));
+        $regNumber = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $registrationNumber));
 
         $cached = CustomerVehicleSearch::checkCache($regNumber);
         if ($cached) {
