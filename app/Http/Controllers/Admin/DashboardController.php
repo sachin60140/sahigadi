@@ -184,7 +184,7 @@ class DashboardController extends Controller
         if ($request->isMethod('post')) {
             $request->validate([
                 'current_password' => 'required',
-                'new_password' => 'required|min:6|confirmed',
+                'new_password' => 'required|min:8|confirmed',
             ]);
 
             $user = auth('admin')->user();

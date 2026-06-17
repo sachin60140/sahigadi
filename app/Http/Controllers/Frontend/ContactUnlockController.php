@@ -78,7 +78,7 @@ class ContactUnlockController extends Controller
         }
 
         // Generate and send OTP
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
         
         // Store securely in session for verify
         $sessionKey = 'contact_otp_' . $log->id;

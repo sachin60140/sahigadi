@@ -30,7 +30,7 @@ class CustomerController extends Controller
         ]);
 
         $phone = $request->phone;
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
         
         session(['customer_login_otp_' . $phone => $otp]);
         session(['customer_login_otp_time_' . $phone => now()]);
@@ -239,7 +239,7 @@ class CustomerController extends Controller
     {
         $customer = Auth::guard('customer')->user();
         $phone = $customer->phone;
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
         
         session(['customer_delete_otp_' . $phone => $otp]);
         session(['customer_delete_otp_time_' . $phone => now()]);

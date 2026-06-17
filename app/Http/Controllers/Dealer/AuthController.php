@@ -56,13 +56,13 @@ class AuthController extends Controller
             'gst_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
-        $kycPath = $request->file('kyc_document')->store('dealers/kyc', 'local');
-        $panPath = $request->file('pan_document')->store('dealers/pan', 'local');
-        $gstPath = $request->hasFile('gst_document') ? $request->file('gst_document')->store('dealers/gst', 'local') : null;
-
         if (session('dealer_phone_verified') !== $request->phone) {
             return redirect()->back()->withInput()->with('error', 'Please verify your phone number via OTP before completing registration.');
         }
+
+        $kycPath = $request->file('kyc_document')->store('dealers/kyc', 'local');
+        $panPath = $request->file('pan_document')->store('dealers/pan', 'local');
+        $gstPath = $request->hasFile('gst_document') ? $request->file('gst_document')->store('dealers/gst', 'local') : null;
 
         $dealer = Dealer::create([
             'name' => $request->name,
@@ -98,7 +98,7 @@ class AuthController extends Controller
         ]);
 
         $phone = $request->phone;
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
         
         session(['dealer_otp_' . $phone => $otp]);
         session(['dealer_otp_time_' . $phone => now()]);
@@ -170,7 +170,7 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'message' => 'No dealer found with this phone number.']);
         }
 
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
         
         session(['dealer_reset_otp_' . $phone => $otp]);
         session(['dealer_reset_otp_time_' . $phone => now()]);

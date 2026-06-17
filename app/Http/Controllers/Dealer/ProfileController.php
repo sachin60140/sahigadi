@@ -113,8 +113,8 @@ class ProfileController extends Controller
             return response()->json(['success' => false, 'message' => 'This phone number is already registered to another account.']);
         }
 
-        $oldOtp = rand(100000, 999999);
-        $newOtp = rand(100000, 999999);
+        $oldOtp = random_int(100000, 999999);
+        $newOtp = random_int(100000, 999999);
 
         session([
             'profile_phone_update' => [

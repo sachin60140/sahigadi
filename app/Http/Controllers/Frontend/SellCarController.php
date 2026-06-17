@@ -150,7 +150,7 @@ class SellCarController extends Controller
         ]);
 
         $phone = $request->phone;
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
         
         session(['sell_car_otp_' . $phone => $otp]);
         session(['sell_car_otp_time_' . $phone => now()]);

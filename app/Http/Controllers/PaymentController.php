@@ -286,6 +286,21 @@ class PaymentController extends Controller
                 'days' => $paymentInfo['days'],
             ]);
 
+            // Persist the intent so the server-to-server webhook can fulfil the
+            // correct order type even if the browser redirect callback never runs.
+            \App\Models\PhonePePaymentIntent::updateOrCreate(
+                ['transaction_id' => $transactionId],
+                [
+                    'dealer_id' => $dealer->id,
+                    'type' => $type,
+                    'plan_id' => $paymentInfo['plan_id'],
+                    'car_id' => $paymentInfo['car_id'],
+                    'days' => $paymentInfo['days'],
+                    'amount' => $amount,
+                    'status' => 'pending',
+                ]
+            );
+
             $response = $this->phonepeService->createPayment($amount, $transactionId, [
                 'dealer_id' => $dealer->id,
                 'redirectUrl' => $callbackUrl,
@@ -336,6 +351,15 @@ class PaymentController extends Controller
                 throw new Exception('PhonePe payment session does not match this order.');
             }
 
+            $intent = \App\Models\PhonePePaymentIntent::where('transaction_id', $transactionId)->first();
+
+            // The webhook may have already fulfilled this order server-side.
+            if ($intent && $intent->status !== 'pending') {
+                session()->forget("dealer_phonepe_payments.{$transactionId}");
+
+                return redirect()->route('dealer.wallet.index')->with('success', 'PhonePe Payment successful! Amount credited.');
+            }
+
             $this->phonepeService->processPayment(
                 $dealer,
                 $transactionId,
@@ -363,6 +387,10 @@ class PaymentController extends Controller
                         ]);
                     }
                 }
+
+            if ($intent) {
+                $intent->update(['status' => 'consumed']);
+            }
 
             session()->forget("dealer_phonepe_payments.{$transactionId}");
             return redirect()->route('dealer.wallet.index')->with('success', 'PhonePe Payment successful! Amount credited.');
@@ -460,15 +488,41 @@ class PaymentController extends Controller
                     $parts = explode('_', $transactionId);
                     $dealerId = $parts[1] ?? null;
                     $dealer = \App\Models\Dealer::find($dealerId);
-                    
+
                     if ($dealer) {
                         try {
-                            $this->phonepeService->processPayment(
-                                $dealer, 
-                                $transactionId, 
-                                (float) ($amount / 100), 
-                                'wallet_recharge'
-                            );
+                            $intent = \App\Models\PhonePePaymentIntent::where('transaction_id', $transactionId)->first();
+
+                            // Only act if the redirect callback has not already fulfilled it.
+                            if (! $intent || $intent->status === 'pending') {
+                                $type = $intent->type ?? 'wallet_recharge';
+                                $expectedAmount = $intent ? (float) $intent->amount : (float) ($amount / 100);
+
+                                $this->phonepeService->processPayment($dealer, $transactionId, $expectedAmount, $type);
+
+                                if ($intent) {
+                                    if ($type === 'plan_purchase' && $intent->plan_id) {
+                                        $plan = Plan::find($intent->plan_id);
+                                        if ($plan) {
+                                            $this->subscriptionService->purchasePlan($dealer, $plan);
+                                        }
+                                    } elseif ($type === 'featured_listing' && $intent->car_id) {
+                                        $car = CarModel::query()
+                                            ->whereKey($intent->car_id)
+                                            ->where('dealer_id', $dealer->id)
+                                            ->first();
+                                        if ($car) {
+                                            $days = $intent->days ?? 7;
+                                            $car->update([
+                                                'is_featured' => true,
+                                                'featured_expires_at' => now()->addDays($days),
+                                            ]);
+                                        }
+                                    }
+
+                                    $intent->update(['status' => 'consumed']);
+                                }
+                            }
                         } catch (\Exception $e) {
                             \Illuminate\Support\Facades\Log::error('PhonePe Webhook Process Error', ['error' => $e->getMessage()]);
                         }

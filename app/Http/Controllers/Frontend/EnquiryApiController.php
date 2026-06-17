@@ -31,7 +31,7 @@ class EnquiryApiController extends Controller
         }
         RateLimiter::hit('send-otp:' . $ip, 600); // 10 minutes
 
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
         
         // Cache OTP for 5 minutes
         Cache::put('contact_otp_' . $phone, $otp, now()->addMinutes(10));

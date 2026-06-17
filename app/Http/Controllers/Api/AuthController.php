@@ -37,7 +37,7 @@ class AuthController extends Controller
             }
         }
 
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
         
         Cache::put('api_otp_' . $type . '_' . $phone, $otp, now()->addMinutes(10));
 
