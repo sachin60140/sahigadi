@@ -1,61 +1,40 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Maruti Service History Reports - SAHI GADI</title>
-    <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #1a1a2e; color: white; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { margin: 0; color: #1a1a2e; }
-        .header p { margin: 5px 0; color: #666; }
-        .success { color: #16803a; font-weight: bold; }
-        .failed { color: #c62828; font-weight: bold; }
-        .footer { margin-top: 30px; text-align: center; font-size: 10px; color: #777; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>SAHI GADI - Maruti Service History Reports</h1>
-        <p>Generated on: {{ now()->setTimezone('Asia/Kolkata')->format('d M Y, h:i A') }}</p>
-        <p>Total searches: {{ $searches->count() }} | Revenue: Rs. {{ number_format($totalRevenue, 2) }}</p>
-    </div>
+@extends('pdf.layout')
 
-    <table>
-        <thead>
-            <tr>
-                <th>Vehicle Number</th>
-                <th>Dealer</th>
-                <th>Services Found</th>
-                <th>Charge</th>
-                <th>Status</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($searches as $search)
-                <tr>
-                    <td><strong>{{ $search->vehicle_number }}</strong></td>
-                    <td>{{ $search->dealer->name ?? 'N/A' }}</td>
-                    <td>{{ $search->service_count ?? 0 }}</td>
-                    <td>Rs. {{ number_format($search->charge_amount ?? 0, 2) }}</td>
-                    <td class="{{ $search->is_success ? 'success' : 'failed' }}">
-                        {{ $search->is_success ? 'Success' : 'Failed' }}
-                    </td>
-                    <td>{{ optional($search->created_at)->format('d M Y') }}</td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6">No service history searches matched the selected filters.</td>
-                </tr>
-            @endforelse
-        </tbody>
+@section('doc-title', 'Maruti Service History Reports - SAHI GADI')
+@section('brand-subtitle', 'Admin operations')
+@section('report-kicker', 'Admin export')
+@section('report-title', 'Maruti Service History Reports')
+@section('report-meta', 'Generated '.now('Asia/Kolkata')->format('d M Y, h:i A'))
+@section('footer-note', 'Admin export')
+
+@section('content')
+    <table class="summary-grid">
+        <tr>
+            <td style="width: 50%;"><div class="summary-card"><div class="summary-label">Total searches</div><div class="summary-value">{{ $searches->count() }}</div><div class="summary-note">Records in export</div></div></td>
+            <td style="width: 50%;"><div class="summary-card"><div class="summary-label">Total revenue</div><div class="summary-value">Rs.{{ number_format($totalRevenue, 2) }}</div><div class="summary-note">Charges collected</div></div></td>
+        </tr>
     </table>
 
-    <div class="footer">
-        SAHI GADI - System generated report
+    <div class="section">
+        <table class="section-heading"><tr><td class="section-title">Maruti service records</td><td class="section-caption">{{ $searches->count() }} entries</td></tr></table>
+        <table class="data-table">
+            <thead>
+                <tr><td>Vehicle number</td><td>Dealer</td><td class="num">Services found</td><td class="num">Charge</td><td>Status</td><td>Date</td></tr>
+            </thead>
+            <tbody>
+                @forelse($searches as $search)
+                    <tr>
+                        <td><strong>{{ $search->vehicle_number }}</strong></td>
+                        <td>{{ optional($search->dealer)->name ?? 'N/A' }}</td>
+                        <td class="num">{{ $search->service_count ?? 0 }}</td>
+                        <td class="num">Rs.{{ number_format($search->charge_amount ?? 0, 2) }}</td>
+                        <td>@if($search->is_success)<span class="status">Success</span>@else<span class="status is-danger">Failed</span>@endif</td>
+                        <td>{{ optional($search->created_at)->format('d M Y') }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="6" style="text-align: center; color: #7a8799;">No service history searches matched the selected filters.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-</body>
-</html>
+@endsection

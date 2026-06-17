@@ -1,56 +1,40 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>E-Challan Reports - SAHI GADI</title>
-    <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #1a1a2e; color: white; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { margin: 0; color: #1a1a2e; }
-        .header p { margin: 5px 0; color: #666; }
-        .badge { padding: 3px 8px; border-radius: 3px; font-size: 10px; }
-        .badge-success { background: #28a745; color: white; }
-        .badge-danger { background: #dc3545; color: white; }
-        .footer { margin-top: 30px; text-align: center; font-size: 10px; color: #999; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>SAHI GADI - E-Challan Reports</h1>
-        <p>Generated on: {{ date('d M Y, h:i A') }}</p>
-        <p>Total Revenue: Rs. {{ number_format($totalRevenue, 2) }}</p>
-    </div>
+@extends('pdf.layout')
 
-    <table>
-        <thead>
-            <tr>
-                <th>Vehicle Number</th>
-                <th>Dealer</th>
-                <th>Challans</th>
-                <th>Total Amount</th>
-                <th>Status</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($searches as $search)
-            <tr>
-                <td><strong>{{ $search->vehicle_number }}</strong></td>
-                <td>{{ $search->dealer->name ?? 'N/A' }}</td>
-                <td>{{ $search->challan_count ?? 0 }}</td>
-                <td>Rs. {{ number_format($search->total_amount ?? 0, 2) }}</td>
-                <td>{{ $search->is_success ? 'Success' : 'Failed' }}</td>
-                <td>{{ $search->created_at->format('d M Y') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
+@section('doc-title', 'E-Challan Reports - SAHI GADI')
+@section('brand-subtitle', 'Admin operations')
+@section('report-kicker', 'Admin export')
+@section('report-title', 'E-Challan Reports')
+@section('report-meta', 'Generated '.now('Asia/Kolkata')->format('d M Y, h:i A'))
+@section('footer-note', 'Admin export')
+
+@section('content')
+    <table class="summary-grid">
+        <tr>
+            <td style="width: 50%;"><div class="summary-card"><div class="summary-label">Total searches</div><div class="summary-value">{{ $searches->count() }}</div><div class="summary-note">Records in export</div></div></td>
+            <td style="width: 50%;"><div class="summary-card"><div class="summary-label">Total revenue</div><div class="summary-value">Rs.{{ number_format($totalRevenue, 2) }}</div><div class="summary-note">Charges collected</div></div></td>
+        </tr>
     </table>
 
-    <div class="footer">
-        <p>SAHI GADI - Vehicle Marketplace | This is a system generated report</p>
+    <div class="section">
+        <table class="section-heading"><tr><td class="section-title">E-challan lookups</td><td class="section-caption">{{ $searches->count() }} entries</td></tr></table>
+        <table class="data-table">
+            <thead>
+                <tr><td>Vehicle number</td><td>Dealer</td><td class="num">Challans</td><td class="num">Total amount</td><td>Status</td><td>Date</td></tr>
+            </thead>
+            <tbody>
+                @forelse($searches as $search)
+                    <tr>
+                        <td><strong>{{ $search->vehicle_number }}</strong></td>
+                        <td>{{ optional($search->dealer)->name ?? 'N/A' }}</td>
+                        <td class="num">{{ $search->challan_count ?? 0 }}</td>
+                        <td class="num">Rs.{{ number_format($search->total_amount ?? 0, 2) }}</td>
+                        <td>@if($search->is_success)<span class="status">Success</span>@else<span class="status is-danger">Failed</span>@endif</td>
+                        <td>{{ optional($search->created_at)->format('d M Y') }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="6" style="text-align: center; color: #7a8799;">No records found for the specified period.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-</body>
-</html>
+@endsection
