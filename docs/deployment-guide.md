@@ -1,135 +1,234 @@
 # SahiGadi: Production Deployment Guide
 
-This guide details the process of deploying the newly refactored SahiGadi platform (Laravel 12 + Vue 3 + Inertia.js + Tailwind CSS) onto a Hostinger VPS managed via CloudPanel.
-
-## Prerequisites
-- **Server:** Hostinger VPS
-- **Management Panel:** CloudPanel
-- **Stack:** PHP 8.2+, Node.js 18+, MySQL, Nginx
-- **Tools:** Git, PM2 (for SSR)
+Verified against the live environment on 2026-08-01. Supersedes the previous
+VPS/CloudPanel/PM2 guide, which described an environment this project does not use.
 
 ---
 
-## 1. Preparing the Server (CloudPanel)
+## 1. The actual environment
 
-1. **SSH into the Server:**
-   ```bash
-   ssh root@<your-vps-ip>
-   ```
+| | |
+|---|---|
+| Host | Hostinger **shared** hosting (not a VPS, no root) |
+| SSH user | `u587835185@in-mum-web2206` |
+| **Live app root** | `~/domains/sahigadi.com/public_html` |
+| **Document root** | `~/domains/sahigadi.com/public_html/public` |
+| Stack | PHP 8.2+, MySQL, LiteSpeed |
+| Frontend | Vite build output is **committed to git** |
 
-2. **Install Node.js & PM2:**
-   CloudPanel usually runs PHP by default. You will need Node.js to build the assets and run the SSR server.
-   ```bash
-   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-   sudo apt-get install -y nodejs
-   sudo npm install -g pm2
-   ```
+Because the document root is Laravel's `public/` subdirectory, the application
+files (`app/`, `config/`, `.env`, `storage/`) are **not** web-reachable. Verified:
+`/composer.json`, `/artisan`, `/app/Models/Dealer.php` all return 404.
 
-3. **Navigate to the Application Directory:**
-   ```bash
-   cd /htdocs/sahigadi.com/
-   ```
+### Host limitations that affect deployment
 
----
+- **`exec()` and `symlink()` are disabled in PHP.** `php artisan storage:link`
+  **fails** with `Call to undefined function Illuminate\Filesystem\exec()`.
+  Create the symlink from the shell instead (see §4).
+- **No Node.js build on the server.** Assets are built locally and committed,
+  so `npm` is never run in production.
+- **No PM2 / persistent processes**, therefore **no Inertia SSR**. The app falls
+  back to client-side rendering. Do not follow SSR instructions from older docs.
+- **LiteSpeed caches aggressively.** A file can keep returning 200 for minutes
+  after deletion. Always cache-bust when verifying (`?v=$(date +%s)`) and check
+  `content-type` — a 200 with `text/html` is an error page, not the real file.
 
-## 2. Deploying the Application
+### Directories that are NOT the live site
 
-1. **Pull the Latest Code:**
-   Fetch the `redesign/vue-inertia` branch.
-   ```bash
-   git pull origin redesign/vue-inertia
-   ```
+Two stale copies of the application exist. Neither is served, but both contain a
+real `.env`. Do not deploy into them:
 
-2. **Install PHP Dependencies:**
-   ```bash
-   composer install --optimize-autoloader --no-dev
-   ```
+- `~/sahigadi.com/public_html` — old copy (note Hostinger's `DO_NOT_UPLOAD_HERE` marker)
+- `~/public_html` — primary-domain copy, has `APP_URL=http://localhost`
 
-3. **Install Node Dependencies:**
-   ```bash
-   npm ci
-   ```
+Confirm which directory is live before any risky operation:
 
-4. **Build Frontend Assets:**
-   Compile the Vue components and Tailwind styles for production.
-   ```bash
-   npm run build
-   ```
-
-5. **Optimize Laravel:**
-   Clear and cache configurations, routes, and views.
-   ```bash
-   php artisan optimize:clear
-   php artisan config:cache
-   php artisan route:cache
-   php artisan view:cache
-   ```
+```bash
+echo "SERVED_FROM_DOMAINS" > ~/domains/sahigadi.com/public_html/public/whoami.txt
+curl -s "https://sahigadi.com/whoami.txt?v=$(date +%s)"    # expect SERVED_FROM_DOMAINS
+rm -f ~/domains/sahigadi.com/public_html/public/whoami.txt
+```
 
 ---
 
-## 3. Configuring Server-Side Rendering (SSR)
+## 2. Pre-flight: check `.env` BEFORE deploying
 
-To ensure maximum SEO for the Car Listings and Home Page, Inertia SSR must run continuously in the background.
+**This step is mandatory.** Skipping it caused a production login outage on
+2026-08-01.
 
-1. **Test the SSR Build:**
-   ```bash
-   php artisan inertia:start-ssr
-   ```
-   *If successful, press `Ctrl+C` to stop.*
+Several credentials have **no hardcoded fallback** in `config/services.php` (they
+were removed deliberately — the values were leaking in git history). If a key is
+absent from `.env`, the feature fails **silently**: no exception, no log entry.
+Missing `SMARTPING_*` means OTP SMS never sends, which takes down **customer
+login entirely** (customer auth is OTP-only) plus dealer registration and
+forgot-password.
 
-2. **Run SSR via PM2:**
-   Instead of running the command manually, we will daemonize it using PM2 so it automatically restarts on failure or server reboot.
-   ```bash
-   pm2 start "php artisan inertia:start-ssr" --name "sahigadi-ssr"
-   pm2 save
-   pm2 startup
-   ```
+```bash
+cd ~/domains/sahigadi.com/public_html
+for k in SMARTPING_USERNAME SMARTPING_PASSWORD SMARTPING_SENDER_ID \
+         SMARTPING_DLT_CONTENT_ID SMARTPING_DLT_PRINCIPAL_ID \
+         SERVICE_HISTORY_SECRET_KEY SERVICE_HISTORY_CLIENT_ID \
+         VEHICLE_API_KEY RAZORPAY_KEY RAZORPAY_SECRET \
+         PHONEPE_CLIENT_ID PHONEPE_CLIENT_SECRET PHONEPE_WEBHOOK_USER PHONEPE_WEBHOOK_PASS; do
+  grep -qaE "^$k=.+" .env && echo "OK      $k" || echo "MISSING $k"
+done
+```
 
-3. **Verify PM2 Status:**
-   ```bash
-   pm2 status
-   pm2 logs sahigadi-ssr
-   ```
+Also confirm these production values:
 
----
+```bash
+grep -aE "^(APP_ENV|APP_DEBUG|APP_URL)=" .env
+```
 
-## 4. Rollback Strategy (The "Kill-Switch")
+Required: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://sahigadi.com`.
 
-Because we kept the legacy Blade views intact, rolling back to the old UI in case of an emergency is instantaneous.
+> `APP_URL` must be **https** in production — `PhonePeService::assertRedirectUrl()`
+> throws if the callback URL is not HTTPS when `APP_ENV=production`, which breaks
+> all PhonePe payments.
 
-### Option A: Controller-Level Reversion (Recommended)
-If you only need to revert a specific page (e.g., the Homepage):
-1. Open `app/Http/Controllers/Frontend/HomeController.php`.
-2. Change:
-   ```php
-   return \Inertia\Inertia::render('Public/Home', compact(...));
-   ```
-   Back to:
-   ```php
-   return view('frontend.home', compact(...));
-   ```
-3. Run `php artisan optimize:clear`.
-
-### Option B: Branch Reversion (Full Rollback)
-If you need to instantly restore the entire application to the Bootstrap 5 version:
-1. SSH into the server.
-2. Checkout the `main` or production branch:
-   ```bash
-   git checkout main
-   ```
-3. Clear caches:
-   ```bash
-   php artisan optimize:clear
-   ```
-4. Stop the SSR server (optional, to save RAM):
-   ```bash
-   pm2 stop sahigadi-ssr
-   ```
+Fix anything missing **before** continuing. A stale `bootstrap/cache/config.php`
+can mask a missing key (the cached file has old values baked in) until something
+clears it — so never rely on "it works right now".
 
 ---
 
-## 5. SEO Verification Post-Deployment
-Once live, ensure the following checklist is completed:
-1. **Source Code Check:** Right-click the live page -> "View Page Source". You should see fully rendered HTML (not an empty `<div id="app"></div>`) proving that SSR is working.
-2. **Schema Testing:** Run a car detail URL through the [Google Rich Results Test](https://search.google.com/test/rich-results) to ensure the Breadcrumb and Car JSON-LD schemas are detected.
-3. **Contact Security:** Inspect the page payload/network requests on the Car Detail page to ensure `phone` and `email` variables do NOT exist until an OTP is verified.
+## 3. Deploy
+
+```bash
+cd ~/domains/sahigadi.com/public_html
+php artisan down                       # optional; brief maintenance window
+git pull origin main
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan optimize:clear
+php artisan optimize
+php artisan up
+```
+
+No `npm` step — `public/build` ships in the repository.
+
+---
+
+## 4. Storage symlink (only if missing or broken)
+
+`php artisan storage:link` **does not work on this host.** Use the shell:
+
+```bash
+cd ~/domains/sahigadi.com/public_html
+ls -ld public/storage      # must show: public/storage -> ../storage/app/public
+```
+
+If it is missing, or is a **real directory** rather than a symlink:
+
+```bash
+cd ~/domains/sahigadi.com/public_html
+mkdir -p storage/app/public
+cp -a public/storage/. storage/app/public/    # copy first - never move
+rm -rf public/storage
+ln -s ../storage/app/public public/storage
+ls -ld public/storage
+```
+
+A real directory here is a genuine bug: uploads are written to
+`storage/app/public/…` but the web only serves `public/storage/…`, so **newly
+uploaded car images and profile photos silently do not display**.
+
+### Private documents must never live under `public/`
+
+Dealer KYC / PAN / GST files belong on the **private** disk:
+
+```
+storage/app/private/dealers/{kyc,pan,gst}/     ← correct (not web-reachable)
+public/storage/dealers/{kyc,pan,gst}/          ← WRONG (publicly downloadable)
+```
+
+They are served only through authenticated routes
+(`admin.dealers.document`, `dealer.profile.document`). Verify after any deploy
+that touches storage:
+
+```bash
+cd ~/domains/sahigadi.com/public_html
+ls storage/app/private/dealers/ 2>/dev/null     # expect: gst kyc pan
+ls public/storage/dealers/ 2>/dev/null          # expect: profiles ONLY
+```
+
+Only `dealers/profiles` (profile photos) is meant to be public.
+
+---
+
+## 5. Post-deploy verification
+
+```bash
+cd ~/domains/sahigadi.com/public_html
+php artisan migrate:status | tail -5
+curl -s -o /dev/null -w "home            %{http_code}  (200)\n" https://sahigadi.com
+curl -s -o /dev/null -w "app file hidden %{http_code}  (404)\n" https://sahigadi.com/composer.json
+curl -s -o /dev/null -w "api unauth      %{http_code}  (401)\n" -H "Accept: application/json" https://sahigadi.com/api/v1/account/balance
+php artisan tinker --execute="echo config('services.smartping.username') ? 'SMS creds OK' : 'SMS CREDS EMPTY - LOGIN BROKEN';"
+```
+
+Then confirm by hand — these exercise the paths that broke before:
+
+1. **Send a real OTP** at `https://sahigadi.com/customer/login` (proves SMS works).
+2. **Open any car listing** and confirm images render (proves the symlink works).
+3. **Open a dealer in admin** and view a KYC document (proves private-disk reads work).
+
+---
+
+## 6. Rules learned from real incidents
+
+**A fix that spans code + server state is not finished until the server state is
+verified.** Both production incidents on 2026-08-01 came from shipping the code
+half and leaving the server half as a checklist note:
+
+- Removing the credential fallbacks without adding the `.env` keys → **customer
+  login outage**.
+- Moving KYC storage to the private disk in code without moving the **files** →
+  dealer Aadhaar/PAN documents stayed **publicly downloadable in production**
+  for months while being reported as fixed.
+
+Practical consequences:
+
+- Any commit that removes a config fallback must ship **together** with the
+  `.env` update, as a blocking pre-deploy step.
+- Any commit that changes where files are stored must ship with the
+  corresponding **file migration on the server**, verified with a live HTTP
+  request.
+- When verifying that something is no longer public, **cache-bust and inspect
+  `content-type`** — LiteSpeed will happily serve a deleted file from cache.
+
+---
+
+## 7. Credential rotation
+
+Because credentials are read from `.env` with no code fallback, rotation needs
+**no code change and no redeploy**:
+
+```bash
+cd ~/domains/sahigadi.com/public_html
+nano .env                                   # update the key(s)
+php artisan config:clear && php artisan optimize
+php artisan tinker --execute="echo config('services.smartping.username') ? 'OK' : 'EMPTY';"
+```
+
+Update the local `.env` to match. Rotate whenever a value may have been exposed —
+several current values appeared in git history and must be rotated.
+
+---
+
+## 8. Rollback
+
+```bash
+cd ~/domains/sahigadi.com/public_html
+git log --oneline -5
+git checkout <previous-commit>
+php artisan optimize:clear && php artisan optimize
+```
+
+Assets are committed, so checking out an older commit restores the matching
+frontend build automatically.
+
+**Migrations do not roll back automatically.** Check whether the bad deploy ran
+any (`php artisan migrate:status`) and roll them back deliberately with
+`php artisan migrate:rollback --step=1` only if the migration is genuinely
+reversible.
