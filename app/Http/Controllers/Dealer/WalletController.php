@@ -64,6 +64,16 @@ class WalletController extends Controller
 
         abort_if($transaction->type !== 'credit', 403, 'Only credit transactions have a receipt.');
 
+        $invoice = \App\Models\Invoice::where('wallet_transaction_type', 'dealer')
+            ->where('wallet_transaction_id', $transaction->id)
+            ->first();
+
+        if ($invoice) {
+            return Pdf::loadView('pdf.tax-invoice', compact('invoice'))
+                ->download('Tax-Invoice-'.str_replace('/', '-', $invoice->invoice_number).'.pdf');
+        }
+
+        // Legacy transactions predate GST invoicing - keep serving the receipt.
         $data = [
             'transaction' => $transaction,
             'dealer' => $dealer,

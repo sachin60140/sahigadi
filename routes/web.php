@@ -316,6 +316,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/challan-pdf/logs', [\App\Http\Controllers\Admin\ChallanPdfController::class, 'logs'])->name('challan-pdf.logs');
         Route::get('/challan-pdf/export-logs', [\App\Http\Controllers\Admin\ChallanPdfController::class, 'exportLogs'])->name('challan-pdf.export-logs');
 
+        // Static segments must stay above the /{invoice} wildcard.
+        Route::get('/invoices', [App\Http\Controllers\Admin\InvoiceController::class, 'index'])->name('invoices.index');
+        Route::get('/invoices/settings', [App\Http\Controllers\Admin\InvoiceController::class, 'settings'])->name('invoices.settings');
+        Route::post('/invoices/settings', [App\Http\Controllers\Admin\InvoiceController::class, 'settings']);
+        Route::get('/invoices/export/excel', [App\Http\Controllers\Admin\InvoiceController::class, 'exportExcel'])->name('invoices.exportExcel');
+        Route::get('/invoices/{invoice}/download', [App\Http\Controllers\Admin\InvoiceController::class, 'download'])->name('invoices.download');
+
         Route::get('/payment-settings', [PaymentSettingsController::class, 'index'])->name('payment-settings.index');
         Route::post('/payment-settings', [PaymentSettingsController::class, 'update'])->name('payment-settings.update');
         Route::post('/payment-settings/test-phonepe', [PaymentSettingsController::class, 'testPhonePe'])->name('payment-settings.test-phonepe');

@@ -312,18 +312,27 @@ class PhonePeService
 
             if ($type === 'wallet_recharge') {
                 $walletCreditAmount = round($status['amount'] / 1.18, 2);
-                
+                $walletTransaction = null;
+
                 if ($dealer instanceof \App\Models\Dealer) {
                     $walletService = app(\App\Services\WalletService::class);
-                    $walletService->credit($dealer->id, $walletCreditAmount, 'Wallet recharge via PhonePe', $transactionId, 'payment');
+                    $walletTransaction = $walletService->credit($dealer->id, $walletCreditAmount, 'Wallet recharge via PhonePe', $transactionId, 'payment');
                 } elseif ($dealer instanceof \App\Models\Customer) {
-                    $dealer->wallet()->firstOrCreate([])->addFunds(
+                    $walletTransaction = $dealer->wallet()->firstOrCreate([])->addFunds(
                         $walletCreditAmount,
                         'Wallet recharge via PhonePe',
                         $transactionId,
                         'payment'
                     );
                 }
+
+                app(\App\Services\InvoiceService::class)->issueForRecharge(
+                    $dealer,
+                    $walletCreditAmount,
+                    $walletTransaction?->id,
+                    'PhonePe',
+                    $transactionId
+                );
             }
 
             DB::commit();

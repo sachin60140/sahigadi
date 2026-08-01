@@ -48,6 +48,65 @@ class Setting extends Model
         static::set('dealer_vehicle_search_charge', $amount, 'number', 'services', 'Charge per vehicle search for dealers');
     }
 
+    // ---- GST tax invoice settings -------------------------------------------
+
+    public static function getInvoicePrefix(): string
+    {
+        return (string) static::get('invoice_prefix', 'AW/SG');
+    }
+
+    public static function getInvoiceSupplierName(): string
+    {
+        return (string) static::get('invoice_supplier_name', 'Awani Enterprises');
+    }
+
+    public static function getInvoiceSupplierGstin(): string
+    {
+        return (string) static::get('invoice_supplier_gstin', '09CEKPS2342H1Z8');
+    }
+
+    public static function getInvoiceSupplierAddress(): string
+    {
+        return (string) static::get(
+            'invoice_supplier_address',
+            'UGF-4-5, Parsvanath Majestic Arcade, Vaibhav Khand, Indirapuram, Ghaziabad, UP - 201014'
+        );
+    }
+
+    public static function getInvoiceSupplierState(): string
+    {
+        return (string) static::get('invoice_supplier_state', 'Uttar Pradesh');
+    }
+
+    public static function getInvoiceSacCode(): string
+    {
+        return (string) static::get('invoice_sac_code', '998399');
+    }
+
+    public static function getInvoiceGstRate(): float
+    {
+        return (float) static::get('invoice_gst_rate', 18);
+    }
+
+    public static function setInvoiceSettings(array $values): void
+    {
+        $map = [
+            'invoice_prefix' => 'string',
+            'invoice_supplier_name' => 'string',
+            'invoice_supplier_gstin' => 'string',
+            'invoice_supplier_address' => 'string',
+            'invoice_supplier_state' => 'string',
+            'invoice_sac_code' => 'string',
+            'invoice_gst_rate' => 'number',
+        ];
+
+        foreach ($map as $key => $type) {
+            if (array_key_exists($key, $values) && $values[$key] !== null) {
+                static::set($key, $values[$key], $type, 'invoicing', 'GST invoice setting');
+            }
+        }
+    }
+
     public static function getDealerApiVehicleSearchCharge(): float
     {
         return (float) static::get('dealer_api_vehicle_search_charge', static::getDealerVehicleSearchCharge());

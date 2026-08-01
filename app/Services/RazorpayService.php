@@ -78,10 +78,11 @@ class RazorpayService
         return DB::transaction(function () use ($dealer, $razorpayOrderId, $razorpayPaymentId, $razorpaySignature, $amount, $type, $referenceId) {
             if ($type === 'wallet_recharge' && $dealer) {
                 $walletCreditAmount = round($amount / 1.18, 2);
+                $walletTransaction = null;
 
                 if ($dealer instanceof \App\Models\Dealer) {
                     $walletService = app(WalletService::class);
-                    $walletService->credit(
+                    $walletTransaction = $walletService->credit(
                         $dealer->id,
                         $walletCreditAmount,
                         'Wallet recharge via Razorpay',
@@ -89,13 +90,21 @@ class RazorpayService
                         'payment'
                     );
                 } elseif ($dealer instanceof \App\Models\Customer) {
-                    $dealer->wallet()->firstOrCreate([])->addFunds(
+                    $walletTransaction = $dealer->wallet()->firstOrCreate([])->addFunds(
                         $walletCreditAmount,
                         'Wallet recharge via Razorpay',
                         $razorpayPaymentId,
                         'payment'
                     );
                 }
+
+                app(InvoiceService::class)->issueForRecharge(
+                    $dealer,
+                    $walletCreditAmount,
+                    $walletTransaction?->id,
+                    'Razorpay',
+                    $razorpayPaymentId
+                );
             }
 
             $payment = Payment::updateOrCreate(

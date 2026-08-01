@@ -143,6 +143,7 @@ const navGroups: NavGroup[] = [
             { label: 'Customer Wallets', href: '/admin/customer-wallet-recharges', match: ['/admin/customer-wallet-recharges'], icon: IconWallet },
             { label: 'Payment Links', href: '/admin/payment-links', match: ['/admin/payment-links'], icon: IconPayment },
             { label: 'Payments & Refunds', href: '/admin/customer-transactions', match: ['/admin/customer-transactions'], icon: IconPayment },
+            { label: 'Tax Invoices', href: '/admin/invoices', match: ['/admin/invoices'], icon: IconPayment },
         ],
     },
     {
