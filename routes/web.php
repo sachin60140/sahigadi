@@ -177,6 +177,10 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
             Route::get('/challan-search/{challanSearch}', [App\Http\Controllers\Dealer\ChallanSearchController::class, 'show'])->name('challan-search.show');
             Route::get('/challan-search/{challanSearch}/pdf', [App\Http\Controllers\Dealer\ChallanSearchController::class, 'exportPdf'])->name('challan-search.pdf');
 
+            Route::get('/api-access', [App\Http\Controllers\Dealer\ApiAccessController::class, 'index'])->name('api-access.index');
+            Route::post('/api-access/generate', [App\Http\Controllers\Dealer\ApiAccessController::class, 'generate'])->name('api-access.generate');
+            Route::post('/api-access/revoke', [App\Http\Controllers\Dealer\ApiAccessController::class, 'revoke'])->name('api-access.revoke');
+
             Route::get('/challan-pdf', [App\Http\Controllers\Dealer\ChallanPdfController::class, 'index'])->name('challan-pdf.index');
             Route::post('/challan-pdf/search', [App\Http\Controllers\Dealer\ChallanPdfController::class, 'search'])->name('challan-pdf.search');
             Route::get('/challan-pdf/history', [App\Http\Controllers\Dealer\ChallanPdfController::class, 'history'])->name('challan-pdf.history');
@@ -219,6 +223,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/dealers/{dealer}/assign-plan', [DealerController::class, 'assignPlan'])->name('dealers.assign-plan');
         Route::post('/dealers/{dealer}/verify-gst', [DealerController::class, 'verifyGst'])->name('dealers.verify-gst');
         Route::post('/dealers/{dealer}/unverify-gst', [DealerController::class, 'unverifyGst'])->name('dealers.unverify-gst');
+        Route::post('/dealers/{dealer}/toggle-api', [DealerController::class, 'toggleApi'])->name('dealers.toggle-api');
+        Route::post('/dealers/{dealer}/revoke-api-keys', [DealerController::class, 'revokeApiKeys'])->name('dealers.revoke-api-keys');
         Route::get('/dealers/{dealer}/document/{type}', [DealerController::class, 'document'])->whereIn('type', ['kyc', 'pan', 'gst'])->name('dealers.document');
 
         Route::resource('cars', AdminCarController::class);
@@ -254,6 +260,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/vehicle-searches', [AdminVehicleSearchController::class, 'index'])->name('vehicle-searches.index');
         Route::get('/vehicle-searches/settings', [AdminVehicleSearchController::class, 'settings'])->name('vehicle-searches.settings');
         Route::post('/vehicle-searches/settings', [AdminVehicleSearchController::class, 'settings']);
+        // Must stay above the /{vehicleSearch} wildcard so it is not swallowed by it.
+        Route::get('/vehicle-searches/api-usage', [AdminVehicleSearchController::class, 'apiUsage'])->name('vehicle-searches.api-usage');
         Route::get('/vehicle-searches/{vehicleSearch}', [AdminVehicleSearchController::class, 'show'])->name('vehicle-searches.show');
         Route::get('/vehicle-searches/export/excel', [AdminVehicleSearchController::class, 'exportExcel'])->name('vehicle-searches.exportExcel');
         Route::get('/vehicle-searches/export/pdf', [AdminVehicleSearchController::class, 'exportPdf'])->name('vehicle-searches.exportPdf');

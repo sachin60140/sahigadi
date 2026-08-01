@@ -119,6 +119,48 @@
                         <DocumentRow label="GST file" :url="dealer.documents.gst" />
                     </div>
                 </Panel>
+
+                <Panel title="Vehicle search API" eyebrow="Partner access">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <InfoList
+                            class="flex-1"
+                            :items="[
+                                ['Access', dealer.api_enabled ? 'Enabled' : 'Disabled'],
+                                ['Active API keys', String(dealer.api_keys_count ?? 0)],
+                                ['API lookups', String(dealer.api_calls_count ?? 0)],
+                                ['Charge per lookup', `Rs ${dealer.api_charge ?? 0}`],
+                            ]"
+                        />
+                        <div class="flex flex-col items-start gap-2">
+                            <button
+                                type="button"
+                                class="rounded-lg px-4 py-2 text-xs font-semibold"
+                                :class="dealer.api_enabled ? 'border border-red-200 bg-red-50 text-red-700' : 'bg-teal-700 text-white'"
+                                @click="toggleApi"
+                            >
+                                {{ dealer.api_enabled ? 'Disable API access' : 'Enable API access' }}
+                            </button>
+                            <button
+                                v-if="dealer.api_enabled && (dealer.api_keys_count ?? 0) > 0"
+                                type="button"
+                                class="rounded-lg border border-red-200 px-4 py-2 text-xs font-semibold text-red-700 hover:bg-red-50"
+                                @click="revokeApiKeys"
+                            >
+                                Revoke keys
+                            </button>
+                            <p v-if="dealer.api_enabled" class="max-w-[220px] text-xs font-medium text-slate-500">
+                                Disabling revokes partner API keys only; the dealer's mobile app login is unaffected.
+                            </p>
+                        </div>
+                    </div>
+
+                    <p class="mt-4 text-xs font-medium text-slate-500">
+                        Dealers generate and manage their own API key from their API Access page. Admins can revoke a key but never see it.
+                    </p>
+                    <p v-if="!dealer.api_global_enabled" class="mt-4 rounded-lg border border-orange-100 bg-orange-50 px-4 py-3 text-xs font-semibold text-orange-700">
+                        The API master switch is currently off, so no dealer can call the API. Turn it on in RC Search Pricing settings.
+                    </p>
+                </Panel>
             </div>
 
             <div class="grid gap-5">
@@ -286,6 +328,11 @@ type Dealer = {
     gst_number?: string | null;
     gst_verified: boolean;
     gst_verified_at?: string | null;
+    api_enabled?: boolean;
+    api_keys_count?: number;
+    api_calls_count?: number;
+    api_global_enabled?: boolean;
+    api_charge?: number;
     joined_at?: string | null;
     kyc_document_number?: string | null;
     pan_number?: string | null;
@@ -357,6 +404,22 @@ const assignPlan = () => {
         preserveScroll: true,
         onSuccess: () => planForm.reset(),
     });
+};
+
+const revokeApiKeys = () => {
+    if (window.confirm("Revoke this dealer's API keys? Their integration will stop working immediately.")) {
+        router.post(props.dealer.actions.revoke_api_keys, {}, { preserveScroll: true });
+    }
+};
+
+const toggleApi = () => {
+    const message = props.dealer.api_enabled
+        ? 'Disable API access for this dealer? Existing API keys will be revoked immediately.'
+        : 'Enable API access for this dealer?';
+
+    if (window.confirm(message)) {
+        router.post(props.dealer.actions.toggle_api, {}, { preserveScroll: true });
+    }
 };
 
 const verifyGst = () => router.post(props.dealer.actions.verify_gst, {}, { preserveScroll: true });

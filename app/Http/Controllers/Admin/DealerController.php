@@ -311,6 +311,31 @@ class DealerController extends Controller
         return back()->with('success', 'Plan assigned successfully!');
     }
 
+    public function toggleApi(Dealer $dealer)
+    {
+        if (! $dealer->api_enabled && $dealer->status !== 'approved') {
+            return back()->with('error', 'Approve the dealer before enabling API access.');
+        }
+
+        $dealer->update(['api_enabled' => ! $dealer->api_enabled]);
+
+        if (! $dealer->api_enabled) {
+            // Only partner API keys - must not revoke the dealer's mobile app session.
+            $dealer->partnerApiTokens()->delete();
+
+            return back()->with('success', 'API access disabled and partner API keys revoked.');
+        }
+
+        return back()->with('success', 'API access enabled for this dealer.');
+    }
+
+    public function revokeApiKeys(Dealer $dealer)
+    {
+        $dealer->partnerApiTokens()->delete();
+
+        return back()->with('success', 'Partner API keys revoked.');
+    }
+
     public function verifyGst(Dealer $dealer)
     {
         $dealer->update([
@@ -365,6 +390,11 @@ class DealerController extends Controller
             'kyc_document_number' => $dealer->kyc_document_number,
             'pan_number' => $dealer->pan_number,
             'gst_verified_at' => $this->formatDate($dealer->gst_verified_at),
+            'api_enabled' => (bool) $dealer->api_enabled,
+            'api_keys_count' => $dealer->partnerApiTokens()->count(),
+            'api_calls_count' => \App\Models\AdminVehicleSearch::where('dealer_id', $dealer->id)->where('channel', 'api')->count(),
+            'api_global_enabled' => \App\Models\Setting::isDealerApiEnabled(),
+            'api_charge' => (float) \App\Models\Setting::getDealerApiVehicleSearchCharge(),
             'profile_completion' => $dealer->calculateProfileCompletion(),
             'missing_profile_fields' => $dealer->getMissingProfileFields(),
             'documents' => [
@@ -402,6 +432,8 @@ class DealerController extends Controller
                 'assign_plan' => route('admin.dealers.assign-plan', $dealer),
                 'verify_gst' => route('admin.dealers.verify-gst', $dealer),
                 'unverify_gst' => route('admin.dealers.unverify-gst', $dealer),
+                'toggle_api' => route('admin.dealers.toggle-api', $dealer),
+                'revoke_api_keys' => route('admin.dealers.revoke-api-keys', $dealer),
             ],
         ];
     }

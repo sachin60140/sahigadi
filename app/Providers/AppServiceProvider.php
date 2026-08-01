@@ -51,5 +51,11 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(10)->by('auth-id:'.($identifier !== '' ? $identifier : $request->ip())),
             ];
         });
+
+        RateLimiter::for('api', function (Request $request) {
+            $identifier = $request->user()?->getAuthIdentifier();
+
+            return Limit::perMinute(60)->by($identifier ? 'dealer-api:'.$identifier : 'api-ip:'.$request->ip());
+        });
     }
 }

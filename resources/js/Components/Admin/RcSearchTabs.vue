@@ -27,14 +27,17 @@ const items = [
     { label: 'Dealer searches', href: '/admin/vehicle-searches', match: '/admin/vehicle-searches' },
     { label: 'Customer searches', href: '/admin/customer-vehicle-searches', match: '/admin/customer-vehicle-searches' },
     { label: 'Combined ledger', href: '/admin/service-tracking/vehicle-search', match: '/admin/service-tracking/vehicle-search' },
+    { label: 'API usage', href: '/admin/vehicle-searches/api-usage', match: '/admin/vehicle-searches/api-usage' },
     { label: 'Pricing', href: '/admin/vehicle-searches/settings', match: '/admin/vehicle-searches/settings' },
 ];
 
 const isActive = (match: string) => {
     if (match === '/admin/vehicle-searches') {
+        const ownTabs = ['/admin/vehicle-searches/settings', '/admin/vehicle-searches/api-usage'];
+
         return currentPath.value === match || (
             currentPath.value.startsWith(`${match}/`)
-            && currentPath.value !== '/admin/vehicle-searches/settings'
+            && ! ownTabs.includes(currentPath.value)
         );
     }
 

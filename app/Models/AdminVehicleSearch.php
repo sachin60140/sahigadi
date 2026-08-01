@@ -11,6 +11,8 @@ class AdminVehicleSearch extends Model
 
     protected $fillable = [
         'dealer_id',
+        'channel',
+        'ip_address',
         'registration_number',
         'owner_name',
         'address',
@@ -41,10 +43,12 @@ class AdminVehicleSearch extends Model
         return $this->belongsTo(Dealer::class);
     }
 
-    public static function createFromVehicleDetail(VehicleDetail $vd, float $charge): self
+    public static function createFromVehicleDetail(VehicleDetail $vd, float $charge, string $channel = 'web', ?string $ipAddress = null): self
     {
         return static::create([
             'dealer_id' => $vd->dealer_id,
+            'channel' => $channel,
+            'ip_address' => $ipAddress,
             'registration_number' => $vd->registration_number,
             'owner_name' => $vd->owner_name,
             'address' => $vd->address,

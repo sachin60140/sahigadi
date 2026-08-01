@@ -60,18 +60,80 @@ class VehicleSearchController extends Controller
         ]);
     }
 
+    public function apiUsage(Request $request)
+    {
+        $filters = [
+            'search' => (string) $request->query('search', ''),
+            'dealer_id' => (string) $request->query('dealer_id', ''),
+            'status' => (string) $request->query('status', ''),
+        ];
+
+        $query = AdminVehicleSearch::with('dealer')->where('channel', 'api');
+
+        if ($filters['search'] !== '') {
+            $query->where('registration_number', 'like', '%'.strtoupper($filters['search']).'%');
+        }
+
+        if ($filters['dealer_id'] !== '') {
+            $query->where('dealer_id', $filters['dealer_id']);
+        }
+
+        if ($filters['status'] === 'success') {
+            $query->where('is_success', true);
+        } elseif ($filters['status'] === 'failed') {
+            $query->where('is_success', false);
+        }
+
+        $calls = $query->latest()->paginate(25)->withQueryString();
+        $base = AdminVehicleSearch::where('channel', 'api');
+
+        return Inertia::render('Admin/VehicleSearches/ApiUsage', [
+            'calls' => $calls->through(fn (AdminVehicleSearch $call) => [
+                'id' => $call->id,
+                'dealer' => optional($call->dealer)->company_name ?: (optional($call->dealer)->name ?: 'Unknown dealer'),
+                'registration_number' => $call->registration_number,
+                'is_success' => (bool) $call->is_success,
+                'error_message' => $call->error_message,
+                'charge' => (float) $call->charge_amount,
+                'ip_address' => $call->ip_address,
+                'created_at' => optional($call->created_at)->format('d M Y, h:i A'),
+            ]),
+            'dealers' => Dealer::where('api_enabled', true)->orderBy('name')->get()->map(fn (Dealer $dealer) => [
+                'id' => $dealer->id,
+                'name' => $dealer->company_name ?: $dealer->name,
+            ])->values(),
+            'filters' => $filters,
+            'stats' => [
+                'total' => (clone $base)->count(),
+                'successful' => (clone $base)->where('is_success', true)->count(),
+                'failed' => (clone $base)->where('is_success', false)->count(),
+                'revenue' => (float) (clone $base)->where('is_success', true)->sum('charge_amount'),
+                'enabled_dealers' => Dealer::where('api_enabled', true)->count(),
+                'api_enabled' => Setting::isDealerApiEnabled(),
+                'charge' => (float) Setting::getDealerApiVehicleSearchCharge(),
+            ],
+            'actions' => [
+                'settings' => route('admin.vehicle-searches.settings'),
+            ],
+        ]);
+    }
+
     public function settings(Request $request)
     {
         if ($request->isMethod('post')) {
             $request->validate([
                 'charge' => 'required|numeric|min:0',
                 'dealer_charge' => 'required|numeric|min:0',
+                'api_charge' => 'required|numeric|min:0',
+                'api_enabled' => 'nullable|boolean',
             ]);
 
             Setting::setVehicleSearchCharge($request->charge);
             Setting::setDealerVehicleSearchCharge($request->dealer_charge);
+            Setting::setDealerApiVehicleSearchCharge($request->api_charge);
+            Setting::setDealerApiEnabled($request->boolean('api_enabled'));
 
-            return redirect()->back()->with('success', 'Service charges updated successfully!');
+            return redirect()->back()->with('success', 'RC search settings updated successfully!');
         }
 
         $charge = Setting::getVehicleSearchCharge();
@@ -84,6 +146,13 @@ class VehicleSearchController extends Controller
             'charges' => [
                 'customer' => (float) $charge,
                 'dealer' => (float) $dealerCharge,
+                'api' => (float) Setting::getDealerApiVehicleSearchCharge(),
+            ],
+            'api' => [
+                'enabled' => Setting::isDealerApiEnabled(),
+                'enabled_dealers' => \App\Models\Dealer::where('api_enabled', true)->count(),
+                'calls' => AdminVehicleSearch::where('channel', 'api')->count(),
+                'revenue' => (float) AdminVehicleSearch::where('channel', 'api')->where('is_success', true)->sum('charge_amount'),
             ],
             'stats' => [
                 'total' => $totalSearches,

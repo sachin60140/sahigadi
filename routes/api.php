@@ -29,3 +29,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/actions/enquiry', [\App\Http\Controllers\Api\ActionController::class, 'createEnquiry']);
     Route::post('/actions/customer-listing', [\App\Http\Controllers\Api\ActionController::class, 'createCustomerListing']);
 });
+
+// Dealer partner API (token auth + approved/enabled gate + rate limit)
+Route::prefix('v1')
+    ->middleware(['auth:sanctum', 'dealer.api', 'throttle:api'])
+    ->group(function () {
+        Route::get('/account/balance', [\App\Http\Controllers\Api\Dealer\VehicleSearchController::class, 'balance']);
+        Route::post('/vehicle/rc', [\App\Http\Controllers\Api\Dealer\VehicleSearchController::class, 'search']);
+        Route::get('/vehicle/searches', [\App\Http\Controllers\Api\Dealer\VehicleSearchController::class, 'index']);
+        Route::get('/vehicle/rc/{id}', [\App\Http\Controllers\Api\Dealer\VehicleSearchController::class, 'show'])->whereNumber('id');
+    });

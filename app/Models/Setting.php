@@ -48,6 +48,26 @@ class Setting extends Model
         static::set('dealer_vehicle_search_charge', $amount, 'number', 'services', 'Charge per vehicle search for dealers');
     }
 
+    public static function getDealerApiVehicleSearchCharge(): float
+    {
+        return (float) static::get('dealer_api_vehicle_search_charge', static::getDealerVehicleSearchCharge());
+    }
+
+    public static function setDealerApiVehicleSearchCharge(float $amount): void
+    {
+        static::set('dealer_api_vehicle_search_charge', $amount, 'number', 'services', 'Charge per dealer API vehicle search in rupees');
+    }
+
+    public static function isDealerApiEnabled(): bool
+    {
+        return (bool) static::get('dealer_api_enabled', false);
+    }
+
+    public static function setDealerApiEnabled(bool $enabled): void
+    {
+        static::set('dealer_api_enabled', $enabled ? '1' : '0', 'boolean', 'services', 'Master switch for the dealer vehicle-search API');
+    }
+
     public static function getChallanCharge(): float
     {
         return (float) static::get('challan_charge', 50);

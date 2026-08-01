@@ -37,6 +37,51 @@
                     </label>
                 </div>
 
+                <div class="mt-8 border-t border-slate-200 pt-6">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-teal-700">Dealer API</p>
+                            <h3 class="mt-1 text-lg font-bold text-slate-950">Partner API access</h3>
+                            <p class="mt-1 max-w-xl text-sm font-medium leading-6 text-slate-600">
+                                Lets approved dealers call the RC lookup from their own systems. Each successful lookup is debited from their wallet; cached repeats within 24 hours are free.
+                            </p>
+                        </div>
+                        <span class="rounded-md px-2.5 py-1 text-xs font-semibold" :class="form.api_enabled ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-100' : 'bg-slate-100 text-slate-600 ring-1 ring-slate-200'">
+                            {{ form.api_enabled ? 'Live' : 'Disabled' }}
+                        </span>
+                    </div>
+
+                    <label class="mt-4 flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <input v-model="form.api_enabled" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-teal-700 focus:ring-teal-600" />
+                        <span>
+                            <span class="block text-sm font-semibold text-slate-800">Enable the dealer vehicle-search API</span>
+                            <span class="mt-1 block text-xs font-medium text-slate-500">Master switch. Individual dealers must also be enabled on their profile page.</span>
+                        </span>
+                    </label>
+
+                    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                        <label>
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">API charge per lookup</span>
+                            <div class="relative">
+                                <span class="pointer-events-none absolute inset-y-0 left-0 grid w-11 place-items-center font-semibold text-slate-500">Rs</span>
+                                <input v-model="form.api_charge" class="admin-input pl-11" type="number" min="0" step="0.01" required />
+                            </div>
+                            <p class="mt-2 text-xs font-medium text-slate-500">Charged per successful API lookup, separate from the dealer panel price.</p>
+                            <p v-if="form.errors.api_charge" class="mt-2 text-xs font-bold text-red-600">{{ form.errors.api_charge }}</p>
+                        </label>
+                        <div class="grid grid-cols-2 gap-3 self-start">
+                            <div class="rounded-lg border border-slate-200 bg-white p-3">
+                                <p class="text-lg font-bold text-slate-950">{{ api.enabled_dealers }}</p>
+                                <p class="mt-1 text-xs font-medium text-slate-500">Dealers enabled</p>
+                            </div>
+                            <div class="rounded-lg border border-slate-200 bg-white p-3">
+                                <p class="text-lg font-bold text-slate-950">{{ api.calls }}</p>
+                                <p class="mt-1 text-xs font-medium text-slate-500">API lookups</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button type="submit" class="mt-6 rounded-lg bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60" :disabled="form.processing">
                     {{ form.processing ? 'Saving...' : 'Save pricing' }}
                 </button>
@@ -60,7 +105,8 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import RcSearchTabs from '@/Components/Admin/RcSearchTabs.vue';
 
 const props = defineProps<{
-    charges: { customer: number; dealer: number };
+    charges: { customer: number; dealer: number; api: number };
+    api: { enabled: boolean; enabled_dealers: number; calls: number; revenue: number };
     stats: { total: number; successful: number; revenue: number };
     actions: { update: string };
 }>();
@@ -68,6 +114,8 @@ const props = defineProps<{
 const form = useForm({
     charge: props.charges.customer,
     dealer_charge: props.charges.dealer,
+    api_charge: props.charges.api,
+    api_enabled: props.api.enabled,
 });
 
 const submit = () => form.post(props.actions.update, { preserveScroll: true });

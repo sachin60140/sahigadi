@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.access' => AdminAccess::class,
             'auth' => Authenticate::class,
             'customer.profile.complete' => \App\Http\Middleware\CheckCustomerProfileCompletion::class,
+            'dealer.api' => \App\Http\Middleware\EnsureDealerApiAccess::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'dealer/payments/phonepe/callback',

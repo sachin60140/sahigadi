@@ -14,6 +14,18 @@ class Dealer extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    /** Token name used for partner (server-to-server) API keys. */
+    public const PARTNER_API_TOKEN = 'dealer_partner_api';
+
+    /** Ability required to call the partner API (mobile-app tokens must not have it). */
+    public const PARTNER_API_ABILITY = 'vehicle:search';
+
+    /** Partner API keys only - never mobile app login sessions. */
+    public function partnerApiTokens()
+    {
+        return $this->tokens()->where('name', self::PARTNER_API_TOKEN);
+    }
+
     protected $fillable = [
         'name',
         'email',
@@ -27,6 +39,7 @@ class Dealer extends Authenticatable
         'state',
         'pincode',
         'status',
+        'api_enabled',
         'rejection_reason',
         'gst_number',
         'kyc_document_type',
@@ -85,6 +98,7 @@ class Dealer extends Authenticatable
         return [
             'password' => 'hashed',
             'gst_verified_at' => 'datetime',
+            'api_enabled' => 'boolean',
         ];
     }
 

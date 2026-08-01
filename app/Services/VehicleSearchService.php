@@ -19,12 +19,31 @@ class VehicleSearchService
 
     protected string $provider;
 
+    protected string $channel = 'web';
+
+    protected ?string $ipAddress = null;
+
     public function __construct()
     {
         $this->apiUrl = config('services.vehicle_api.url', 'https://api.attestr.com/api/v2/public/checkx/rc');
         $this->apiKey = config('services.vehicle_api.key', '');
         $this->provider = config('services.vehicle_api.provider', 'attestr');
         $this->chargePerSearch = Setting::getDealerVehicleSearchCharge();
+    }
+
+    public function setCharge(float $charge): self
+    {
+        $this->chargePerSearch = $charge;
+
+        return $this;
+    }
+
+    public function setContext(string $channel, ?string $ipAddress = null): self
+    {
+        $this->channel = $channel;
+        $this->ipAddress = $ipAddress;
+
+        return $this;
     }
 
     public function search(Dealer $dealer, string $registrationNumber): array
@@ -179,7 +198,7 @@ class VehicleSearchService
             $detailData
         );
 
-        AdminVehicleSearch::createFromVehicleDetail($vehicleDetail, $this->chargePerSearch);
+        AdminVehicleSearch::createFromVehicleDetail($vehicleDetail, $this->chargePerSearch, $this->channel, $this->ipAddress);
 
         return $vehicleDetail;
     }

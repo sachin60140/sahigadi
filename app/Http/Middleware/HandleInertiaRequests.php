@@ -40,6 +40,8 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+                // One-time plaintext partner API key (admin dealer page only).
+                'api_key' => fn () => $request->session()->get('api_key'),
             ],
             'auth' => [
                 'admin' => fn () => $request->user('admin') ? [
