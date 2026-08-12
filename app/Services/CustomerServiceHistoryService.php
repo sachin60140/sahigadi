@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 
 class CustomerServiceHistoryService
 {
+    use \App\Services\Concerns\MapsProviderErrors;
+
     protected string $apiUrl;
 
     protected string $secretKey;
@@ -58,18 +60,24 @@ class CustomerServiceHistoryService
                 'message' => $serviceHistory->is_success ? 'Service history retrieved successfully' : ($serviceHistory->error_message ?? 'Unknown error'),
             ];
         } catch (\Exception $e) {
-            Log::error('Customer Service History Search Error: '.$e->getMessage());
+            Log::error('Customer Service History Search Error', ['error' => $e->getMessage()]);
+
+            $userMessage = match (true) {
+                $e instanceof \App\Exceptions\ProviderLookupException => $e->getMessage(),
+                $e instanceof \Illuminate\Http\Client\ConnectionException => $this->providerConnectionMessage('service record').$this->refundNotice(),
+                default => 'We could not complete this lookup.'.$this->refundNotice(),
+            };
 
             $serviceHistory = $this->saveServiceHistory($vehicleNum, [
                 'code' => 500,
-                'message' => $e->getMessage(),
+                'message' => $userMessage,
             ], $customerInfo);
 
             return [
                 'success' => false,
                 'cached' => false,
                 'data' => $serviceHistory,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => $userMessage,
             ];
         }
     }
@@ -99,7 +107,7 @@ class CustomerServiceHistoryService
             'vehicleNumber' => $vehicleNumber,
         ]);
 
-        throw new \Exception('API Error ('.$statusCode.'): '.substr($body, 0, 200));
+        throw new \App\Exceptions\ProviderLookupException($this->providerFailureMessage($statusCode, 'service record').$this->refundNotice());
     }
 
     protected function saveServiceHistory(string $vehicleNum, array $apiResponse, array $customerInfo): CustomerServiceHistory

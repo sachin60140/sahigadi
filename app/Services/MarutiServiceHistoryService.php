@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 
 class MarutiServiceHistoryService
 {
+    use \App\Services\Concerns\MapsProviderErrors;
+
     protected string $apiUrl;
 
     protected string $secretKey;
@@ -79,18 +81,24 @@ class MarutiServiceHistoryService
                 'message' => $serviceHistory->is_success ? 'Service history retrieved successfully' : ($serviceHistory->error_message ?? 'Unknown error'),
             ];
         } catch (\Exception $e) {
-            Log::error('Maruti Service History Search Error: '.$e->getMessage());
+            Log::error('Maruti Service History Search Error', ['error' => $e->getMessage()]);
+
+            $userMessage = match (true) {
+                $e instanceof \App\Exceptions\ProviderLookupException => $e->getMessage(),
+                $e instanceof \Illuminate\Http\Client\ConnectionException => $this->providerConnectionMessage('service record').$this->noChargeNotice(),
+                default => 'We could not complete this lookup.'.$this->noChargeNotice(),
+            };
 
             $serviceHistory = $this->saveServiceHistory($dealer, $vehicleNum, [
                 'code' => 500,
-                'message' => $e->getMessage(),
+                'message' => $userMessage,
             ]);
 
             return [
                 'success' => false,
                 'cached' => false,
                 'data' => $serviceHistory,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => $userMessage,
             ];
         }
     }
@@ -120,7 +128,7 @@ class MarutiServiceHistoryService
             'vehicleNumber' => $vehicleNumber,
         ]);
 
-        throw new \Exception('API Error ('.$statusCode.'): '.substr($body, 0, 200));
+        throw new \App\Exceptions\ProviderLookupException($this->providerFailureMessage($statusCode, 'service record').$this->noChargeNotice());
     }
 
     protected function saveServiceHistory(Dealer $dealer, string $vehicleNum, array $apiResponse): MarutiServiceHistory

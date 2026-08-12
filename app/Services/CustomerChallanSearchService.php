@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 
 class CustomerChallanSearchService
 {
+    use \App\Services\Concerns\MapsProviderErrors;
+
     protected string $apiUrl;
 
     protected string $secretKey;
@@ -55,18 +57,24 @@ class CustomerChallanSearchService
                 'message' => $result->is_success ? 'Challan details retrieved successfully' : ($result->error_message ?? 'Unknown error'),
             ];
         } catch (\Exception $e) {
-            Log::error('Customer Challan Search Error: '.$e->getMessage());
+            Log::error('Customer Challan Search Error', ['error' => $e->getMessage()]);
+
+            $userMessage = match (true) {
+                $e instanceof \App\Exceptions\ProviderLookupException => $e->getMessage(),
+                $e instanceof \Illuminate\Http\Client\ConnectionException => $this->providerConnectionMessage('challan record').$this->refundNotice(),
+                default => 'We could not complete this lookup.'.$this->refundNotice(),
+            };
 
             $result = $this->saveSearch($vehicleNum, [
                 'code' => 500,
-                'message' => $e->getMessage(),
+                'message' => $userMessage,
             ], $customerInfo);
 
             return [
                 'success' => false,
                 'cached' => false,
                 'data' => $result,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => $userMessage,
             ];
         }
     }
@@ -96,7 +104,7 @@ class CustomerChallanSearchService
             'vehicleNumber' => $vehicleNumber,
         ]);
 
-        throw new \Exception('API Error ('.$statusCode.'): '.substr($body, 0, 200));
+        throw new \App\Exceptions\ProviderLookupException($this->providerFailureMessage($statusCode, 'challan record').$this->refundNotice());
     }
 
     protected function saveSearch(string $vehicleNum, array $apiResponse, array $customerInfo): CustomerChallanSearch

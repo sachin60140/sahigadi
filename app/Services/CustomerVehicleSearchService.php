@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 
 class CustomerVehicleSearchService
 {
+    use \App\Services\Concerns\MapsProviderErrors;
+
     protected string $apiUrl;
 
     protected string $apiKey;
@@ -55,18 +57,24 @@ class CustomerVehicleSearchService
                 'message' => $result->is_success ? 'Vehicle details retrieved successfully' : ($result->error_message ?? 'Unknown error'),
             ];
         } catch (\Exception $e) {
-            Log::error('Customer Vehicle Search Error: '.$e->getMessage());
+            Log::error('Customer Vehicle Search Error', ['reg_no' => $regNumber, 'error' => $e->getMessage()]);
+
+            $userMessage = match (true) {
+                $e instanceof \App\Exceptions\ProviderLookupException => $e->getMessage(),
+                $e instanceof \Illuminate\Http\Client\ConnectionException => $this->providerConnectionMessage('vehicle').$this->refundNotice(),
+                default => 'We could not complete this vehicle lookup.'.$this->refundNotice(),
+            };
 
             $result = $this->saveSearch($regNumber, [
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => $userMessage,
             ], $customerInfo);
 
             return [
                 'success' => false,
                 'cached' => false,
                 'data' => $result,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => $userMessage,
             ];
         }
     }
@@ -103,7 +111,7 @@ class CustomerVehicleSearchService
 
         return [
             'success' => false,
-            'message' => 'API Error ('.$statusCode.'): '.substr($body, 0, 200),
+            'message' => $this->providerFailureMessage($statusCode, 'vehicle').$this->refundNotice(),
         ];
     }
 

@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 
 class VehicleSearchService
 {
+    use \App\Services\Concerns\MapsProviderErrors;
+
     protected string $apiUrl;
 
     protected string $apiKey;
@@ -92,18 +94,30 @@ class VehicleSearchService
                 'message' => $vehicleDetail->is_success ? 'Vehicle details retrieved successfully' : ($vehicleDetail->error_message ?? 'Unknown error'),
             ];
         } catch (\Exception $e) {
-            Log::error('Vehicle Search Error: '.$e->getMessage());
+            Log::error('Vehicle Search Error', [
+                'reg_no' => $regNumber,
+                'dealer_id' => $dealer->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Only our own messages are safe to show; anything else (cURL, SQL,
+            // provider payloads) gets a generic message.
+            $userMessage = match (true) {
+                $e instanceof \App\Exceptions\ProviderLookupException => $e->getMessage(),
+                $e instanceof \Illuminate\Http\Client\ConnectionException => $this->providerConnectionMessage('vehicle').$this->noChargeNotice(),
+                default => 'We could not complete this vehicle lookup.'.$this->noChargeNotice(),
+            };
 
             $vehicleDetail = $this->saveVehicleDetail($dealer, $regNumber, [
                 'valid' => false,
-                'error' => $e->getMessage(),
+                'error' => $userMessage,
             ]);
 
             return [
                 'success' => false,
                 'cached' => false,
                 'data' => $vehicleDetail,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => $userMessage,
             ];
         }
     }
@@ -127,13 +141,16 @@ class VehicleSearchService
         $statusCode = $response->status();
         $body = $response->body();
 
+        // Full provider payload stays in the log; the user sees a clean message.
         Log::error('Attestr API Error', [
             'status' => $statusCode,
             'body' => $body,
             'reg_no' => $registrationNumber,
         ]);
 
-        throw new \Exception('API Error ('.$statusCode.'): '.substr($body, 0, 200));
+        throw new \App\Exceptions\ProviderLookupException(
+            $this->providerFailureMessage($statusCode, 'vehicle').$this->noChargeNotice()
+        );
     }
 
     protected function saveVehicleDetail(Dealer $dealer, string $regNumber, array $apiResponse): VehicleDetail
