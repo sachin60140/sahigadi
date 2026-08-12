@@ -87,6 +87,36 @@ class Invoice extends Model
         return self::STATE_CODES[$key] ?? null;
     }
 
+    /**
+     * State code taken from the first two digits of a GSTIN.
+     *
+     * This is authoritative: it is validated at registration, whereas a typed
+     * state name can be misspelled or abbreviated. Returns null if the GSTIN is
+     * malformed or its prefix is not a real state code.
+     */
+    public static function stateCodeFromGstin(?string $gstin): ?string
+    {
+        $gstin = strtoupper(trim((string) $gstin));
+
+        if (! preg_match('/^\d{2}/', $gstin, $m)) {
+            return null;
+        }
+
+        return in_array($m[0], self::STATE_CODES, true) ? $m[0] : null;
+    }
+
+    /** Human-readable state name for a GST state code. */
+    public static function stateNameFromCode(?string $code): ?string
+    {
+        if (! $code) {
+            return null;
+        }
+
+        $name = array_search($code, self::STATE_CODES, true);
+
+        return $name ? ucwords($name) : null;
+    }
+
     /** Indian financial year label (April-March) for a date, e.g. "26-27". */
     public static function financialYear(\DateTimeInterface $date): string
     {

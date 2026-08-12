@@ -53,21 +53,37 @@ class InvoiceService
 
                 $supplierState = Setting::getInvoiceSupplierState();
                 $supplierStateCode = Invoice::stateCode($supplierState);
-                $buyerState = $party->state;
-                $buyerStateCode = Invoice::stateCode($buyerState);
+
+                // Place of supply, most reliable source first:
+                //  1. the buyer's GSTIN prefix - validated at registration
+                //  2. their typed state name - free text, may be misspelled
+                // A registered buyer's GSTIN wins, so a typo in the address does
+                // not flip an inter-state supply into CGST+SGST.
+                $placeOfSupplyCode = Invoice::stateCodeFromGstin($party->gst_number)
+                    ?? Invoice::stateCode($party->state);
+
+                $placeOfSupply = Invoice::stateNameFromCode($placeOfSupplyCode)
+                    ?? ($party->state ?: null);
 
                 $taxable = round($baseAmount, 2);
                 $rate = (float) Setting::getInvoiceGstRate();
 
-                // Place of supply falls back to the supplier state when the buyer
-                // has not recorded one, which keeps the invoice internally valid.
-                $placeOfSupply = $buyerState ?: $supplierState;
-                $placeOfSupplyCode = $buyerStateCode ?: $supplierStateCode;
-
                 // Intra-state -> CGST + SGST (half each). Inter-state -> IGST.
+                // If the buyer's state cannot be determined at all we charge IGST:
+                // over-collecting inter-state tax is correctable, whereas wrongly
+                // splitting CGST+SGST misstates the supply on a legal document.
                 $intraState = $supplierStateCode !== null
                     && $placeOfSupplyCode !== null
                     && $supplierStateCode === $placeOfSupplyCode;
+
+                if ($placeOfSupplyCode === null) {
+                    Log::warning('Invoice place of supply could not be resolved; defaulting to inter-state (IGST)', [
+                        'party' => $partyType,
+                        'party_id' => $party->id,
+                        'state_field' => $party->state,
+                        'gstin' => $party->gst_number,
+                    ]);
+                }
 
                 $cgstRate = $sgstRate = $igstRate = 0.0;
                 $cgstAmount = $sgstAmount = $igstAmount = 0.0;
@@ -107,7 +123,7 @@ class InvoiceService
                     'buyer_gstin' => $party->gst_number,
                     'buyer_address' => $party->address,
                     'buyer_city' => $party->city,
-                    'buyer_state' => $buyerState,
+                    'buyer_state' => $party->state,
                     'buyer_pincode' => $party->pincode,
                     'buyer_phone' => $party->phone,
                     'buyer_email' => $party->email,

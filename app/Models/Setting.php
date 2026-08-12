@@ -80,7 +80,8 @@ class Setting extends Model
 
     public static function getInvoiceSacCode(): string
     {
-        return (string) static::get('invoice_sac_code', '998399');
+        // 998319 - other information technology services n.e.c.
+        return (string) static::get('invoice_sac_code', '998319');
     }
 
     public static function getInvoiceGstRate(): float
