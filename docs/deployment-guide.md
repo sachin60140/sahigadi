@@ -1,7 +1,8 @@
 # SahiGadi: Production Deployment Guide
 
-Verified against the live environment on 2026-08-01. Supersedes the previous
-VPS/CloudPanel/PM2 guide, which described an environment this project does not use.
+Verified against the live environment on 2026-08-01, and again after the Laravel 13
+upgrade. Supersedes the previous VPS/CloudPanel/PM2 guide, which described an
+environment this project does not use.
 
 ---
 
@@ -13,14 +14,61 @@ VPS/CloudPanel/PM2 guide, which described an environment this project does not u
 | SSH user | `u587835185@in-mum-web2206` |
 | **Live app root** | `~/domains/sahigadi.com/public_html` |
 | **Document root** | `~/domains/sahigadi.com/public_html/public` |
-| Stack | PHP 8.2+, MySQL, LiteSpeed |
+| Framework | **Laravel 13** (requires PHP ^8.3; Symfony 8.1 components require **>= 8.4.1**) |
+| Web PHP | **8.4.19** (set in hPanel per domain) |
+| CLI PHP | `/opt/alt/php84/usr/bin/php` &rarr; 8.4.19 |
+| Composer | `/usr/local/bin/composer` |
+| Stack | MySQL, LiteSpeed |
 | Frontend | Vite build output is **committed to git** |
 
 Because the document root is Laravel's `public/` subdirectory, the application
 files (`app/`, `config/`, `.env`, `storage/`) are **not** web-reachable. Verified:
 `/composer.json`, `/artisan`, `/app/Models/Dealer.php` all return 404.
 
-### Host limitations that affect deployment
+### ⚠️ The PHP version trap (this WILL break a deploy)
+
+**hPanel's PHP selector only changes the WEB server. The SSH `php` binary stays on
+an older version.** After switching the site to 8.4.19, the default CLI `php` was
+still **8.3.30** — and because Laravel 13 pulls Symfony 8.1 components requiring
+PHP >= 8.4.1, running `composer install` with the default binary fails the platform
+check and can leave `vendor/` half-updated, taking the site down.
+
+Always check both before deploying:
+
+```bash
+php -v | head -1                              # the CLI default - may be stale
+/opt/alt/php84/usr/bin/php -v | head -1       # the 8.4 binary
+```
+
+If they differ, either use the explicit binary (see §3) or fix the CLI default:
+
+```bash
+mkdir -p ~/bin && ln -sf /opt/alt/php84/usr/bin/php ~/bin/php
+printf 'export PATH="$HOME/bin:$PATH"\n' >> ~/.bashrc
+# Login shells read the FIRST of .bash_profile / .bash_login / .profile and stop.
+# Creating .bash_profile shadows Hostinger's .profile, so source both:
+cat > ~/.bash_profile <<'EOF'
+[ -f ~/.profile ] && . ~/.profile
+[ -f ~/.bashrc ]  && . ~/.bashrc
+EOF
+```
+Verify in a **new** SSH session — the current one already has the PATH exported.
+
+### ⚠️ Composer resolves against the machine that runs it
+
+`composer update` on a dev machine with a newer PHP will lock package versions that
+the server cannot install. This upgrade was resolved on PHP 8.4 and locked Symfony
+8.1 (needs >= 8.4.1), which would have failed on the then-8.3 server.
+
+- On the server always use **`composer install`**, never `update` — the lock file is
+  authoritative and gives exactly the versions that were tested.
+- If dev and production PHP versions ever differ again, pin resolution to the
+  server's version in `composer.json` before running `update`:
+  `"config": { "platform": { "php": "8.3.30" } }`
+- To check a lock file against a target version before deploying, look for packages
+  whose `require.php` excludes it.
+
+### Other host limitations
 
 - **`exec()` and `symlink()` are disabled in PHP.** `php artisan storage:link`
   **fails** with `Call to undefined function Illuminate\Filesystem\exec()`.
@@ -94,6 +142,43 @@ clears it — so never rely on "it works right now".
 
 ## 3. Deploy
 
+Use the explicit 8.4 binary. It is correct regardless of shell config, and removes
+any chance of running under a stale CLI PHP:
+
+```bash
+cd ~/domains/sahigadi.com/public_html
+PHP84=/opt/alt/php84/usr/bin/php
+$PHP84 -v | head -1                                       # must be >= 8.4.1
+
+$PHP84 artisan down                                       # optional maintenance window
+git pull origin main
+$PHP84 /usr/local/bin/composer install --no-dev --optimize-autoloader
+$PHP84 artisan migrate --force
+$PHP84 artisan optimize:clear && $PHP84 artisan optimize
+$PHP84 artisan up
+```
+
+Verify:
+
+```bash
+$PHP84 artisan --version                                  # Laravel Framework 13.x
+$PHP84 artisan migrate:status | tail -3                   # newest migrations "Ran"
+curl -s -o /dev/null -w "home %{http_code}  (200)\n" https://sahigadi.com
+curl -s -o /dev/null -w "api  %{http_code}  (401)\n" -H "Accept: application/json" https://sahigadi.com/api/v1/account/balance
+```
+
+If `composer install` fails, **stop and read the error** rather than retrying — a
+half-updated `vendor/` takes the site down. Rollback:
+
+```bash
+git checkout <previous-commit>
+$PHP84 /usr/local/bin/composer install --no-dev --optimize-autoloader
+$PHP84 artisan optimize:clear
+```
+
+<details>
+<summary>Legacy form (only if the CLI default is already 8.4.1+)</summary>
+
 ```bash
 cd ~/domains/sahigadi.com/public_html
 php artisan down                       # optional; brief maintenance window
@@ -104,6 +189,7 @@ php artisan optimize:clear
 php artisan optimize
 php artisan up
 ```
+</details>
 
 No `npm` step — `public/build` ships in the repository.
 
@@ -181,6 +267,8 @@ Then confirm by hand — these exercise the paths that broke before:
 verified.** Both production incidents on 2026-08-01 came from shipping the code
 half and leaving the server half as a checklist note:
 
+- Pulling code whose migration had not been run → **500 on the wallet receipt
+  page**, because the new code queried an `invoices` table that did not exist.
 - Removing the credential fallbacks without adding the `.env` keys → **customer
   login outage**.
 - Moving KYC storage to the private disk in code without moving the **files** →
