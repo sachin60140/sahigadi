@@ -10,6 +10,18 @@ class Customer extends Authenticatable
 {
     use HasApiTokens, HasFactory;
 
+    /**
+     * Never serialise identity documents.
+     *
+     * /api/auth/user returns this model straight to the mobile app, which
+     * does not need them. Admin screens read the attributes directly, and
+     * $hidden only affects toArray()/toJson(), so those are unaffected.
+     */
+    protected $hidden = [
+        'aadhaar_number',
+        'pan_number',
+    ];
+
     protected $fillable = [
         'name',
         'email',

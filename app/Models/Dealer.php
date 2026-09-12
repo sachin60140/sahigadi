@@ -52,9 +52,19 @@ class Dealer extends Authenticatable
         'gst_verified_at',
     ];
 
+    /**
+     * Identity documents and internal storage paths are never serialised.
+     * /api/auth/user hands this model to the mobile app, which needs none of
+     * them. Admin screens read the attributes directly and are unaffected.
+     */
     protected $hidden = [
         'password',
         'remember_token',
+        'pan_number',
+        'kyc_document_number',
+        'kyc_document_path',
+        'pan_document_path',
+        'gst_document_path',
     ];
 
     protected static function booted(): void
