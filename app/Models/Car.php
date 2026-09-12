@@ -59,6 +59,14 @@ class Car extends Model
                 $car->slug = Str::slug($car->title).'-'.Str::random(5);
             }
         });
+
+        // enquiries.car_id no longer has a foreign key, because it points at
+        // either cars or customer_car_listings. Clean up here instead, which
+        // preserves what ON DELETE CASCADE used to do. A non-null dealer_id
+        // is what marks an enquiry as belonging to a dealer car.
+        static::deleting(function ($car) {
+            Enquiry::where('car_id', $car->id)->whereNotNull('dealer_id')->delete();
+        });
     }
 
     public function dealer(): BelongsTo

@@ -63,6 +63,12 @@ class CustomerCarListing extends Model
                 $listing->slug = Str::slug($listing->title).'-'.Str::random(5);
             }
         });
+
+        // Matches the Car model: a null dealer_id marks an enquiry as
+        // belonging to a customer listing.
+        static::deleting(function ($listing) {
+            Enquiry::where('car_id', $listing->id)->whereNull('dealer_id')->delete();
+        });
     }
 
     public function brand(): BelongsTo
