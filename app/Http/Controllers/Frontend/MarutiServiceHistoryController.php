@@ -116,7 +116,14 @@ class MarutiServiceHistoryController extends Controller
             }
 
             // Deduct funds
-            $transaction = $wallet->deductFunds($charge, "Maruti Service History Search for {$vehicleNumber}");
+            // Balance can be spent by a concurrent request between the check
+            // above and this debit, so handle the refusal rather than 500.
+            try {
+                $transaction = $wallet->deductFunds($charge, "Maruti Service History Search for {$vehicleNumber}");
+            } catch (\App\Exceptions\InsufficientBalanceException) {
+                return redirect()->route('customer.wallet.add')
+                    ->with('error', 'Low Balance! Please recharge your wallet to continue.');
+            }
 
             // Perform API search directly
             $result = $this->serviceHistoryService->search($vehicleNumber, $customerInfo);

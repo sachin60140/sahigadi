@@ -77,7 +77,7 @@ class RazorpayService
 
         return DB::transaction(function () use ($dealer, $razorpayOrderId, $razorpayPaymentId, $razorpaySignature, $amount, $type, $referenceId) {
             if ($type === 'wallet_recharge' && $dealer) {
-                $walletCreditAmount = round($amount / 1.18, 2);
+                $walletCreditAmount = round($amount / Setting::gstMultiplier(), 2);
                 $walletTransaction = null;
 
                 if ($dealer instanceof \App\Models\Dealer) {

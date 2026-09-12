@@ -136,7 +136,9 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
         Route::get('/profile/document/{type}', [ProfileController::class, 'document'])->whereIn('type', ['kyc', 'pan', 'gst'])->name('profile.document');
 
         Route::middleware('dealer.approval')->group(function () {
-            Route::resource('cars', DealerCarController::class);
+            // No show() on DealerCarController: including it registers a route
+            // that 500s. Dealers open a car through edit, and nothing links to show.
+            Route::resource('cars', DealerCarController::class)->except(['show']);
             Route::delete('/cars/{car}/image/{carImage}', [DealerCarController::class, 'deleteImage'])->name('cars.image.delete');
             Route::post('/cars/{car}/image/{carImage}/primary', [DealerCarController::class, 'setPrimaryImage'])->name('cars.image.primary');
             Route::post('/cars/{car}/featured', [DealerCarController::class, 'makeFeatured'])->name('cars.featured');

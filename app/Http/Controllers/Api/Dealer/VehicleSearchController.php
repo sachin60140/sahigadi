@@ -43,7 +43,9 @@ class VehicleSearchController extends Controller
             ->search($dealer, $validated['registration_number']);
 
         if (! $result['success']) {
-            $insufficient = str_contains((string) $result['message'], 'Insufficient');
+            // Use the structured code, not the message text: wording changes
+            // must never silently turn a 402 into a 422 for integrators.
+            $insufficient = ($result['code'] ?? null) === 'insufficient_balance';
 
             return response()->json([
                 'success' => false,

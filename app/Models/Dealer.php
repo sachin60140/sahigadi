@@ -170,23 +170,26 @@ class Dealer extends Authenticatable
         return $this->wallet?->balance ?? 0;
     }
 
+    /**
+     * Debit the dealer wallet. Returns false when the balance cannot cover it.
+     *
+     * Delegates to Wallet::deductFunds(), which re-reads the balance under a row
+     * lock, so a concurrent request cannot spend the same funds twice. Callers
+     * MUST honour the return value and not record a charge when it is false.
+     */
     public function debitWallet(float $amount, string $description = ''): bool
     {
         $wallet = $this->wallet;
 
-        if (! $wallet || $wallet->balance < $amount) {
+        if (! $wallet) {
             return false;
         }
 
-        $wallet->balance -= $amount;
-        $wallet->save();
-
-        WalletTransaction::create([
-            'wallet_id' => $wallet->id,
-            'type' => 'debit',
-            'amount' => $amount,
-            'remark' => $description,
-        ]);
+        try {
+            $wallet->deductFunds($amount, $description);
+        } catch (\App\Exceptions\InsufficientBalanceException) {
+            return false;
+        }
 
         return true;
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\WalletRechargesExport;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\Setting;
 use App\Models\WalletTransaction;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -107,8 +108,8 @@ class WalletRechargeController extends Controller
             'time' => optional($transaction->created_at)->format('h:i A'),
             'receipt' => 'RCPT-'.optional($transaction->created_at)->format('Y').'-'.str_pad((string) $transaction->id, 5, '0', STR_PAD_LEFT),
             'amount' => (float) $transaction->amount,
-            'gst' => (float) $transaction->amount * 0.18,
-            'total' => (float) $transaction->amount * 1.18,
+            'gst' => (float) $transaction->amount * Setting::gstFraction(),
+            'total' => (float) $transaction->amount * Setting::gstMultiplier(),
             'gateway' => $gateway,
             'reference_id' => $transaction->reference_id,
             'secondary_reference' => $payment?->razorpay_order_id ?: $payment?->reference_id,
@@ -159,8 +160,8 @@ class WalletRechargeController extends Controller
             'transaction' => $transaction,
             'dealer' => $transaction->wallet->dealer,
             'baseAmount' => $transaction->amount,
-            'gstAmount' => $transaction->amount * 0.18,
-            'totalAmount' => $transaction->amount * 1.18,
+            'gstAmount' => $transaction->amount * Setting::gstFraction(),
+            'totalAmount' => $transaction->amount * Setting::gstMultiplier(),
             'date' => $transaction->created_at->format('d M Y')
         ];
 

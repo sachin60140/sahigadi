@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Setting;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -42,7 +43,7 @@ class WalletRechargesExport implements FromCollection, WithHeadings, WithMapping
     public function map($transaction): array
     {
         $base = $transaction->amount;
-        $gst = $base * 0.18;
+        $gst = $base * Setting::gstFraction();
         $total = $base + $gst;
         
         $receipt = 'RCPT-' . $transaction->created_at->format('Y') . '-' . str_pad($transaction->id, 5, '0', STR_PAD_LEFT);

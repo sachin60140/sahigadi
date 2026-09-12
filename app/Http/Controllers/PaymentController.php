@@ -51,7 +51,7 @@ class PaymentController extends Controller
                 ]);
             }
 
-            $amount = round($rechargeAmount * 1.18, 2);
+            $amount = round($rechargeAmount * Setting::gstMultiplier(), 2);
         } elseif ($type === 'plan_purchase') {
             $plan = Plan::active()->findOrFail($request->integer('plan_id'));
             $planId = $plan->id;

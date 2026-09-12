@@ -60,6 +60,7 @@ class ServiceHistoryService
                 'cached' => false,
                 'data' => null,
                 'message' => 'Insufficient wallet balance. Required: ₹'.number_format($this->chargePerSearch, 2),
+                'code' => 'insufficient_balance',
             ];
         }
 
@@ -68,8 +69,15 @@ class ServiceHistoryService
 
             $serviceHistory = $this->saveServiceHistory($dealer, $vehicleNum, $response);
 
-            if ($serviceHistory->is_success) {
-                $this->debitDealerWallet($dealer, $serviceHistory, $vehicleNum);
+            if ($serviceHistory->is_success && ! $this->debitDealerWallet($dealer, $serviceHistory, $vehicleNum)) {
+                // Debit failed, so the lookup must not be reported as paid for.
+                return [
+                    'success' => false,
+                    'cached' => false,
+                    'data' => $serviceHistory,
+                    'message' => 'Insufficient wallet balance. Required: ₹'.number_format($this->chargePerSearch, 2),
+                    'code' => 'insufficient_balance',
+                ];
             }
 
             return [
@@ -180,14 +188,28 @@ class ServiceHistoryService
         return $serviceHistory;
     }
 
-    protected function debitDealerWallet(Dealer $dealer, ServiceHistory $serviceHistory, string $vehicleNum): void
+    protected function debitDealerWallet(Dealer $dealer, ServiceHistory $serviceHistory, string $vehicleNum): bool
     {
-        $dealer->debitWallet(
+        $charged = $dealer->debitWallet(
             $this->chargePerSearch,
             "Service History - {$vehicleNum} | Records: ".$serviceHistory->records()->count()
         );
 
+        if (! $charged) {
+            // Balance was drained between the affordability check and the debit.
+            // Never stamp debit_amount for a charge that did not happen.
+            Log::warning('Service history: wallet debit failed, charge not recorded', [
+                'dealer_id' => $dealer->id,
+                'vehicle' => $vehicleNum,
+                'charge' => $this->chargePerSearch,
+            ]);
+
+            return false;
+        }
+
         $serviceHistory->update(['debit_amount' => $this->chargePerSearch]);
+
+        return true;
     }
 
     public function getCharge(): float

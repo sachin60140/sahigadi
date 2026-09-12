@@ -50,6 +50,31 @@ class Setting extends Model
 
     // ---- GST tax invoice settings -------------------------------------------
 
+    /**
+     * Single source of truth for the GST rate, as a percentage.
+     *
+     * Everything that adds or splits GST must derive from this: checkout
+     * totals, the wallet credit the gateways compute back out of a payment,
+     * receipts and tax invoices. If any of them hardcode a rate instead, a
+     * rate change makes the invoice disagree with the money actually taken.
+     */
+    public static function getGstRate(): float
+    {
+        return (float) static::get('invoice_gst_rate', 18);
+    }
+
+    /** Multiplier that adds GST to a base amount: 1.18 at 18%. */
+    public static function gstMultiplier(): float
+    {
+        return 1 + (static::getGstRate() / 100);
+    }
+
+    /** Portion of a base amount that is GST: 0.18 at 18%. */
+    public static function gstFraction(): float
+    {
+        return static::getGstRate() / 100;
+    }
+
     public static function getInvoicePrefix(): string
     {
         return (string) static::get('invoice_prefix', 'AW/SG');
@@ -86,7 +111,7 @@ class Setting extends Model
 
     public static function getInvoiceGstRate(): float
     {
-        return (float) static::get('invoice_gst_rate', 18);
+        return static::getGstRate();
     }
 
     public static function setInvoiceSettings(array $values): void

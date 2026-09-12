@@ -82,17 +82,34 @@ class ChallanPdfService
                 // 5. Deduct amount ONLY if API response is successful
                 $searchLog->charge_amount = $chargeAmount;
                 
-                // Deduct from wallet
-                $wallet->balance -= $chargeAmount;
-                $wallet->save();
-                
-                // Add wallet transaction record
-                $wallet->transactions()->create([
-                    'amount' => $chargeAmount,
-                    'type' => 'debit',
-                    'remark' => "Challan PDF search for {$vehicleNumber}",
-                    'reference_type' => 'challan_pdf_search',
-                ]);
+                // Deduct from wallet. deductFunds() re-reads the balance under a
+                // row lock, so concurrent searches cannot spend the same funds.
+                try {
+                    $wallet->deductFunds(
+                        $chargeAmount,
+                        "Challan PDF search for {$vehicleNumber}",
+                        null,
+                        'challan_pdf_search'
+                    );
+                } catch (\App\Exceptions\InsufficientBalanceException) {
+                    Log::warning('Challan PDF: wallet debit failed, search not charged', [
+                        'user_type' => $userType,
+                        'user_id' => $user->id,
+                        'vehicle' => $vehicleNumber,
+                        'charge' => $chargeAmount,
+                    ]);
+
+                    $searchLog->charge_amount = 0;
+                    $searchLog->save();
+
+                    return [
+                        'success' => false,
+                        'message' => 'Insufficient wallet balance. Required: Rs '.number_format($chargeAmount, 2),
+                        'code' => 'insufficient_balance',
+                        'pdf_url' => null,
+                        'search_log_id' => $searchLog->id,
+                    ];
+                }
             } else {
                 $searchLog->charge_amount = 0; // No deduction on failure
             }

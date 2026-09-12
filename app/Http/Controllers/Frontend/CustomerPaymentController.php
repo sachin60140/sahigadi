@@ -36,7 +36,7 @@ class CustomerPaymentController extends Controller
             ]);
         }
 
-        $amount = round($rechargeAmount * 1.18, 2);
+        $amount = round($rechargeAmount * Setting::gstMultiplier(), 2);
         $customer = auth('customer')->user();
 
         $isRazorpayActive = Setting::isRazorpayActive();

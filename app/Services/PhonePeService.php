@@ -311,7 +311,7 @@ class PhonePeService
             );
 
             if ($type === 'wallet_recharge') {
-                $walletCreditAmount = round($status['amount'] / 1.18, 2);
+                $walletCreditAmount = round($status['amount'] / Setting::gstMultiplier(), 2);
                 $walletTransaction = null;
 
                 if ($dealer instanceof \App\Models\Dealer) {

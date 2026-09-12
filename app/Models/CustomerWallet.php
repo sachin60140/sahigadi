@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LocksWalletBalance;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CustomerWallet extends Model
 {
-    use HasFactory;
+    // addFunds() / deductFunds() come from the trait, which mutates the balance
+    // under a row lock so concurrent requests cannot spend the same funds twice.
+    use HasFactory, LocksWalletBalance;
 
     protected $fillable = [
         'customer_id',
@@ -28,35 +31,5 @@ class CustomerWallet extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(CustomerWalletTransaction::class);
-    }
-
-    public function addFunds($amount, $remark = null, $referenceId = null, $referenceType = null)
-    {
-        $this->increment('balance', $amount);
-
-        return $this->transactions()->create([
-            'amount' => $amount,
-            'type' => 'credit',
-            'remark' => $remark,
-            'reference_id' => $referenceId,
-            'reference_type' => $referenceType,
-        ]);
-    }
-
-    public function deductFunds($amount, $remark = null, $referenceId = null, $referenceType = null)
-    {
-        if ($this->balance < $amount) {
-            throw new \Exception('Insufficient wallet balance');
-        }
-
-        $this->decrement('balance', $amount);
-
-        return $this->transactions()->create([
-            'amount' => $amount,
-            'type' => 'debit',
-            'remark' => $remark,
-            'reference_id' => $referenceId,
-            'reference_type' => $referenceType,
-        ]);
     }
 }

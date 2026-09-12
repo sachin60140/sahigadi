@@ -78,8 +78,8 @@ class WalletController extends Controller
             'transaction' => $transaction,
             'dealer' => $dealer,
             'baseAmount' => $transaction->amount,
-            'gstAmount' => $transaction->amount * 0.18,
-            'totalAmount' => $transaction->amount * 1.18,
+            'gstAmount' => $transaction->amount * Setting::gstFraction(),
+            'totalAmount' => $transaction->amount * Setting::gstMultiplier(),
             'date' => $transaction->created_at->format('d M Y')
         ];
 

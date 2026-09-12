@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\AdminChallanSearch;
 use App\Models\Dealer;
 use App\Models\Setting;
-use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -61,6 +60,7 @@ class ChallanSearchService
                 'cached' => false,
                 'data' => null,
                 'message' => 'Insufficient wallet balance. Required: Rs '.number_format($this->chargePerSearch, 2),
+                'code' => 'insufficient_balance',
             ];
         }
 
@@ -68,8 +68,14 @@ class ChallanSearchService
             $response = $this->callApi($vehicleNum);
             $result = $this->saveSearch($dealer, $vehicleNum, $response);
 
-            if ($result->is_success) {
-                $this->debitDealerWallet($dealer, $result, $vehicleNum);
+            if ($result->is_success && ! $this->debitDealerWallet($dealer, $result, $vehicleNum)) {
+                return [
+                    'success' => false,
+                    'cached' => false,
+                    'data' => $result,
+                    'message' => 'Insufficient wallet balance. Required: Rs '.number_format($this->chargePerSearch, 2),
+                    'code' => 'insufficient_balance',
+                ];
             }
 
             return [
@@ -101,23 +107,34 @@ class ChallanSearchService
         }
     }
 
-    protected function debitDealerWallet(Dealer $dealer, AdminChallanSearch $challanSearch, string $vehicleNum): void
+    protected function debitDealerWallet(Dealer $dealer, AdminChallanSearch $challanSearch, string $vehicleNum): bool
     {
         $wallet = $dealer->wallet;
 
-        if ($wallet && $wallet->balance >= $this->chargePerSearch) {
-            $wallet->balance -= $this->chargePerSearch;
-            $wallet->save();
-
-            WalletTransaction::create([
-                'wallet_id' => $wallet->id,
-                'type' => 'debit',
-                'amount' => $this->chargePerSearch,
-                'remark' => 'E-Challan search for '.$vehicleNum,
-                'reference_id' => $challanSearch->id,
-                'reference_type' => 'challan_search',
-            ]);
+        if (! $wallet) {
+            return false;
         }
+
+        try {
+            // deductFunds() re-reads the balance under a row lock, so two
+            // concurrent searches cannot both spend the same funds.
+            $wallet->deductFunds(
+                $this->chargePerSearch,
+                'E-Challan search for '.$vehicleNum,
+                $challanSearch->id,
+                'challan_search'
+            );
+        } catch (\App\Exceptions\InsufficientBalanceException) {
+            Log::warning('E-Challan search: wallet debit failed, search not charged', [
+                'dealer_id' => $dealer->id,
+                'vehicle' => $vehicleNum,
+                'charge' => $this->chargePerSearch,
+            ]);
+
+            return false;
+        }
+
+        return true;
     }
 
     protected function callApi(string $vehicleNumber): array

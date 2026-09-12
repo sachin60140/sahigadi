@@ -75,6 +75,7 @@ class VehicleSearchService
                 'cached' => false,
                 'data' => null,
                 'message' => 'Insufficient wallet balance. Required: ₹'.number_format($this->chargePerSearch, 2),
+                'code' => 'insufficient_balance',
             ];
         }
 
@@ -83,8 +84,15 @@ class VehicleSearchService
 
             $vehicleDetail = $this->saveVehicleDetail($dealer, $regNumber, $response);
 
-            if ($vehicleDetail->is_success) {
-                $this->debitDealerWallet($dealer, $vehicleDetail, $regNumber);
+            if ($vehicleDetail->is_success && ! $this->debitDealerWallet($dealer, $vehicleDetail, $regNumber)) {
+                // Debit failed, so the lookup must not be reported as paid for.
+                return [
+                    'success' => false,
+                    'cached' => false,
+                    'data' => $vehicleDetail,
+                    'message' => 'Insufficient wallet balance. Required: ₹'.number_format($this->chargePerSearch, 2),
+                    'code' => 'insufficient_balance',
+                ];
             }
 
             return [
@@ -233,14 +241,28 @@ class VehicleSearchService
         }
     }
 
-    protected function debitDealerWallet(Dealer $dealer, VehicleDetail $vehicleDetail, string $regNumber): void
+    protected function debitDealerWallet(Dealer $dealer, VehicleDetail $vehicleDetail, string $regNumber): bool
     {
-        $dealer->debitWallet(
+        $charged = $dealer->debitWallet(
             $this->chargePerSearch,
             "RC Search - {$regNumber} | Owner: ".($vehicleDetail->owner_name ?? 'N/A').' | '.($vehicleDetail->make ?? '').' '.($vehicleDetail->model ?? '')
         );
 
+        if (! $charged) {
+            // Balance was drained between the affordability check and the debit.
+            // Never stamp debit_amount for a charge that did not happen.
+            Log::warning('RC search: wallet debit failed, charge not recorded', [
+                'dealer_id' => $dealer->id,
+                'vehicle' => $regNumber,
+                'charge' => $this->chargePerSearch,
+            ]);
+
+            return false;
+        }
+
         $vehicleDetail->update(['debit_amount' => $this->chargePerSearch]);
+
+        return true;
     }
 
     public function getCharge(): float

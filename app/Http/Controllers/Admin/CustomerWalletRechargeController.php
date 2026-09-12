@@ -6,6 +6,7 @@ use App\Exports\CustomerWalletRechargesExport;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Payment;
+use App\Models\Setting;
 use App\Models\CustomerWalletTransaction;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -107,12 +108,16 @@ class CustomerWalletRechargeController extends Controller
             return back()->with('error', 'Insufficient balance in customer wallet. Current balance: ₹' . number_format($wallet->balance, 2));
         }
 
-        $wallet->deductFunds(
-            $request->amount,
-            $request->remark,
-            'admin_debit_' . time(),
-            'admin_debit'
-        );
+        try {
+            $wallet->deductFunds(
+                $request->amount,
+                $request->remark,
+                'admin_debit_' . time(),
+                'admin_debit'
+            );
+        } catch (\App\Exceptions\InsufficientBalanceException) {
+            return back()->with('error', 'Insufficient balance in customer wallet.');
+        }
 
         return back()->with('success', 'Amount deducted from customer wallet successfully');
     }
@@ -151,8 +156,8 @@ class CustomerWalletRechargeController extends Controller
             'transaction' => $transaction,
             'customer' => $transaction->wallet->customer,
             'baseAmount' => $transaction->amount,
-            'gstAmount' => $transaction->amount * 0.18,
-            'totalAmount' => $transaction->amount * 1.18,
+            'gstAmount' => $transaction->amount * Setting::gstFraction(),
+            'totalAmount' => $transaction->amount * Setting::gstMultiplier(),
             'date' => $transaction->created_at->format('d M Y')
         ];
 
@@ -198,8 +203,8 @@ class CustomerWalletRechargeController extends Controller
             'receipt' => 'RCPT-'.optional($transaction->created_at)->format('Y').'-'.str_pad((string) $transaction->id, 5, '0', STR_PAD_LEFT),
             'type' => $transaction->type,
             'amount' => (float) $transaction->amount,
-            'gst' => (float) $transaction->amount * 0.18,
-            'total' => (float) $transaction->amount * 1.18,
+            'gst' => (float) $transaction->amount * Setting::gstFraction(),
+            'total' => (float) $transaction->amount * Setting::gstMultiplier(),
             'gateway' => $gateway,
             'reference_id' => $transaction->reference_id,
             'secondary_reference' => $payment?->razorpay_order_id ?: $payment?->reference_id,
