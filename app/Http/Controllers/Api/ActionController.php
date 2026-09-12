@@ -23,35 +23,41 @@ class ActionController extends Controller
         ]);
 
         $user = $request->user();
+        $isCustomerListing = $request->boolean('is_customer_listing');
+        $isCustomer = $user->currentAccessToken()->can('role:customer');
 
-        // Prevent dealers from enquiring on their own cars, or customers on their own cars
-        if ($request->is_customer_listing) {
+        // Resolve the listing and work out who owns it, blocking self-enquiry.
+        if ($isCustomerListing) {
             $listing = CustomerCarListing::findOrFail($request->car_id);
-            if ($user->currentAccessToken()->can('role:customer') && $listing->owner_phone === $user->phone) {
+
+            if ($isCustomer && $listing->owner_phone === $user->phone) {
                 return response()->json(['success' => false, 'message' => 'You cannot enquire about your own listing.'], 403);
             }
+
+            // A null dealer_id is how the rest of the app marks an enquiry as
+            // belonging to a customer listing: see Enquiry::getActualCarAttribute()
+            // and the customer enquiry list, which both key off it.
+            $dealerId = null;
         } else {
             $car = Car::findOrFail($request->car_id);
-            if ($user->currentAccessToken()->can('role:dealer') && $car->dealer_id === $user->id) {
+
+            if (! $isCustomer && $car->dealer_id === $user->id) {
                 return response()->json(['success' => false, 'message' => 'You cannot enquire about your own listing.'], 403);
             }
+
+            $dealerId = $car->dealer_id;
         }
 
-        // Save Enquiry
-        $enquiry = new Enquiry();
-        $enquiry->car_id = $request->car_id;
-        $enquiry->is_customer_listing = $request->is_customer_listing;
-        
-        if ($user->currentAccessToken()->can('role:customer')) {
-            $enquiry->customer_id = $user->id;
-        } else {
-            $enquiry->dealer_id = $user->id;
-        }
-
-        $enquiry->phone = $user->phone;
-        $enquiry->name = $user->name ?? $user->company_name ?? 'User';
-        $enquiry->status = 'new';
-        $enquiry->save();
+        $enquiry = Enquiry::create([
+            'car_id' => $request->car_id,
+            'dealer_id' => $dealerId,
+            'customer_name' => $user->name ?: ($user->company_name ?: 'User'),
+            'customer_phone' => $user->phone,
+            'customer_email' => $user->email,
+            'message' => 'Enquiry sent from the SAHI GADI app.',
+            'status' => 'new',
+            'ip_address' => $request->ip(),
+        ]);
 
         return response()->json([
             'success' => true, 
