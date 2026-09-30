@@ -326,6 +326,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/invoices/{invoice}/download', [App\Http\Controllers\Admin\InvoiceController::class, 'download'])->name('invoices.download');
         Route::post('/invoices/{invoice}/cancel', [App\Http\Controllers\Admin\InvoiceController::class, 'cancel'])->name('invoices.cancel');
 
+        // Wallet balances left behind by deleted accounts, waiting to be
+        // returned. Without this screen the rows accumulate unseen.
+        Route::get('/account-deletion-refunds', [\App\Http\Controllers\Admin\AccountDeletionRefundController::class, 'index'])->name('account-deletion-refunds.index');
+        Route::post('/account-deletion-refunds/{refund}/refunded', [\App\Http\Controllers\Admin\AccountDeletionRefundController::class, 'markRefunded'])->name('account-deletion-refunds.refunded');
+
         Route::get('/payment-settings', [PaymentSettingsController::class, 'index'])->name('payment-settings.index');
         Route::post('/payment-settings', [PaymentSettingsController::class, 'update'])->name('payment-settings.update');
         Route::post('/payment-settings/test-phonepe', [PaymentSettingsController::class, 'testPhonePe'])->name('payment-settings.test-phonepe');
