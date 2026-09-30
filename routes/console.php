@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -47,3 +48,14 @@ Artisan::command('images:optimize', function () {
     
     $this->info("Successfully optimized {$count} images!");
 })->purpose('Optimize and resize all car images to save bandwidth');
+
+// Account deletion is two-stage: DELETE /api/account hides the account and
+// revokes its tokens immediately, and this pass scrambles the personal fields
+// once the grace period has run out. It needs the server cron to be calling
+// `php artisan schedule:run` every minute - without that, deleted accounts stay
+// hidden but are never anonymised.
+Schedule::command('customers:anonymise-deleted')
+    ->dailyAt('03:20')
+    ->timezone('Asia/Kolkata')
+    ->withoutOverlapping()
+    ->onOneServer();

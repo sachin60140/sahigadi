@@ -19,7 +19,7 @@ class LegalPageController extends Controller
                 ['title' => 'How We Use Your Information', 'items' => ['Facilitate account registration and vehicle listings', 'Connect buyers with sellers and dealers', 'Send administrative information, updates and permitted marketing communications', 'Improve our services and user experience', 'Comply with legal obligations and enforce our terms']],
                 ['title' => 'Information Sharing', 'paragraphs' => ['We do not sell your personal information. We may share information only where needed to operate the service, with your consent or when required by law.'], 'items' => ['Service providers who assist our operations', 'Business partners where you have provided consent', 'Law enforcement or regulators when legally required']],
                 ['title' => 'Data Security', 'paragraphs' => ['We use appropriate technical and organizational safeguards designed to protect personal information against unauthorized access, alteration, disclosure or destruction.']],
-                ['title' => 'Your Rights', 'items' => ['Access and receive a copy of your personal data', 'Request correction of inaccurate data', 'Request deletion where legally available', 'Object to or restrict certain processing']],
+                ['title' => 'Your Rights', 'items' => ['Access and receive a copy of your personal data', 'Request correction of inaccurate data', 'Delete your account and personal data at any time', 'Object to or restrict certain processing'], 'footer' => 'You can delete your account yourself from the Profile tab of the SAHI GADI app. See sahigadi.com/account-deletion for what is removed, what we must keep for tax purposes, and how to ask us to do it for you.'],
                 ['title' => 'Cookies', 'paragraphs' => ['We use cookies and similar technologies to operate the website, remember preferences and understand usage. Browser settings can be used to refuse or manage cookies.']],
                 ['title' => 'Third-Party Links', 'paragraphs' => ['Our website may link to third-party websites. Their privacy practices and content are governed by their own policies.']],
                 ['title' => 'Changes to This Policy', 'paragraphs' => ['We may update this policy from time to time. Material changes will be posted on this page with a revised update date.']],
@@ -71,6 +71,82 @@ class LegalPageController extends Controller
                 ['title' => 'Dispute Resolution', 'paragraphs' => ['If you are dissatisfied with a decision, contact customer support with the relevant transaction details. We will review the dispute fairly and promptly.']],
                 ['title' => 'Changes to This Policy', 'paragraphs' => ['We may update this Refund Policy. Revisions will be posted here and apply from their stated effective date.']],
                 ['title' => 'Contact Us', 'paragraphs' => ['Questions about this Refund Policy can be sent to support@sahigadi.com.']],
+            ]
+        );
+    }
+
+    /**
+     * Google Play requires a publicly reachable URL explaining how to delete an
+     * account, findable without installing the app, and that URL goes in the
+     * Data safety form. It has to be honest about what survives deletion: the
+     * GST tax invoices behind any payment cannot lawfully be destroyed.
+     */
+    public function accountDeletion()
+    {
+        $graceDays = \App\Models\Customer::GRACE_DAYS;
+
+        return $this->renderPage(
+            'Delete Your Account',
+            'How to delete your SAHI GADI account and what happens to your data, including what we must keep for tax and legal reasons.',
+            route('account-deletion'),
+            [
+                [
+                    'title' => 'Deleting your account from the app',
+                    'paragraphs' => ['You can delete your SAHI GADI account yourself, at any time, from inside the app. No email or phone call is needed.'],
+                    'items' => [
+                        'Open the SAHI GADI app and sign in',
+                        'Go to the Profile tab',
+                        'Tap "Delete my account"',
+                        'Confirm when asked',
+                    ],
+                    'footer' => 'Your account is closed immediately and you are signed out on every device.',
+                ],
+                [
+                    'title' => 'If you cannot use the app',
+                    'paragraphs' => ['Email support@sahigadi.com from the address on your account, or write to us from your registered mobile number, asking for your account to be deleted. We will confirm your identity and action the request.'],
+                ],
+                [
+                    'title' => 'What happens straight away',
+                    'items' => [
+                        'Your profile stops being visible anywhere on SAHI GADI',
+                        'Your car listings are taken down and can no longer be found or contacted',
+                        'You are signed out on every device and your app sessions stop working',
+                        'Nobody can look up your contact details through the site or the app',
+                    ],
+                ],
+                [
+                    'title' => 'Changed your mind',
+                    'paragraphs' => ["For {$graceDays} days after deleting, signing in again with the same mobile number restores your account and your listings exactly as they were. After {$graceDays} days this is no longer possible."],
+                ],
+                [
+                    'title' => 'What is permanently erased',
+                    'paragraphs' => ["Once the {$graceDays} days have passed, we permanently erase the following and cannot recover it:"],
+                    'items' => [
+                        'Your name, email address, mobile and WhatsApp numbers',
+                        'Your address, city, state and PIN code',
+                        'Your date of birth and gender',
+                        'Your profile photo',
+                        'Any identity or tax numbers held on your profile, such as PAN, Aadhaar or GST',
+                        'The seller name and contact details attached to your car listings',
+                    ],
+                ],
+                [
+                    'title' => 'What we have to keep, and why',
+                    'paragraphs' => ['Indian tax law does not allow us to destroy records of money that changed hands. If you ever paid SAHI GADI, we must keep the following even after your account is deleted:'],
+                    'items' => [
+                        'Tax invoices issued to you, which by law must form an unbroken numbered series',
+                        'Payment and wallet transaction records supporting those invoices',
+                    ],
+                    'footer' => 'These are kept for the period Indian tax law requires and are used only to meet that obligation and to answer the tax authorities. They are not used to contact you, and they are not shown to anyone else on SAHI GADI. If you never made a payment, nothing of this kind exists for you.',
+                ],
+                [
+                    'title' => 'Money left in your wallet',
+                    'paragraphs' => ['Deleting your account is never blocked because you still have a wallet balance. If any balance remains when you delete, we keep your mobile number for the sole purpose of returning that money to you, and we delete it once the refund is made. If you restore your account within the grace period, your balance is untouched and no refund is raised.'],
+                ],
+                [
+                    'title' => 'Questions',
+                    'paragraphs' => ['Write to support@sahigadi.com if you want to know exactly what we hold about you, or if a deletion has not worked as described here.'],
+                ],
             ]
         );
     }

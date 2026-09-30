@@ -20,6 +20,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/user', [AuthController::class, 'user']);
     Route::post('/profile/update', [AuthController::class, 'updateProfile']);
+
+    // Google Play requires an in-app path to account deletion for any app
+    // that creates accounts. The public equivalent is /account-deletion.
+    Route::delete('/account', [AuthController::class, 'deleteAccount']);
     
     // Dashboards
     Route::get('/dashboard/customer', [\App\Http\Controllers\Api\DashboardApiController::class, 'customerDashboard']);

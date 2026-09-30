@@ -85,7 +85,24 @@ class AuthController extends Controller
         Cache::forget('api_otp_' . $type . '_' . $phone);
 
         if ($type === 'customer') {
-            $user = Customer::firstOrCreate(['phone' => $phone]);
+            // withTrashed matters: Customer soft-deletes now, so a plain
+            // firstOrCreate would not see a deleted account and would create a
+            // second row on the same phone number instead.
+            $user = Customer::withTrashed()->where('phone', $phone)->first();
+
+            if ($user && $user->trashed()) {
+                if ($user->isRecoverable()) {
+                    $user->restoreAccount();
+                } else {
+                    // Past the grace period the row is anonymised and its phone
+                    // replaced, so this only happens if the window closed in
+                    // between. Start fresh rather than hand back an emptied
+                    // account.
+                    $user = null;
+                }
+            }
+
+            $user ??= Customer::create(['phone' => $phone]);
             
             // Calculate profile completion if 0
             if ($user->profile_completion_percentage === 0) {
@@ -137,6 +154,49 @@ class AuthController extends Controller
             'token' => $token,
             'user' => $dealer,
             'type' => 'dealer'
+        ]);
+    }
+
+    /**
+     * Delete the signed-in customer's account.
+     *
+     * Google Play requires an in-app route to this for any app that creates
+     * accounts, alongside the public page at /account-deletion.
+     *
+     * The account is hidden everywhere and every token is revoked at once;
+     * signing in with the same number within the grace period brings it back.
+     * After that a scheduled pass anonymises it for good. The row itself
+     * survives because invoices carry customer_id and a GST series cannot lose
+     * its counterparty.
+     */
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+
+        // Dealers are onboarded and invoiced differently, and closing one would
+        // strand their inventory and their wallet. Same shape of guard as
+        // updateProfile.
+        if (! $user->currentAccessToken()->can('role:customer')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dealer accounts are closed by contacting support.',
+            ], 403);
+        }
+
+        // Typing the word is the confirmation. This is irreversible from the
+        // user's point of view, so it should not be reachable by a stray tap
+        // that got past the dialog.
+        $request->validate([
+            'confirm' => 'required|string|in:DELETE',
+        ]);
+
+        $user->requestDeletion();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your account has been deleted. Signing in with this number within '
+                .Customer::GRACE_DAYS.' days will restore it.',
+            'grace_days' => Customer::GRACE_DAYS,
         ]);
     }
 

@@ -369,6 +369,7 @@ Route::get('/page/{page}', function ($page) {
         'privacy-policy' => 'privacy-policy',
         'terms-of-use' => 'terms-of-use',
         'refund-policy' => 'refund-policy',
+        'account-deletion' => 'account-deletion',
     ];
 
     abort_unless(isset($routes[$page]), 404);
@@ -388,6 +389,7 @@ Route::post('/contact', [\App\Http\Controllers\Frontend\ContactController::class
 Route::get('/privacy-policy', [\App\Http\Controllers\Frontend\LegalPageController::class, 'privacy'])->name('privacy-policy');
 Route::get('/terms-of-use', [\App\Http\Controllers\Frontend\LegalPageController::class, 'terms'])->name('terms-of-use');
 Route::get('/refund-policy', [\App\Http\Controllers\Frontend\LegalPageController::class, 'refunds'])->name('refund-policy');
+Route::get('/account-deletion', [\App\Http\Controllers\Frontend\LegalPageController::class, 'accountDeletion'])->name('account-deletion');
 
 Route::get('/service-history', [App\Http\Controllers\Frontend\ServiceHistoryController::class, 'index'])->name('service-history.index');
 Route::post('/service-history/search', [App\Http\Controllers\Frontend\ServiceHistoryController::class, 'search'])->name('service-history.search');
