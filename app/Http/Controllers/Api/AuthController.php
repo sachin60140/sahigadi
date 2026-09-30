@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\RateLimiter;
 use App\Models\Customer;
 use App\Models\Dealer;
 
@@ -21,14 +20,6 @@ class AuthController extends Controller
 
         $phone = $request->phone;
         $type = $request->type;
-        $ip = $request->ip();
-
-        // Rate limit temporarily disabled for testing
-        // if (RateLimiter::tooManyAttempts('api-send-otp:' . $ip, 3)) {
-        //     $seconds = RateLimiter::availableIn('api-send-otp:' . $ip);
-        //     return response()->json(['success' => false, 'message' => "Too many requests. Please try again in {$seconds} seconds."], 429);
-        // }
-        // RateLimiter::hit('api-send-otp:' . $ip, 600);
 
         if ($type === 'dealer') {
             $dealer = Dealer::where('phone', $phone)->first();
@@ -59,7 +50,11 @@ class AuthController extends Controller
             \Log::error('SMS Provider Error: ' . $e->getMessage());
         }
 
-        \Log::info("DEVELOPMENT OTP for {$phone}: {$otp}");
+        // phone + OTP is the entire credential for verifyOtp(), so writing the
+        // code to the log would let anyone who can read it sign in as that user.
+        if (app()->environment('local')) {
+            \Log::info("OTP for {$phone}: {$otp}");
+        }
 
         return response()->json(['success' => true, 'message' => 'OTP sent successfully']);
     }
