@@ -38,6 +38,25 @@ class CustomerCarListing extends Model
         'featured_expires_at',
     ];
 
+    /**
+     * Never serialised. The public API returns these models directly, and the
+     * website treats seller contact details as a gated asset: it shows only a
+     * masked mobile and puts the real one behind the OTP contact unlock. The
+     * registration number is the input to the paid RC lookup, and the
+     * moderation fields are internal.
+     *
+     * $hidden affects serialisation only, so attribute access and queries
+     * elsewhere (admin, the website, the enquiry flow) are unaffected.
+     */
+    protected $hidden = [
+        'owner_phone',
+        'owner_email',
+        'whatsapp_number',
+        'registration_number',
+        'rejection_reason',
+        'deleted_at',
+    ];
+
     protected function casts(): array
     {
         return [

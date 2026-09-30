@@ -11,9 +11,9 @@ Route::post('/auth/verify-otp', [AuthController::class, 'verifyOtp'])->middlewar
 Route::post('/auth/dealer-login', [AuthController::class, 'dealerLogin'])->middleware('throttle:auth');
 
 // Public Data Routes
-Route::get('/public/home', [PublicController::class, 'home']);
-Route::get('/public/cars', [PublicController::class, 'cars']);
-Route::get('/public/cars/{slug}', [PublicController::class, 'carDetail']);
+Route::get('/public/home', [PublicController::class, 'home'])->middleware('throttle:public-catalogue');
+Route::get('/public/cars', [PublicController::class, 'cars'])->middleware('throttle:public-catalogue');
+Route::get('/public/cars/{slug}', [PublicController::class, 'carDetail'])->middleware('throttle:public-catalogue');
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {

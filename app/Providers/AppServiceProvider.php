@@ -59,6 +59,16 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        // The public catalogue is browsed by every app user, and Indian mobile
+        // carriers put thousands of subscribers behind one NAT address, so this
+        // stays deliberately loose: it is a backstop against someone hammering
+        // the endpoints, not the control that protects seller data. That is the
+        // $hidden list on Car and CustomerCarListing - a rate limit cannot stop a
+        // scrape of data the response should not contain in the first place.
+        RateLimiter::for('public-catalogue', function (Request $request) {
+            return Limit::perMinute(120)->by('catalogue-ip:'.$request->ip());
+        });
+
         RateLimiter::for('api', function (Request $request) {
             $identifier = $request->user()?->getAuthIdentifier();
 

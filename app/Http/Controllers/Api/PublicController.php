@@ -145,9 +145,13 @@ class PublicController extends Controller
         // Merge and sort
         $allCars = $cars->concat($customerListings)->sortByDesc('created_at')->values();
 
-        // Manual Pagination for merged collection
-        $page = $request->input('page', 1);
-        $perPage = $request->input('per_page', 15);
+        // Manual pagination over the merged collection. Both values arrive raw
+        // from the query string, so they are cast and bounded here: a non-numeric
+        // per_page reached Collection::forPage() as a string and took the whole
+        // endpoint down with a 500, and an uncapped per_page let a single request
+        // pull the entire table.
+        $page = $this->positiveInt($request->input('page'), 1);
+        $perPage = min($this->positiveInt($request->input('per_page'), 15), 50);
         
         $paginatedItems = new LengthAwarePaginator(
             $allCars->forPage($page, $perPage)->values(),
@@ -161,6 +165,21 @@ class PublicController extends Controller
             'success' => true,
             'data' => $paginatedItems
         ]);
+    }
+
+    /**
+     * A page size or page number straight off the query string, falling back to
+     * $default for anything that is not a positive whole number. Non-numeric
+     * input used to reach Collection::forPage() as a string, which is what made
+     * ?per_page=abc a 500 anyone could trigger.
+     */
+    private function positiveInt($value, int $default): int
+    {
+        if (! is_numeric($value)) {
+            return $default;
+        }
+
+        return max((int) $value, 1);
     }
 
     /**
@@ -179,7 +198,7 @@ class PublicController extends Controller
             return response()->json(['success' => true, 'data' => $car]);
         }
 
-        $customerListing = CustomerCarListing::with(['brand', 'customer:id,name,phone'])
+        $customerListing = CustomerCarListing::with(['brand'])
             ->where('slug', $slug)
             ->approved()
             ->active()
