@@ -5,7 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class Customer extends Authenticatable
@@ -149,6 +152,21 @@ class Customer extends Authenticatable
     }
 
     /**
+     * Every table holding this customer's personal data that is reachable ONLY
+     * by their denormalised phone number. None of them has a customer_id.
+     *
+     * cust_maruti_services is the real table name behind
+     * CustomerMarutiServiceHistory, not the one the class name suggests.
+     */
+    private const PHONE_KEYED_LOOKUP_TABLES = [
+        'customer_vehicle_searches',
+        'customer_challan_searches',
+        'customer_service_histories',
+        'cust_maruti_services',
+        'customer_mahindra_service_histories',
+    ];
+
+    /**
      * Still inside the window where signing in again brings the account back.
      */
     public function isRecoverable(): bool
@@ -185,14 +203,22 @@ class Customer extends Authenticatable
             }
 
             // Take the listings down. They carry the seller's contact details
-            // and nobody can manage them any more.
-            $this->listings()->update(['is_active' => false]);
+            // and nobody can manage them any more. Only the ones that were live
+            // are marked, so a restore brings back exactly these and not one
+            // the seller had already switched off themselves.
+            $this->listings()
+                ->where('is_active', true)
+                ->update(['is_active' => false, 'deactivated_by_deletion_at' => now()]);
 
             // Every device is signed out; a token must not outlive its account.
             $this->tokens()->delete();
 
             $this->delete();
         });
+
+        // An OTP issued seconds before this has a ten-minute life and would
+        // otherwise still sign the account back in.
+        Cache::forget('api_otp_customer_'.$this->phone);
     }
 
     /**
@@ -203,10 +229,9 @@ class Customer extends Authenticatable
         DB::transaction(function () {
             $this->restore();
 
-            // Listings come back live if they are still approved. One the user
-            // had deactivated themselves before deleting comes back too; that
-            // is the safer direction to be wrong in.
-            $this->listings()->where('status', 'approved')->update(['is_active' => true]);
+            $this->listings()
+                ->whereNotNull('deactivated_by_deletion_at')
+                ->update(['is_active' => true, 'deactivated_by_deletion_at' => null]);
 
             $this->deletionRefund()
                 ->where('status', 'pending')
@@ -215,35 +240,118 @@ class Customer extends Authenticatable
     }
 
     /**
-     * Stage three: the grace period has run out. The row survives because
-     * invoices reference customer_id and a GST series cannot lose its
-     * counterparty, but nothing personal survives on it.
+     * Stage three: the grace period has run out.
+     *
+     * The row survives because invoices, payments and customer_wallets all
+     * reference customer_id and a GST series cannot lose its counterparty - but
+     * nothing personal survives anywhere.
+     *
+     * Never call forceDelete() on a customer instead of this.
+     * customer_wallets.customer_id cascades, and customer_wallet_transactions
+     * cascades from it, so a hard delete destroys the entire money ledger while
+     * the invoices pointing into it survive, because invoices.customer_id is a
+     * bare indexed column with no foreign key to stop it.
      */
     public function anonymise(): void
     {
-        DB::transaction(function () {
-            // The listings hold their own copy of the seller's phone, and that
-            // is how CustomerCarListing::customer() joins. Indian mobile
-            // numbers get recycled, so leaving the old number on them would
-            // hand this person's listings to whoever is issued it next.
+        // Captured before anything overwrites them: the lookup tables, the
+        // enquiries and the unlock log are reachable ONLY by these strings.
+        $phone = $this->phone;
+        $placeholder = $this->placeholderPhone();
+
+        // Files first, while the rows still name them. Done outside the
+        // transaction because a storage failure must not roll back an erasure
+        // that is a legal obligation; a missing file is not an error here.
+        $this->deleteUploadedFiles();
+
+        DB::transaction(function () use ($phone, $placeholder) {
+            // Never $listing->delete(): CustomerCarListing::booted() has a
+            // deleting hook that hard-destroys the enquiries pointed at it, and
+            // those are the BUYERS' records - third-party data that is not this
+            // seller's to erase. The model has no SoftDeletes trait either, so
+            // it would be irreversible. Neutralise the row instead.
             $this->listings()->update([
                 'owner_name' => 'Deleted user',
-                'owner_phone' => $this->placeholderPhone(),
+                'owner_phone' => $placeholder,
                 'owner_email' => null,
                 'whatsapp_number' => null,
+                'registration_number' => null,
+                'description' => null,
+                'latitude' => null,
+                'longitude' => null,
+                'images' => '[]',
                 'is_active' => false,
+                'deactivated_by_deletion_at' => null,
+                'status' => 'rejected',
+                'rejection_reason' => 'Seller account deleted',
             ]);
+
+            // The paid lookup history. The transaction trail stays - amounts,
+            // gateway ids, the report itself - but it stops naming a person.
+            foreach (self::PHONE_KEYED_LOOKUP_TABLES as $table) {
+                DB::table($table)->where('customer_phone', $phone)->update([
+                    'customer_name' => null,
+                    'customer_email' => null,
+                    'customer_phone' => null,
+                ]);
+            }
+
+            // The one lookup table with a real foreign key. customer_id stays:
+            // dropping it would sever the charge from the party who paid it.
+            DB::table('challan_pdf_searches')->where('customer_id', $this->id)->update([
+                'api_request' => null,
+                'api_response' => null,
+                'pdf_url' => null,
+            ]);
+
+            // Enquiries this customer SENT. The dealer keeps the lead and the
+            // message; it just stops identifying anyone. customer_name and
+            // customer_phone are NOT NULL, hence placeholders rather than nulls.
+            // Enquiries OTHER people sent about this customer's listings are
+            // left alone - those are buyers' details, not this seller's.
+            DB::table('enquiries')->where('customer_phone', $phone)->update([
+                'customer_name' => 'Deleted user',
+                'customer_email' => null,
+                'customer_phone' => $placeholder,
+                'ip_address' => null,
+            ]);
+
+            // Contact unlocks this customer performed as a VIEWER. The
+            // anti-abuse trail stays, no longer linkable to a person. Rows where
+            // they are the subject belong to whoever unlocked them.
+            // viewer_name and viewer_mobile are both NOT NULL, so these are
+            // placeholders rather than nulls - nulling them throws and rolls
+            // the whole erasure back.
+            DB::table('contact_unlock_logs')->where('viewer_mobile', $phone)->update([
+                'viewer_name' => 'Deleted user',
+                'viewer_mobile' => $placeholder,
+            ]);
+
+            // An anonymised account must not carry a spendable balance. The
+            // amount owed is already recorded on the refund row; this only moves
+            // it off the wallet, through the row-locking trait so the ledger
+            // stays self-consistent.
+            $wallet = $this->wallet;
+            if ($wallet && (float) $wallet->balance > 0) {
+                $wallet->deductFunds(
+                    $wallet->balance,
+                    'Balance moved to the refund queue on account deletion'
+                );
+            }
 
             $this->forceFill([
                 'name' => 'Deleted user',
                 'email' => null,
-                'phone' => $this->placeholderPhone(),
+                'phone' => $placeholder,
                 'whatsapp_number' => null,
                 'profile_image' => null,
                 'address' => null,
                 'city' => null,
                 'state' => null,
                 'pincode' => null,
+                // No retention basis at all: these exist only to award 10% of a
+                // profile-completion score and are never used for invoicing or
+                // KYC. Hard-nulled, never anonymised.
                 'aadhaar_number' => null,
                 'pan_number' => null,
                 'gst_number' => null,
@@ -254,7 +362,51 @@ class Customer extends Authenticatable
                 'profile_completed_at' => null,
                 'anonymised_at' => now(),
             ])->saveQuietly();
+
+            // Belt and braces: anything issued between stage one and now.
+            $this->tokens()->delete();
         });
+    }
+
+    /**
+     * The listing photos and profile picture, which are served publicly from
+     * /storage and would otherwise stay fetchable forever after the account is
+     * erased. Listing images are a json_encode'd string in a TEXT column, not
+     * an array cast.
+     */
+    private function deleteUploadedFiles(): void
+    {
+        $paths = [];
+
+        foreach ($this->listings()->get() as $listing) {
+            $decoded = json_decode($listing->images ?? '[]', true);
+
+            if (is_array($decoded)) {
+                foreach ($decoded as $image) {
+                    if (is_string($image) && $image !== '') {
+                        $paths[] = $image;
+                    }
+                }
+            }
+        }
+
+        if ($this->profile_image) {
+            $paths[] = $this->profile_image;
+        }
+
+        foreach ($paths as $path) {
+            try {
+                Storage::disk('public')->delete(ltrim($path, '/'));
+            } catch (\Throwable $e) {
+                // A file that will not delete must not stop the erasure of the
+                // database rows, which is the part with a legal deadline.
+                Log::warning('Could not delete a file during account anonymisation', [
+                    'customer_id' => $this->id,
+                    'path' => $path,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
     }
 
     /**
