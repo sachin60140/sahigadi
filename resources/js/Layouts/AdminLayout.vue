@@ -5,6 +5,7 @@
             <nav class="flex-1 overflow-y-auto px-4 py-5">
                 <NavGroup v-for="group in navGroups" :key="group.title" :group="group" />
             </nav>
+            <BuildStamp />
         </aside>
 
         <div v-if="menuOpen" class="fixed inset-0 z-50 lg:hidden">
@@ -14,6 +15,7 @@
                 <nav class="flex-1 overflow-y-auto px-4 py-5">
                     <NavGroup v-for="group in navGroups" :key="group.title" :group="group" @navigate="menuOpen = false" />
                 </nav>
+                <BuildStamp />
             </aside>
         </div>
 
@@ -91,6 +93,13 @@ const menuOpen = ref(false);
 const currentUrl = computed(() => String(page.url || '/admin/dashboard').split('?')[0]);
 const adminName = computed(() => (page.props as any).auth?.admin?.name || 'Admin');
 const adminEmail = computed(() => (page.props as any).auth?.admin?.email || 'admin@sahigadi.com');
+const buildVersion = computed(() => {
+    const build = (page.props as any).appVersion;
+    if (!build?.version) return '';
+
+    return build.commit ? `v${build.version} · ${build.commit}` : `v${build.version}`;
+});
+const buildDeployedAt = computed(() => (page.props as any).appVersion?.deployedAtLabel || '');
 const flashSuccess = computed(() => (page.props as any).flash?.success || '');
 const flashError = computed(() => (page.props as any).flash?.error || '');
 
@@ -171,6 +180,25 @@ const navGroups: NavGroup[] = [
 ];
 
 const isActive = (item: NavItem) => item.match.some((path) => currentUrl.value === path || currentUrl.value.startsWith(`${path}/`));
+
+// Which build this panel is running. Admins are the people who deploy, so
+// this is the one place the answer is worth having permanently on screen.
+// Hidden entirely when .git could not be read, rather than shown half-empty.
+const BuildStamp = defineComponent({
+    setup() {
+        return () => {
+            if (!buildVersion.value) return null;
+
+            return h('div', { class: 'border-t border-slate-200 px-5 py-4' }, [
+                h('p', { class: 'text-xs font-bold uppercase tracking-wide text-slate-400' }, 'Build'),
+                h('p', { class: 'mt-1 text-xs font-semibold text-slate-600' }, buildVersion.value),
+                buildDeployedAt.value
+                    ? h('p', { class: 'mt-0.5 text-xs font-medium text-slate-400' }, `deployed ${buildDeployedAt.value}`)
+                    : null,
+            ]);
+        };
+    },
+});
 
 const BrandBlock = defineComponent({
     setup() {
