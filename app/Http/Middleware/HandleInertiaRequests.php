@@ -37,6 +37,9 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            // Which code is actually live, for the footer. Resolved from .git,
+            // and degrades to nulls rather than throwing.
+            'appVersion' => fn () => \App\Support\AppVersion::all(),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

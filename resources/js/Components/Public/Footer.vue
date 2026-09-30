@@ -72,11 +72,15 @@
             </div>
 
             <div class="flex flex-col gap-4 border-t border-slate-200 pt-6 text-sm font-semibold text-slate-500 md:flex-row md:items-center md:justify-between">
-                <p>&copy; {{ new Date().getFullYear() }} SahiGadi. All rights reserved.</p>
+                <div>
+                    <p>&copy; {{ new Date().getFullYear() }} SahiGadi. All rights reserved.</p>
+                    <p v-if="buildLine" class="mt-1 text-xs font-medium text-slate-400">{{ buildLine }}</p>
+                </div>
                 <div class="flex flex-wrap gap-x-5 gap-y-2">
                     <a href="/privacy-policy" class="transition hover:text-teal-700">Privacy Policy</a>
                     <a href="/terms-of-use" class="transition hover:text-teal-700">Terms of Use</a>
                     <a href="/refund-policy" class="transition hover:text-teal-700">Refund Policy</a>
+                    <a href="/account-deletion" class="transition hover:text-teal-700">Delete Account</a>
                     <a href="/sitemap.xml" class="transition hover:text-teal-700">Sitemap</a>
                 </div>
             </div>
@@ -85,8 +89,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, h } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { computed, defineComponent, h } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
 
 const trustBadges = ['Verified listings', 'Seller network', 'Dealer network'];
 const fullPageRoutes = new Set(['/privacy-policy', '/terms-of-use', '/refund-policy']);
@@ -104,6 +108,20 @@ const cityLinks = [
     { label: 'Used Cars in Darbhanga', href: '/used-cars-in-darbhanga' },
     { label: 'Used Cars in Gaya', href: '/used-cars-in-gaya' },
 ];
+
+// Which build is live, shared from the server on every Inertia response. It
+// is resolved from .git and can legitimately be null, so the line is hidden
+// rather than rendered half-empty.
+const buildLine = computed(() => {
+    const build = (usePage().props as any)?.appVersion;
+    if (!build?.version) return null;
+
+    const parts = [`v${build.version}`];
+    if (build.commit) parts.push(build.commit);
+    if (build.deployedAtLabel) parts.push(`deployed ${build.deployedAtLabel}`);
+
+    return parts.join(' · ');
+});
 
 const FooterColumn = defineComponent({
     props: {
