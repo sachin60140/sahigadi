@@ -52,6 +52,10 @@ class Customer extends Authenticatable
 
     protected $casts = [
         'dob' => 'date',
+        // Encrypted at rest. $hidden keeps these out of JSON; this keeps them
+        // out of the database in readable form. See App\Casts\EncryptedIdentity.
+        'aadhaar_number' => \App\Casts\EncryptedIdentity::class,
+        'pan_number' => \App\Casts\EncryptedIdentity::class,
         'deleted_at' => 'datetime',
         'anonymised_at' => 'datetime',
     ];

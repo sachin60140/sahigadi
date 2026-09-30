@@ -109,6 +109,10 @@ class Dealer extends Authenticatable
             'password' => 'hashed',
             'gst_verified_at' => 'datetime',
             'api_enabled' => 'boolean',
+            // Encrypted at rest. PAN is required at dealer registration, so
+            // every dealer has one. See App\Casts\EncryptedIdentity.
+            'pan_number' => \App\Casts\EncryptedIdentity::class,
+            'kyc_document_number' => \App\Casts\EncryptedIdentity::class,
         ];
     }
 
