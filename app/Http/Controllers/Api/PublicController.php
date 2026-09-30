@@ -168,7 +168,7 @@ class PublicController extends Controller
      */
     public function carDetail($slug)
     {
-        $car = Car::with(['dealer:id,company_name,slug,city,profile_image,phone,wallet_balance', 'brand', 'images'])
+        $car = Car::with(['dealer:id,company_name,slug,city,profile_image', 'brand', 'images'])
             ->where('slug', $slug)
             ->approved()
             ->active()

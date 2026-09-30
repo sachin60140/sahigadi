@@ -116,7 +116,9 @@ class ActionController extends Controller
                 $images[] = $path;
             }
         }
-        $data['images'] = $images;
+        // Stored as a JSON string, not an array: the column is TEXT and the model has
+        // no array cast, so the admin controller and the sitemap both json_decode it.
+        $data['images'] = json_encode($images);
 
         $listing = CustomerCarListing::create($data);
 
