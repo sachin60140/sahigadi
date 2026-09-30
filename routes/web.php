@@ -324,6 +324,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/invoices/settings', [App\Http\Controllers\Admin\InvoiceController::class, 'settings']);
         Route::get('/invoices/export/excel', [App\Http\Controllers\Admin\InvoiceController::class, 'exportExcel'])->name('invoices.exportExcel');
         Route::get('/invoices/{invoice}/download', [App\Http\Controllers\Admin\InvoiceController::class, 'download'])->name('invoices.download');
+        Route::post('/invoices/{invoice}/cancel', [App\Http\Controllers\Admin\InvoiceController::class, 'cancel'])->name('invoices.cancel');
 
         Route::get('/payment-settings', [PaymentSettingsController::class, 'index'])->name('payment-settings.index');
         Route::post('/payment-settings', [PaymentSettingsController::class, 'update'])->name('payment-settings.update');

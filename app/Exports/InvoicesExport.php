@@ -29,6 +29,7 @@ class InvoicesExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             'Invoice Number',
+            'Status',
             'Invoice Date',
             'Financial Year',
             'Buyer Name',
@@ -57,6 +58,7 @@ class InvoicesExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $invoice->invoice_number,
+            $invoice->isCancelled() ? 'Cancelled' : 'Issued',
             optional($invoice->issued_at)->format('d-m-Y'),
             $invoice->financial_year,
             $invoice->buyer_name,

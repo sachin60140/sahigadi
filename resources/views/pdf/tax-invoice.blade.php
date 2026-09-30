@@ -79,10 +79,26 @@
         </td>
         <td>
             <div class="doc-title">TAX INVOICE</div>
-            <div class="doc-sub">Original for recipient</div>
+            @if($invoice->isCancelled())
+                <div class="doc-sub" style="color:#b42318;">CANCELLED</div>
+            @else
+                <div class="doc-sub">Original for recipient</div>
+            @endif
         </td>
     </tr>
 </table>
+
+@if($invoice->isCancelled())
+    <div style="margin-bottom:10px;padding:8px 12px;border:1px solid #f1c9b7;background:#fdecea;color:#b42318;font-size:9px;font-weight:bold;">
+        @php
+            $cancelNote = 'THIS INVOICE HAS BEEN CANCELLED';
+            if ($invoice->cancelled_at) { $cancelNote .= ' on '.$invoice->cancelled_at->format('d M Y'); }
+            $cancelNote .= '.';
+            if ($invoice->cancellation_reason) { $cancelNote .= ' Reason: '.$invoice->cancellation_reason; }
+        @endphp
+        {{ $cancelNote }}
+    </div>
+@endif
 
 <table class="meta">
     <tr>

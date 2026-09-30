@@ -12,7 +12,8 @@
         </div>
 
         <section class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            <Tile label="Invoices" :value="formatNumber(totals.count)" />
+            <Tile label="Issued invoices" :value="formatNumber(totals.count)" />
+            <Tile v-if="totals.cancelled" label="Cancelled" :value="formatNumber(totals.cancelled)" tone="red" />
             <Tile label="Taxable value" :value="money(totals.taxable)" />
             <Tile label="CGST + SGST" :value="money(totals.cgst + totals.sgst)" tone="teal" />
             <Tile label="IGST" :value="money(totals.igst)" tone="blue" />
@@ -87,6 +88,12 @@
                                 <span class="mt-1 inline-flex rounded-md px-2 py-0.5 text-xs font-semibold" :class="invoice.is_intra_state ? 'bg-teal-50 text-teal-700' : 'bg-blue-50 text-blue-700'">
                                     {{ invoice.is_intra_state ? 'Intra' : 'Inter' }}
                                 </span>
+                                <span v-if="invoice.is_cancelled" class="mt-1 ml-1 inline-flex rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">
+                                    Cancelled
+                                </span>
+                                <p v-if="invoice.is_cancelled" class="mt-1 max-w-[220px] text-xs font-medium text-slate-500">
+                                    {{ invoice.cancelled_at }} &middot; {{ invoice.cancellation_reason }}
+                                </p>
                             </td>
                             <td class="px-5 py-4 font-medium text-slate-600">{{ invoice.issued_at }}</td>
                             <td class="px-5 py-4">
@@ -98,9 +105,12 @@
                             <td class="px-5 py-4 text-right font-medium text-slate-600">{{ invoice.cgst ? money(invoice.cgst) : '-' }}</td>
                             <td class="px-5 py-4 text-right font-medium text-slate-600">{{ invoice.sgst ? money(invoice.sgst) : '-' }}</td>
                             <td class="px-5 py-4 text-right font-medium text-slate-600">{{ invoice.igst ? money(invoice.igst) : '-' }}</td>
-                            <td class="px-5 py-4 text-right font-bold text-slate-950">{{ money(invoice.total_amount) }}</td>
+                            <td class="px-5 py-4 text-right font-bold" :class="invoice.is_cancelled ? 'text-slate-400 line-through' : 'text-slate-950'">{{ money(invoice.total_amount) }}</td>
                             <td class="px-5 py-4 text-right">
-                                <a :href="invoice.download" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">PDF</a>
+                                <div class="flex justify-end gap-2">
+                                    <a :href="invoice.download" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">PDF</a>
+                                    <button v-if="!invoice.is_cancelled" type="button" class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-50" @click="cancelInvoice(invoice)">Cancel</button>
+                                </div>
                             </td>
                         </tr>
                         <tr v-if="!invoices.data.length">
@@ -129,7 +139,7 @@ const props = defineProps<{
     invoices: { data: Array<any>; links: Array<any> };
     filters: Record<string, string>;
     financialYears: string[];
-    totals: { count: number; taxable: number; cgst: number; sgst: number; igst: number; total: number };
+    totals: { count: number; taxable: number; cgst: number; sgst: number; igst: number; total: number; cancelled: number };
     actions: { settings: string; exportExcel: string };
 }>();
 
@@ -146,6 +156,23 @@ const clear = () => {
     router.get('/admin/invoices', {}, { preserveState: true, preserveScroll: true });
 };
 
+const cancelInvoice = (invoice: any) => {
+    // A tax invoice is cancelled, never deleted: the number stays in the
+    // series so it cannot be reused.
+    const reason = window.prompt(
+        `Cancel invoice ${invoice.invoice_number}?\n\nThe number stays in the series and the invoice is still reported, marked as cancelled. The wallet balance is NOT changed.\n\nReason:`,
+    );
+
+    if (reason === null) return;
+
+    if (reason.trim().length < 3) {
+        window.alert('Please give a reason for the cancellation.');
+        return;
+    }
+
+    router.post(invoice.cancel, { reason: reason.trim() }, { preserveScroll: true });
+};
+
 const formatNumber = (value: number) => new Intl.NumberFormat('en-IN').format(Number(value || 0));
 const money = (value: number) => `Rs ${new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value || 0))}`;
 
@@ -157,6 +184,7 @@ const Tile = defineComponent({
             teal: 'border-teal-100 bg-teal-50 text-teal-700',
             blue: 'border-blue-100 bg-blue-50 text-blue-700',
             orange: 'border-orange-100 bg-orange-50 text-orange-700',
+            red: 'border-red-100 bg-red-50 text-red-700',
         };
         return () => h('div', { class: ['rounded-lg border p-4 shadow-sm', tones[p.tone] || tones.slate] }, [
             h('p', { class: 'text-xl font-bold tracking-tight' }, p.value),

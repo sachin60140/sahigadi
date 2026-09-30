@@ -9,8 +9,12 @@ class Invoice extends Model
 {
     protected $guarded = ['id'];
 
+    public const STATUS_ISSUED = 'issued';
+    public const STATUS_CANCELLED = 'cancelled';
+
     protected $casts = [
         'issued_at' => 'datetime',
+        'cancelled_at' => 'datetime',
         'reverse_charge' => 'boolean',
         'taxable_value' => 'decimal:2',
         'cgst_rate' => 'decimal:2',
@@ -125,6 +129,42 @@ class Invoice extends Model
         $start = $month >= 4 ? $year : $year - 1;
 
         return sprintf('%02d-%02d', $start % 100, ($start + 1) % 100);
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->status === self::STATUS_CANCELLED;
+    }
+
+    public function scopeIssued($query)
+    {
+        return $query->where('status', self::STATUS_ISSUED);
+    }
+
+    public function scopeCancelled($query)
+    {
+        return $query->where('status', self::STATUS_CANCELLED);
+    }
+
+    /**
+     * Cancel this invoice. The row, its number and its snapshot all stay: the
+     * series must remain gap-free, and the cancellation is still reported.
+     * This does not touch the wallet, which is a separate decision.
+     */
+    public function cancel(string $reason, ?int $byUserId = null): bool
+    {
+        if ($this->isCancelled()) {
+            return false;
+        }
+
+        $this->forceFill([
+            'status' => self::STATUS_CANCELLED,
+            'cancelled_at' => now('Asia/Kolkata'),
+            'cancellation_reason' => $reason,
+            'cancelled_by' => $byUserId,
+        ])->save();
+
+        return true;
     }
 
     public function isIntraState(): bool

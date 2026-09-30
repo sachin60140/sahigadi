@@ -23,7 +23,10 @@ class InvoiceController extends Controller
             ->withQueryString();
 
         // Totals for the current filter, not just the visible page.
+        // Cancelled invoices are excluded: they stay in the register and in
+        // the GSTR-1 export, but they are not revenue.
         $totals = $this->applyFilters(Invoice::query(), $request)
+            ->issued()
             ->selectRaw('COUNT(*) as count, COALESCE(SUM(taxable_value),0) as taxable, COALESCE(SUM(cgst_amount),0) as cgst, COALESCE(SUM(sgst_amount),0) as sgst, COALESCE(SUM(igst_amount),0) as igst, COALESCE(SUM(total_amount),0) as total')
             ->first();
 
@@ -42,7 +45,12 @@ class InvoiceController extends Controller
                 'sgst' => (float) $invoice->sgst_amount,
                 'igst' => (float) $invoice->igst_amount,
                 'total_amount' => (float) $invoice->total_amount,
+                'status' => $invoice->status,
+                'is_cancelled' => $invoice->isCancelled(),
+                'cancelled_at' => optional($invoice->cancelled_at)->format('d M Y'),
+                'cancellation_reason' => $invoice->cancellation_reason,
                 'download' => route('admin.invoices.download', $invoice->id),
+                'cancel' => route('admin.invoices.cancel', $invoice->id),
             ]),
             'filters' => $filters,
             'financialYears' => Invoice::query()->distinct()->orderByDesc('financial_year')->pluck('financial_year')->values(),
@@ -53,6 +61,7 @@ class InvoiceController extends Controller
                 'sgst' => (float) ($totals->sgst ?? 0),
                 'igst' => (float) ($totals->igst ?? 0),
                 'total' => (float) ($totals->total ?? 0),
+                'cancelled' => (int) $this->applyFilters(Invoice::query(), $request)->cancelled()->count(),
             ],
             'actions' => [
                 'settings' => route('admin.invoices.settings'),
@@ -101,6 +110,29 @@ class InvoiceController extends Controller
                 'register' => route('admin.invoices.index'),
             ],
         ]);
+    }
+
+    /**
+     * Cancel an invoice. It is never deleted: the number stays in the series,
+     * which is what keeps the series gap-free, and the cancellation is still
+     * reported in GSTR-1.
+     */
+    public function cancel(Request $request, Invoice $invoice)
+    {
+        $validated = $request->validate([
+            'reason' => 'required|string|min:3|max:500',
+        ]);
+
+        if ($invoice->isCancelled()) {
+            return back()->with('error', 'That invoice is already cancelled.');
+        }
+
+        $invoice->cancel($validated['reason'], auth('admin')->id());
+
+        return back()->with(
+            'success',
+            "Invoice {$invoice->invoice_number} cancelled. The number stays in the series and the wallet balance is unchanged."
+        );
     }
 
     public function download(Invoice $invoice)
