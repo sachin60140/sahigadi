@@ -5,17 +5,14 @@ namespace App\Services;
 use App\Models\AdminVehicleSearch;
 use App\Models\Dealer;
 use App\Models\Setting;
+use App\Exceptions\AttestrRequestException;
 use App\Models\VehicleDetail;
-use Illuminate\Support\Facades\Http;
+use App\Services\Attestr\AttestrRcClient;
 use Illuminate\Support\Facades\Log;
 
 class VehicleSearchService
 {
     use \App\Services\Concerns\MapsProviderErrors;
-
-    protected string $apiUrl;
-
-    protected string $apiKey;
 
     protected float $chargePerSearch;
 
@@ -27,8 +24,6 @@ class VehicleSearchService
 
     public function __construct()
     {
-        $this->apiUrl = config('services.vehicle_api.url', 'https://api.attestr.com/api/v2/public/checkx/rc');
-        $this->apiKey = config('services.vehicle_api.key', '');
         $this->provider = config('services.vehicle_api.provider', 'attestr');
         $this->chargePerSearch = Setting::getDealerVehicleSearchCharge();
     }
@@ -132,33 +127,15 @@ class VehicleSearchService
 
     protected function callApi(string $registrationNumber): array
     {
-        $response = Http::timeout(60)
-            ->withHeaders([
-                'Authorization' => $this->apiKey,
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ])
-            ->post($this->apiUrl, [
-                'reg' => $registrationNumber,
-            ]);
-
-        if ($response->successful()) {
-            return $response->json();
+        try {
+            // The client logs the provider's own status and body; only our
+            // own wording ever reaches the dealer.
+            return AttestrRcClient::fromConfig()->lookup($registrationNumber);
+        } catch (AttestrRequestException $e) {
+            throw new \App\Exceptions\ProviderLookupException(
+                $this->providerFailureMessage($e->status, 'vehicle').$this->noChargeNotice()
+            );
         }
-
-        $statusCode = $response->status();
-        $body = $response->body();
-
-        // Full provider payload stays in the log; the user sees a clean message.
-        Log::error('Attestr API Error', [
-            'status' => $statusCode,
-            'body' => $body,
-            'reg_no' => $registrationNumber,
-        ]);
-
-        throw new \App\Exceptions\ProviderLookupException(
-            $this->providerFailureMessage($statusCode, 'vehicle').$this->noChargeNotice()
-        );
     }
 
     protected function saveVehicleDetail(Dealer $dealer, string $regNumber, array $apiResponse): VehicleDetail

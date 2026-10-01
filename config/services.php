@@ -53,9 +53,24 @@ return [
     'vehicle_api' => [
         'url' => env('VEHICLE_API_URL', 'https://api.attestr.com/api/v2/public/checkx/rc'),
         'key' => env('VEHICLE_API_KEY', ''),
-        'auth_type' => env('VEHICLE_API_AUTH', 'bearer'),
         'provider' => env('VEHICLE_API_PROVIDER', 'attestr'),
         'charge' => env('VEHICLE_API_CHARGE', 10.00),
+
+        // Attestr's DPDP V3 transition. v3 is consent-driven: every lookup
+        // must carry the "_id" of a consent registered beforehand. Set both
+        // of the next two together - see docs/attestr-dpdpa-v3.md.
+        'version' => env('VEHICLE_API_VERSION', 'v2'),
+
+        // The request field that carries the consent id. Attestr mandates it
+        // but has not published its name on any product page, so it is
+        // configuration rather than a constant. Enabling v3 without it fails
+        // loudly instead of sending a request Attestr will reject.
+        'consent_field' => env('VEHICLE_API_CONSENT_FIELD', ''),
+
+        'consent_register_url' => env(
+            'VEHICLE_API_CONSENT_REGISTER_URL',
+            'https://api.attestr.com/api/v3/public/consent/register'
+        ),
     ],
 
     'service_history_api' => [

@@ -4,16 +4,13 @@ namespace App\Services;
 
 use App\Models\CustomerVehicleSearch;
 use App\Models\Setting;
-use Illuminate\Support\Facades\Http;
+use App\Exceptions\AttestrRequestException;
+use App\Services\Attestr\AttestrRcClient;
 use Illuminate\Support\Facades\Log;
 
 class CustomerVehicleSearchService
 {
     use \App\Services\Concerns\MapsProviderErrors;
-
-    protected string $apiUrl;
-
-    protected string $apiKey;
 
     protected string $provider;
 
@@ -21,8 +18,6 @@ class CustomerVehicleSearchService
 
     public function __construct()
     {
-        $this->apiUrl = config('services.vehicle_api.url', 'https://api.attestr.com/api/v2/public/checkx/rc');
-        $this->apiKey = config('services.vehicle_api.key', '');
         $this->provider = config('services.vehicle_api.provider', 'attestr');
         $this->chargePerSearch = Setting::getVehicleSearchCharge();
     }
@@ -81,38 +76,20 @@ class CustomerVehicleSearchService
 
     protected function callApi(string $registrationNumber): array
     {
-        $response = Http::timeout(60)
-            ->withHeaders([
-                'Authorization' => $this->apiKey,
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ])
-            ->post($this->apiUrl, [
-                'reg' => $registrationNumber,
-            ]);
+        try {
+            $data = AttestrRcClient::fromConfig()->lookup($registrationNumber);
 
-        if ($response->successful()) {
-            $data = $response->json();
-            
             return [
                 'success' => $data['valid'] ?? false,
                 'data' => $data,
             ];
+        } catch (AttestrRequestException $e) {
+            // The client has already logged the provider status and body.
+            return [
+                'success' => false,
+                'message' => $this->providerFailureMessage($e->status, 'vehicle').$this->refundNotice(),
+            ];
         }
-
-        $statusCode = $response->status();
-        $body = $response->body();
-        
-        Log::error('Attestr API Error (Customer RC)', [
-            'status' => $statusCode,
-            'body' => $body,
-            'reg_no' => $registrationNumber,
-        ]);
-
-        return [
-            'success' => false,
-            'message' => $this->providerFailureMessage($statusCode, 'vehicle').$this->refundNotice(),
-        ];
     }
 
     protected function saveSearch(string $regNumber, array $apiResponse, array $customerInfo): CustomerVehicleSearch
