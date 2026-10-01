@@ -36,7 +36,7 @@ class CustomerVehicleSearchService
     {
         $regNumber = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $registrationNumber));
 
-        $cached = CustomerVehicleSearch::checkCache($regNumber);
+        $cached = CustomerVehicleSearch::checkCache($regNumber, (string) ($customerInfo['phone'] ?? ''));
         if ($cached) {
             return [
                 'success' => true,

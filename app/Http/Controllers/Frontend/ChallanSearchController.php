@@ -70,7 +70,7 @@ class ChallanSearchController extends Controller
             'email' => $request->customer_email,
         ];
 
-        $cached = CustomerChallanSearch::checkCache($vehicleNumber);
+        $cached = CustomerChallanSearch::checkCache($vehicleNumber, (string) ($customerInfo['phone'] ?? ''));
         if ($cached) {
             return Inertia::render('Public/Services/ChallanResult', [
                 'challanSearch' => $cached,

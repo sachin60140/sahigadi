@@ -100,7 +100,7 @@ class VehicleSearchController extends Controller
             ];
         }
 
-        $cached = CustomerVehicleSearch::checkCache($registrationNumber);
+        $cached = CustomerVehicleSearch::checkCache($registrationNumber, (string) ($customerInfo['phone'] ?? ''));
         if ($cached) {
             return Inertia::render('Public/Services/VehicleResult', [
                 'vehicleSearch' => $cached,

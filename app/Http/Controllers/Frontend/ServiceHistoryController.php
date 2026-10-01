@@ -72,7 +72,7 @@ class ServiceHistoryController extends Controller
         ];
 
         $forceFresh = $request->has('force_fresh');
-        $cached = $forceFresh ? null : CustomerServiceHistory::checkCache($vehicleNumber);
+        $cached = $forceFresh ? null : CustomerServiceHistory::checkCache($vehicleNumber, (string) ($customerInfo['phone'] ?? ''));
         if ($cached) {
             $cached->load('records');
 

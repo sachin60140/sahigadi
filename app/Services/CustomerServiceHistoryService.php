@@ -37,7 +37,7 @@ class CustomerServiceHistoryService
     {
         $vehicleNum = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $vehicleNumber));
 
-        $cached = CustomerServiceHistory::checkCache($vehicleNum);
+        $cached = CustomerServiceHistory::checkCache($vehicleNum, (string) ($customerInfo['phone'] ?? ''));
         if ($cached) {
             $cached->load('records');
 
