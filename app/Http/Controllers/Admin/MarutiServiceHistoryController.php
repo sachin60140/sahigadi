@@ -74,34 +74,6 @@ class MarutiServiceHistoryController extends Controller
         ]);
     }
 
-    public function settings(Request $request)
-    {
-        if ($request->isMethod('post')) {
-            $request->validate([
-                'charge' => 'required|numeric|min:0',
-                'dealer_charge' => 'required|numeric|min:0',
-            ]);
-
-            Setting::setMarutiServiceHistoryCharge($request->charge);
-            Setting::setDealerMarutiServiceHistoryCharge($request->dealer_charge);
-
-            return redirect()->back()->with('success', 'Service charges updated successfully!');
-        }
-
-        $charge = Setting::getMarutiServiceHistoryCharge();
-        $dealerCharge = Setting::getDealerMarutiServiceHistoryCharge();
-        $totalSearches = AdminMarutiServiceHistory::count();
-        $successfulSearches = AdminMarutiServiceHistory::where('is_success', true)->count();
-        $totalRevenue = AdminMarutiServiceHistory::where('is_success', true)->sum('charge_amount');
-
-        return Inertia::render('Admin/ServiceHistories/Settings', [
-            'serviceName' => 'Maruti Service History',
-            'charges' => ['customer' => (float) $charge, 'dealer' => (float) $dealerCharge],
-            'stats' => ['total' => $totalSearches, 'successful' => $successfulSearches, 'revenue' => (float) $totalRevenue],
-            'actions' => ['update' => route('admin.maruti-service-histories.settings')],
-        ]);
-    }
-
     public function exportExcel(Request $request)
     {
         $query = AdminMarutiServiceHistory::with('dealer');

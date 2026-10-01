@@ -124,10 +124,6 @@ const navGroups: NavGroup[] = [
         title: 'Vehicle Services',
         items: [
             { label: 'RC Check', href: '/dealer/vehicle-search', match: ['/dealer/vehicle-search'], icon: IconService },
-            { label: 'E-Challans', href: '/dealer/challan-search', match: ['/dealer/challan-search'], icon: IconService },
-            { label: 'Challan PDF', href: '/dealer/challan-pdf', match: ['/dealer/challan-pdf'], icon: IconService },
-            { label: 'Mahindra History', href: '/dealer/service-history', match: ['/dealer/service-history'], icon: IconService },
-            { label: 'Maruti History', href: '/dealer/maruti-service-history', match: ['/dealer/maruti-service-history'], icon: IconService },
             { label: 'API Access', href: '/dealer/api-access', match: ['/dealer/api-access'], icon: IconService },
         ],
     },

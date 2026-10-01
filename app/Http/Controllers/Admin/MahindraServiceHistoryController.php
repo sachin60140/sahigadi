@@ -37,33 +37,6 @@ class MahindraServiceHistoryController extends Controller
         ]);
     }
 
-    public function settings(Request $request)
-    {
-        if ($request->isMethod('post')) {
-            $request->validate([
-                'charge' => 'required|numeric|min:0',
-                'dealer_charge' => 'required|numeric|min:0',
-            ]);
-
-            Setting::setMahindraServiceHistoryCharge($request->charge);
-            Setting::setDealerMahindraServiceHistoryCharge($request->dealer_charge);
-
-            return redirect()->back()->with('success', 'Service charges updated successfully!');
-        }
-
-        $charge = Setting::getMahindraServiceHistoryCharge();
-        $dealerCharge = Setting::getDealerMahindraServiceHistoryCharge();
-        $totalSearches = CustomerMahindraServiceHistory::count();
-        $successfulSearches = CustomerMahindraServiceHistory::where('is_success', true)->count();
-        $totalRevenue = CustomerMahindraServiceHistory::where('is_success', true)->sum('paid_amount');
-
-        return Inertia::render('Admin/ServiceHistories/Settings', [
-            'serviceName' => 'Mahindra Service History', 'charges' => ['customer' => (float) $charge, 'dealer' => (float) $dealerCharge],
-            'stats' => ['total' => $totalSearches, 'successful' => $successfulSearches, 'revenue' => (float) $totalRevenue],
-            'actions' => ['update' => route('admin.mahindra-service-histories.settings')],
-        ]);
-    }
-
     public function exportExcel(Request $request)
     {
         $searches = $this->applyFilters(CustomerMahindraServiceHistory::query(), $request)->latest()->get();

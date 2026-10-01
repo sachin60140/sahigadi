@@ -200,7 +200,7 @@ const props = defineProps<{
     logs: { data: Log[]; links: Array<{ url: string | null; label: string; active: boolean }> };
     filters: { search: string; channel: string; status: string; from_date: string; to_date: string };
     stats: { total: number; successful: number; failed: number; revenue: number };
-    actions: { settings: string; export: string };
+    actions: { export: string };
 }>();
 
 const form = reactive({ ...props.filters });

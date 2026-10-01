@@ -16,13 +16,10 @@ use App\Http\Controllers\Dealer\CarController as DealerCarController;
 use App\Http\Controllers\Dealer\DashboardController as DealerDashboardController;
 use App\Http\Controllers\Dealer\EnquiryController;
 use App\Http\Controllers\Dealer\ProfileController;
-use App\Http\Controllers\Dealer\MarutiServiceHistoryController;
 use App\Http\Controllers\Dealer\PlanController;
-use App\Http\Controllers\Dealer\ServiceHistoryController;
 use App\Http\Controllers\Dealer\VehicleSearchController;
 use App\Http\Controllers\Dealer\WalletController;
 use App\Http\Controllers\Frontend\CarController;
-use App\Http\Controllers\Frontend\ChallanSearchController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\OpenGraphImageController;
 use App\Http\Controllers\Frontend\SellCarController;
@@ -92,9 +89,8 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::post('/payments/phonepe/initiate', [\App\Http\Controllers\Frontend\CustomerPaymentController::class, 'phonepeInitiate'])->name('payments.phonepe.initiate');
         Route::match(['GET', 'POST'], '/payments/phonepe/callback', [\App\Http\Controllers\Frontend\CustomerPaymentController::class, 'phonepeCallback'])->name('payments.phonepe.callback');
 
-        Route::get('/challan-pdf', [\App\Http\Controllers\Frontend\ChallanPdfController::class, 'index'])->name('challan-pdf.index');
-        Route::post('/challan-pdf/search', [\App\Http\Controllers\Frontend\ChallanPdfController::class, 'search'])->name('challan-pdf.search');
-        Route::get('/challan-pdf/history', [\App\Http\Controllers\Frontend\ChallanPdfController::class, 'history'])->name('challan-pdf.history');
+        // Challan PDF was powered by Invincible Ocean, which has shut down.
+        Route::redirect('/challan-pdf/{any?}', '/vehicle-search')->where('any', '.*');
 
         // Customer Featured Plans Flow
         Route::get('/listing/{customerListing}/featured-plans', [\App\Http\Controllers\Customer\FeaturedCarController::class, 'showPlans'])->name('listing.featured-plans');
@@ -164,28 +160,17 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
             Route::get('/vehicle-search/{vehicleSearch}', [VehicleSearchController::class, 'show'])->name('vehicle-search.show');
             Route::get('/vehicle-search/{vehicleSearch}/pdf', [VehicleSearchController::class, 'exportPdf'])->name('vehicle-search.pdf');
 
-            Route::get('/service-history', [ServiceHistoryController::class, 'index'])->name('service-history.index');
-            Route::post('/service-history/search', [ServiceHistoryController::class, 'search'])->name('service-history.search');
-            Route::get('/service-history/{serviceHistory}', [ServiceHistoryController::class, 'show'])->name('service-history.show');
-            Route::get('/service-history/{serviceHistory}/pdf', [ServiceHistoryController::class, 'downloadPdf'])->name('service-history.pdf');
-
-            Route::get('/maruti-service-history', [MarutiServiceHistoryController::class, 'index'])->name('maruti-service-history.index');
-            Route::post('/maruti-service-history/search', [MarutiServiceHistoryController::class, 'search'])->name('maruti-service-history.search');
-            Route::get('/maruti-service-history/{marutiServiceHistory}', [MarutiServiceHistoryController::class, 'show'])->name('maruti-service-history.show');
-            Route::get('/maruti-service-history/{marutiServiceHistory}/pdf', [MarutiServiceHistoryController::class, 'downloadPdf'])->name('maruti-service-history.pdf');
-
-            Route::get('/challan-search', [App\Http\Controllers\Dealer\ChallanSearchController::class, 'index'])->name('challan-search.index');
-            Route::post('/challan-search/search', [App\Http\Controllers\Dealer\ChallanSearchController::class, 'search'])->name('challan-search.search');
-            Route::get('/challan-search/{challanSearch}', [App\Http\Controllers\Dealer\ChallanSearchController::class, 'show'])->name('challan-search.show');
-            Route::get('/challan-search/{challanSearch}/pdf', [App\Http\Controllers\Dealer\ChallanSearchController::class, 'exportPdf'])->name('challan-search.pdf');
+            // E-challan, challan PDF and service-history lookups were powered by
+            // Invincible Ocean, which has shut down. Old links and bookmarks land
+            // on the RC check, the one lookup that still works.
+            Route::redirect('/service-history/{any?}', '/dealer/vehicle-search')->where('any', '.*');
+            Route::redirect('/maruti-service-history/{any?}', '/dealer/vehicle-search')->where('any', '.*');
+            Route::redirect('/challan-search/{any?}', '/dealer/vehicle-search')->where('any', '.*');
+            Route::redirect('/challan-pdf/{any?}', '/dealer/vehicle-search')->where('any', '.*');
 
             Route::get('/api-access', [App\Http\Controllers\Dealer\ApiAccessController::class, 'index'])->name('api-access.index');
             Route::post('/api-access/generate', [App\Http\Controllers\Dealer\ApiAccessController::class, 'generate'])->name('api-access.generate');
             Route::post('/api-access/revoke', [App\Http\Controllers\Dealer\ApiAccessController::class, 'revoke'])->name('api-access.revoke');
-
-            Route::get('/challan-pdf', [App\Http\Controllers\Dealer\ChallanPdfController::class, 'index'])->name('challan-pdf.index');
-            Route::post('/challan-pdf/search', [App\Http\Controllers\Dealer\ChallanPdfController::class, 'search'])->name('challan-pdf.search');
-            Route::get('/challan-pdf/history', [App\Http\Controllers\Dealer\ChallanPdfController::class, 'history'])->name('challan-pdf.history');
         });
 
         Route::get('/payments/checkout', [PaymentController::class, 'checkout'])->name('payments.checkout');
@@ -276,16 +261,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/customer-vehicle-searches/{vehicleSearch}/pdf', [App\Http\Controllers\Admin\CustomerVehicleSearchController::class, 'downloadPdf'])->name('customer-vehicle-searches.downloadPdf');
 
         Route::get('/service-histories', [AdminServiceHistoryController::class, 'index'])->name('service-histories.index');
-        Route::get('/service-histories/settings', [AdminServiceHistoryController::class, 'settings'])->name('service-histories.settings');
-        Route::post('/service-histories/settings', [AdminServiceHistoryController::class, 'settings']);
         Route::get('/service-histories/{serviceHistory}', [AdminServiceHistoryController::class, 'show'])->name('service-histories.show');
         Route::get('/service-histories/export/excel', [AdminServiceHistoryController::class, 'exportExcel'])->name('service-histories.exportExcel');
         Route::get('/service-histories/export/pdf', [AdminServiceHistoryController::class, 'exportPdf'])->name('service-histories.exportPdf');
         Route::get('/service-histories/{serviceHistory}/pdf', [AdminServiceHistoryController::class, 'downloadSinglePdf'])->name('service-histories.downloadPdf');
 
         Route::get('/maruti-service-histories', [App\Http\Controllers\Admin\MarutiServiceHistoryController::class, 'index'])->name('maruti-service-histories.index');
-        Route::get('/maruti-service-histories/settings', [App\Http\Controllers\Admin\MarutiServiceHistoryController::class, 'settings'])->name('maruti-service-histories.settings');
-        Route::post('/maruti-service-histories/settings', [App\Http\Controllers\Admin\MarutiServiceHistoryController::class, 'settings']);
         Route::get('/maruti-service-histories/{marutiServiceHistory}', [App\Http\Controllers\Admin\MarutiServiceHistoryController::class, 'show'])->name('maruti-service-histories.show');
         Route::get('/maruti-service-histories/export/excel', [App\Http\Controllers\Admin\MarutiServiceHistoryController::class, 'exportExcel'])->name('maruti-service-histories.exportExcel');
         Route::get('/maruti-service-histories/export/pdf', [App\Http\Controllers\Admin\MarutiServiceHistoryController::class, 'exportPdf'])->name('maruti-service-histories.exportPdf');
@@ -298,23 +279,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/customer-maruti-service-histories/{marutiServiceHistory}/pdf', [App\Http\Controllers\Admin\CustomerMarutiServiceHistoryController::class, 'downloadPdf'])->name('customer-maruti-service-histories.downloadPdf');
 
         Route::get('/mahindra-service-histories', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'index'])->name('mahindra-service-histories.index');
-        Route::get('/mahindra-service-histories/settings', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'settings'])->name('mahindra-service-histories.settings');
-        Route::post('/mahindra-service-histories/settings', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'settings']);
         Route::get('/mahindra-service-histories/export/excel', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'exportExcel'])->name('mahindra-service-histories.exportExcel');
         Route::get('/mahindra-service-histories/export/pdf', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'exportPdf'])->name('mahindra-service-histories.exportPdf');
         Route::get('/mahindra-service-histories/{mahindraServiceHistory}', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'show'])->name('mahindra-service-histories.show');
         Route::get('/mahindra-service-histories/{mahindraServiceHistory}/pdf', [App\Http\Controllers\Admin\MahindraServiceHistoryController::class, 'downloadPdf'])->name('mahindra-service-histories.downloadPdf');
 
         Route::get('/challan-searches', [App\Http\Controllers\Admin\ChallanSearchController::class, 'index'])->name('challan-searches.index');
-        Route::get('/challan-searches/settings', [App\Http\Controllers\Admin\ChallanSearchController::class, 'settings'])->name('challan-searches.settings');
-        Route::post('/challan-searches/settings', [App\Http\Controllers\Admin\ChallanSearchController::class, 'settings']);
         Route::get('/challan-searches/{challanSearch}', [App\Http\Controllers\Admin\ChallanSearchController::class, 'show'])->name('challan-searches.show');
         Route::get('/challan-searches/{challanSearch}/pdf', [App\Http\Controllers\Admin\ChallanSearchController::class, 'downloadPdf'])->name('challan-searches.download-pdf');
         Route::get('/challan-searches/export/excel', [App\Http\Controllers\Admin\ChallanSearchController::class, 'exportExcel'])->name('challan-searches.exportExcel');
         Route::get('/challan-searches/export/pdf', [App\Http\Controllers\Admin\ChallanSearchController::class, 'exportPdf'])->name('challan-searches.exportPdf');
 
-        Route::get('/challan-pdf', [\App\Http\Controllers\Admin\ChallanPdfController::class, 'index'])->name('challan-pdf.index');
-        Route::post('/challan-pdf/settings', [\App\Http\Controllers\Admin\ChallanPdfController::class, 'updateSettings'])->name('challan-pdf.settings');
+        // The challan PDF landing page was its pricing screen; only the logs remain.
+        Route::redirect('/challan-pdf', '/admin/challan-pdf/logs');
         Route::get('/challan-pdf/logs', [\App\Http\Controllers\Admin\ChallanPdfController::class, 'logs'])->name('challan-pdf.logs');
         Route::get('/challan-pdf/export-logs', [\App\Http\Controllers\Admin\ChallanPdfController::class, 'exportLogs'])->name('challan-pdf.export-logs');
 
@@ -396,11 +373,6 @@ Route::get('/terms-of-use', [\App\Http\Controllers\Frontend\LegalPageController:
 Route::get('/refund-policy', [\App\Http\Controllers\Frontend\LegalPageController::class, 'refunds'])->name('refund-policy');
 Route::get('/account-deletion', [\App\Http\Controllers\Frontend\LegalPageController::class, 'accountDeletion'])->name('account-deletion');
 
-Route::get('/service-history', [App\Http\Controllers\Frontend\ServiceHistoryController::class, 'index'])->name('service-history.index');
-Route::post('/service-history/search', [App\Http\Controllers\Frontend\ServiceHistoryController::class, 'search'])->name('service-history.search');
-Route::get('/service-history/callback', [App\Http\Controllers\Frontend\ServiceHistoryController::class, 'paymentCallback'])->name('service-history.callback');
-Route::post('/service-history/callback', [App\Http\Controllers\Frontend\ServiceHistoryController::class, 'paymentCallback']);
-
 Route::get('/vehicle-search', [App\Http\Controllers\Frontend\VehicleSearchController::class, 'index'])->name('vehicle-search.index');
 Route::post('/vehicle-search/search', [App\Http\Controllers\Frontend\VehicleSearchController::class, 'search'])->name('vehicle-search.search');
 Route::get('/vehicle-search/callback', [App\Http\Controllers\Frontend\VehicleSearchController::class, 'paymentCallback'])->name('vehicle-search.callback');
@@ -408,26 +380,14 @@ Route::post('/vehicle-search/callback', [App\Http\Controllers\Frontend\VehicleSe
 Route::get('/vehicle-search/{vehicleSearch}', [App\Http\Controllers\Frontend\VehicleSearchController::class, 'show'])->name('vehicle-search.show');
 Route::get('/vehicle-search/{vehicleSearch}/pdf', [App\Http\Controllers\Frontend\VehicleSearchController::class, 'downloadPdf'])->name('vehicle-search.pdf');
 
-Route::get('/challan-search', [ChallanSearchController::class, 'index'])->name('challan-search.index');
-Route::post('/challan-search/search', [ChallanSearchController::class, 'search'])->name('challan-search.search');
-Route::get('/challan-search/callback', [ChallanSearchController::class, 'paymentCallback'])->name('challan-search.callback');
-Route::post('/challan-search/callback', [ChallanSearchController::class, 'paymentCallback']);
-Route::get('/service-history/{serviceHistory}', [App\Http\Controllers\Frontend\ServiceHistoryController::class, 'show'])->name('service-history.show');
-Route::get('/service-history/{serviceHistory}/pdf', [App\Http\Controllers\Frontend\ServiceHistoryController::class, 'downloadPdf'])->name('service-history.download-pdf');
-
-Route::get('/maruti-service-history', [App\Http\Controllers\Frontend\MarutiServiceHistoryController::class, 'index'])->name('maruti-service-history.index');
-Route::post('/maruti-service-history/search', [App\Http\Controllers\Frontend\MarutiServiceHistoryController::class, 'search'])->name('maruti-service-history.search');
-Route::get('/maruti-service-history/callback', [App\Http\Controllers\Frontend\MarutiServiceHistoryController::class, 'paymentCallback'])->name('maruti-service-history.callback');
-Route::post('/maruti-service-history/callback', [App\Http\Controllers\Frontend\MarutiServiceHistoryController::class, 'paymentCallback']);
-Route::get('/maruti-service-history/{marutiServiceHistory}', [App\Http\Controllers\Frontend\MarutiServiceHistoryController::class, 'show'])->name('maruti-service-history.show');
-Route::get('/maruti-service-history/{marutiServiceHistory}/pdf', [App\Http\Controllers\Frontend\MarutiServiceHistoryController::class, 'downloadPdf'])->name('maruti-service-history.pdf');
-
-Route::get('/mahindra-service-history', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'index'])->name('mahindra-service-history.index');
-Route::post('/mahindra-service-history/search', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'search'])->name('mahindra-service-history.search');
-Route::get('/mahindra-service-history/callback', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'paymentCallback'])->name('mahindra-service-history.callback');
-Route::post('/mahindra-service-history/callback', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'paymentCallback']);
-Route::get('/mahindra-service-history/{mahindraServiceHistory}', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'show'])->name('mahindra-service-history.show');
-Route::get('/mahindra-service-history/{mahindraServiceHistory}/pdf', [App\Http\Controllers\Frontend\MahindraServiceHistoryController::class, 'downloadPdf'])->name('mahindra-service-history.pdf');
+// E-challan and vehicle service-history lookups were powered by Invincible
+// Ocean, which has shut down. These pages were public and indexed, so they
+// redirect permanently to the RC lookup rather than 404ing. The paid reports
+// themselves are kept in the database and remain available to admins.
+Route::permanentRedirect('/challan-search/{any?}', '/vehicle-search')->where('any', '.*');
+Route::permanentRedirect('/service-history/{any?}', '/vehicle-search')->where('any', '.*');
+Route::permanentRedirect('/maruti-service-history/{any?}', '/vehicle-search')->where('any', '.*');
+Route::permanentRedirect('/mahindra-service-history/{any?}', '/vehicle-search')->where('any', '.*');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 

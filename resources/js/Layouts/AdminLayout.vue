@@ -164,7 +164,7 @@ const navGroups: NavGroup[] = [
             { label: 'RC Searches', href: '/admin/vehicle-searches', match: ['/admin/vehicle-searches', '/admin/customer-vehicle-searches', '/admin/service-tracking/vehicle-search'], icon: IconService },
             { label: 'Service History', href: '/admin/service-histories', match: ['/admin/service-histories', '/admin/maruti-service-histories', '/admin/customer-maruti-service-histories', '/admin/mahindra-service-histories', '/admin/service-tracking/service-history'], icon: IconService },
             { label: 'E-Challan', href: '/admin/challan-searches', match: ['/admin/challan-searches', '/admin/service-tracking/challan-search'], icon: IconService },
-            { label: 'Challan PDF', href: '/admin/challan-pdf', match: ['/admin/challan-pdf'], icon: IconService },
+            { label: 'Challan PDF', href: '/admin/challan-pdf/logs', match: ['/admin/challan-pdf'], icon: IconService },
         ],
     },
     {

@@ -73,10 +73,11 @@ return [
         ),
     ],
 
+    // Invincible Ocean, which powered e-challan and service-history lookups,
+    // has shut down. Only the charge survives: Setting's historical-price
+    // getters fall back to it, and without it they would silently report
+    // 500 instead of 20 on the admin history screens.
     'service_history_api' => [
-        'url' => env('SERVICE_HISTORY_API_URL', 'https://api.invincibleocean.com/invincible/mahindra-service-history'),
-        'secret_key' => env('SERVICE_HISTORY_SECRET_KEY'),
-        'client_id' => env('SERVICE_HISTORY_CLIENT_ID'),
         'charge' => env('SERVICE_HISTORY_CHARGE', 20.00),
     ],
 

@@ -1,8 +1,9 @@
 # Attestr DPDP V3 migration — what is known, and what still blocks it
 
 Attestr's console carries a banner: **"Mandatory Transition to DPDPA Compliant V3
-APIs by 01 Oct 2026"**. Only the RC lookup uses Attestr — challan and all four
-service-history integrations call `api.invincibleocean.com` and are unaffected.
+APIs by 01 Oct 2026"**. The RC lookup is now the only third-party lookup the app
+makes: the e-challan, challan PDF and service-history products ran on Invincible
+Ocean, which has shut down, and were removed. Their historical records are kept.
 
 **v2 is still serving.** Successful lookups went through on 01 Oct 2026, the stated
 transition date, so the endpoint was not cut off at the deadline. The migration is

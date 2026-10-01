@@ -23,7 +23,6 @@ import { Link, usePage } from '@inertiajs/vue3';
 const page = usePage();
 const path = computed(() => String(page.url || '').split('?')[0]);
 const items = [
-    { label: 'Service settings', href: '/admin/challan-pdf' },
     { label: 'Search logs', href: '/admin/challan-pdf/logs' },
 ];
 

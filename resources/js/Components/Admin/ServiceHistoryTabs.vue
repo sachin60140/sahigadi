@@ -23,12 +23,11 @@ import { Link, usePage } from '@inertiajs/vue3';
 const page = usePage();
 const path = computed(() => String(page.url || '').split('?')[0]);
 const items = [
-    { label: 'General', href: '/admin/service-histories', match: '/admin/service-histories', settings: '/admin/service-histories/settings' },
+    { label: 'General', href: '/admin/service-histories', match: '/admin/service-histories' },
     { label: 'Maruti dealers', href: '/admin/maruti-service-histories', match: '/admin/maruti-service-histories' },
     { label: 'Maruti customers', href: '/admin/customer-maruti-service-histories', match: '/admin/customer-maruti-service-histories' },
     { label: 'Mahindra customers', href: '/admin/mahindra-service-histories', match: '/admin/mahindra-service-histories' },
     { label: 'Combined ledger', href: '/admin/service-tracking/service-history', match: '/admin/service-tracking/service-history' },
-    { label: 'Pricing', href: '/admin/service-histories/settings', match: '/admin/service-histories/settings' },
 ];
 
 const isActive = (item: { match: string; settings?: string }) => {

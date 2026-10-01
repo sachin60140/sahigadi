@@ -36,7 +36,6 @@ class ChallanSearchController extends Controller
                 'charge' => (float) Setting::getDealerChallanCharge(),
             ],
             'actions' => [
-                'settings' => route('admin.challan-searches.settings'),
                 'combinedLedger' => route('admin.service-tracking.challan-search'),
                 'exportExcel' => route('admin.challan-searches.exportExcel', array_filter($filters)),
                 'exportPdf' => route('admin.challan-searches.exportPdf', array_filter($filters)),
@@ -64,43 +63,6 @@ class ChallanSearchController extends Controller
         $pdf = Pdf::loadView('dealer.challan-searches.pdf', compact('challanSearch'));
 
         return $pdf->download('e-challan-'.$challanSearch->vehicle_number.'.pdf');
-    }
-
-    public function settings(Request $request)
-    {
-        if ($request->isMethod('post')) {
-            $request->validate([
-                'charge' => 'required|numeric|min:0',
-                'dealer_charge' => 'required|numeric|min:0',
-            ]);
-
-            Setting::setChallanCharge($request->charge);
-            Setting::setDealerChallanCharge($request->dealer_charge);
-
-            return redirect()->back()->with('success', 'Service charges updated successfully!');
-        }
-
-        $charge = Setting::getChallanCharge();
-        $dealerCharge = Setting::getDealerChallanCharge();
-        $totalSearches = AdminChallanSearch::count();
-        $successfulSearches = AdminChallanSearch::where('is_success', true)->count();
-        $totalRevenue = AdminChallanSearch::where('is_success', true)->sum('charge_amount');
-
-        return Inertia::render('Admin/ChallanSearches/Settings', [
-            'charges' => [
-                'customer' => (float) $charge,
-                'dealer' => (float) $dealerCharge,
-            ],
-            'stats' => [
-                'total' => $totalSearches,
-                'successful' => $successfulSearches,
-                'revenue' => (float) $totalRevenue,
-            ],
-            'actions' => [
-                'update' => route('admin.challan-searches.settings'),
-                'back' => route('admin.challan-searches.index'),
-            ],
-        ]);
     }
 
     public function exportExcel(Request $request)

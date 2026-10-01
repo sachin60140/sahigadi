@@ -5,8 +5,6 @@ namespace Tests\Feature;
 use App\Models\Customer;
 use App\Models\Dealer;
 use App\Models\Payment;
-use App\Services\CustomerChallanSearchService;
-use App\Services\CustomerServiceHistoryService;
 use App\Services\CustomerVehicleSearchService;
 use App\Services\PhonePeService;
 use App\Services\RazorpayService;
@@ -97,30 +95,12 @@ class PaymentCallbackIntegrityTest extends TestCase
             ->assertSessionHas('error', 'This payment session is invalid or has expired.');
     }
 
-    public function test_service_history_callback_rejects_a_mismatched_order_before_api_work(): void
-    {
-        $this->assertPublicServiceRejectsMismatchedOrder(
-            'service-history.callback',
-            'service_history_pending',
-            CustomerServiceHistoryService::class
-        );
-    }
-
     public function test_vehicle_search_callback_rejects_a_mismatched_order_before_api_work(): void
     {
         $this->assertPublicServiceRejectsMismatchedOrder(
             'vehicle-search.callback',
             'vehicle_search_pending',
             CustomerVehicleSearchService::class
-        );
-    }
-
-    public function test_challan_callback_rejects_a_mismatched_order_before_api_work(): void
-    {
-        $this->assertPublicServiceRejectsMismatchedOrder(
-            'challan-search.callback',
-            'challan_search_pending',
-            CustomerChallanSearchService::class
         );
     }
 

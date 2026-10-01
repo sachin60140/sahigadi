@@ -10,52 +10,6 @@ use Inertia\Inertia;
 
 class ChallanPdfController extends Controller
 {
-    public function index()
-    {
-        $settings = [
-            'is_challan_pdf_active' => Setting::isChallanPdfActive(),
-            'challan_pdf_charge' => Setting::getChallanPdfCharge(),
-            'dealer_challan_pdf_charge' => Setting::getDealerChallanPdfCharge(),
-        ];
-
-        // Stats
-        $totalSearches = ChallanPdfSearch::count();
-        $totalRevenue = ChallanPdfSearch::where('is_success', true)->sum('charge_amount');
-        $failedRequests = ChallanPdfSearch::where('is_success', false)->count();
-
-        return Inertia::render('Admin/ChallanPdf/Settings', [
-            'settings' => [
-                'active' => (bool) $settings['is_challan_pdf_active'],
-                'customerCharge' => (float) $settings['challan_pdf_charge'],
-                'dealerCharge' => (float) $settings['dealer_challan_pdf_charge'],
-            ],
-            'stats' => [
-                'total' => $totalSearches,
-                'successful' => $totalSearches - $failedRequests,
-                'failed' => $failedRequests,
-                'revenue' => (float) $totalRevenue,
-            ],
-            'actions' => [
-                'update' => route('admin.challan-pdf.settings'),
-                'logs' => route('admin.challan-pdf.logs'),
-            ],
-        ]);
-    }
-
-    public function updateSettings(Request $request)
-    {
-        $request->validate([
-            'challan_pdf_charge' => 'required|numeric|min:0',
-            'dealer_challan_pdf_charge' => 'required|numeric|min:0',
-            'is_challan_pdf_active' => 'nullable|boolean',
-        ]);
-
-        Setting::setChallanPdfCharge($request->challan_pdf_charge);
-        Setting::setDealerChallanPdfCharge($request->dealer_challan_pdf_charge);
-        Setting::setIsChallanPdfActive($request->boolean('is_challan_pdf_active'));
-
-        return back()->with('success', 'Challan PDF Service settings updated successfully.');
-    }
 
     public function logs(Request $request)
     {
@@ -75,7 +29,6 @@ class ChallanPdfController extends Controller
                 'revenue' => (float) ChallanPdfSearch::where('is_success', true)->sum('charge_amount'),
             ],
             'actions' => [
-                'settings' => route('admin.challan-pdf.index'),
                 'export' => route('admin.challan-pdf.export-logs', array_filter($filters)),
             ],
         ]);

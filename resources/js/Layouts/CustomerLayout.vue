@@ -64,9 +64,7 @@ import { computed, defineComponent, h, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
     CarFront,
-    FileText,
     Gauge,
-    History,
     LogOut,
     Menu,
     MessageSquareText,
@@ -103,9 +101,6 @@ const navGroups: NavGroup[] = [
         items: [
             { label: 'Sell a Car', href: '/sell-your-car', match: ['/sell-your-car'], icon: CarFront },
             { label: 'RC Search', href: '/vehicle-search', match: ['/vehicle-search'], icon: Search },
-            { label: 'Mahindra History', href: '/mahindra-service-history', match: ['/mahindra-service-history'], icon: History },
-            { label: 'Maruti History', href: '/maruti-service-history', match: ['/maruti-service-history'], icon: History },
-            { label: 'Challan PDF', href: '/customer/challan-pdf', match: ['/customer/challan-pdf'], icon: FileText },
         ],
     },
     {

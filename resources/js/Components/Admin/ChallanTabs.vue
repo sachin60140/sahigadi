@@ -23,10 +23,9 @@ import { Link, usePage } from '@inertiajs/vue3';
 const page = usePage();
 const path = computed(() => String(page.url || '').split('?')[0]);
 const items = [
-    { label: 'Dealer searches', href: '/admin/challan-searches', match: '/admin/challan-searches', settings: '/admin/challan-searches/settings' },
+    { label: 'Dealer searches', href: '/admin/challan-searches', match: '/admin/challan-searches' },
     { label: 'Customer payments', href: '/admin/customer-transactions?type=challan', match: '/admin/customer-transactions' },
     { label: 'Combined ledger', href: '/admin/service-tracking/challan-search', match: '/admin/service-tracking/challan-search' },
-    { label: 'Pricing', href: '/admin/challan-searches/settings', match: '/admin/challan-searches/settings' },
 ];
 
 const isActive = (item: { match: string; settings?: string }) => {

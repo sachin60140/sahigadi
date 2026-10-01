@@ -38,14 +38,9 @@ class BladeArtifactContractTest extends TestCase
             'admin.vehicle-searches.single-pdf',
             'admin.wallet-recharges.pdf',
             'dealer.challan-searches.pdf',
-            'dealer.maruti-service-history.pdf',
-            'dealer.service-history.pdf',
             'dealer.vehicle-search.pdf',
             'dealer.wallet.receipt-pdf',
             'frontend.customer.wallet.receipt-pdf',
-            'frontend.mahindra-service-history.pdf',
-            'frontend.maruti-service-history.pdf',
-            'frontend.service-history.pdf',
             'frontend.vehicle-search.pdf',
         ];
 

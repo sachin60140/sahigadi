@@ -38,7 +38,6 @@ class ServiceHistoryController extends Controller
                 'charge' => (float) Setting::getDealerServiceHistoryCharge(),
             ],
             'actions' => [
-                'settings' => route('admin.service-histories.settings'),
                 'combinedLedger' => route('admin.service-tracking.service-history'),
                 'exportExcel' => route('admin.service-histories.exportExcel', array_filter($filters)),
                 'exportPdf' => route('admin.service-histories.exportPdf', array_filter($filters)),
@@ -75,44 +74,6 @@ class ServiceHistoryController extends Controller
                     'pdf' => route('admin.service-histories.downloadPdf', $serviceHistory),
                 ],
             ]),
-        ]);
-    }
-
-    public function settings(Request $request)
-    {
-        if ($request->isMethod('post')) {
-            $request->validate([
-                'charge' => 'required|numeric|min:0',
-                'dealer_charge' => 'required|numeric|min:0',
-            ]);
-
-            Setting::setServiceHistoryCharge($request->charge);
-            Setting::setDealerServiceHistoryCharge($request->dealer_charge);
-
-            return redirect()->back()->with('success', 'Service charges updated successfully!');
-        }
-
-        $charge = Setting::getServiceHistoryCharge();
-        $dealerCharge = Setting::getDealerServiceHistoryCharge();
-        $totalSearches = AdminServiceHistory::count();
-        $successfulSearches = AdminServiceHistory::where('is_success', true)->count();
-        $totalRevenue = AdminServiceHistory::where('is_success', true)->sum('charge_amount');
-
-        return Inertia::render('Admin/ServiceHistories/Settings', [
-            'serviceName' => 'General Service History',
-            'charges' => [
-                'customer' => (float) $charge,
-                'dealer' => (float) $dealerCharge,
-            ],
-            'stats' => [
-                'total' => $totalSearches,
-                'successful' => $successfulSearches,
-                'revenue' => (float) $totalRevenue,
-            ],
-            'actions' => [
-                'update' => route('admin.service-histories.settings'),
-                'back' => route('admin.service-histories.index'),
-            ],
         ]);
     }
 
