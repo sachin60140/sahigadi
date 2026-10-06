@@ -3,8 +3,11 @@
 namespace App\Services\Attestr;
 
 use App\Exceptions\AttestrRequestException;
+use App\Mail\AttestrAccountAlert;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use RuntimeException;
 
 /**
@@ -82,16 +85,54 @@ class AttestrRcClient
             return $response->json() ?? [];
         }
 
+        $code = AttestrErrors::codeFrom($response->body());
+
         // The full provider payload stays in the log; callers show the user a
         // clean message of their own.
         Log::error('Attestr API Error', [
             'status' => $response->status(),
+            'code' => $code,
             'body' => $response->body(),
             'reg_no' => $registrationNumber,
             'version' => $this->version,
         ]);
 
+        if (AttestrErrors::isOperatorProblem($code)) {
+            $this->alertOperator($code);
+        }
+
         throw new AttestrRequestException($response->status(), $response->body());
+    }
+
+    /**
+     * A problem with our account or setup breaks every lookup until someone
+     * acts, so the operator is emailed rather than left to find it in the log.
+     * At most once an hour per code, or a busy day would flood the inbox; and
+     * a failure to send must never mask the lookup failure itself.
+     */
+    private function alertOperator(int $code): void
+    {
+        Log::critical('Attestr account problem: '.AttestrErrors::OPERATOR[$code], ['code' => $code]);
+
+        if (! Cache::add('attestr-operator-alert:'.$code, true, now()->addHour())) {
+            return;
+        }
+
+        $to = (string) config('services.vehicle_api.alert_email', '');
+
+        if ($to === '') {
+            return;
+        }
+
+        try {
+            Mail::to($to)->send(new AttestrAccountAlert(
+                $code,
+                AttestrErrors::OPERATOR[$code],
+                now('Asia/Kolkata')->format('d M Y, g:i A').' IST',
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Could not send the Attestr account alert', ['code' => $code, 'error' => $e->getMessage()]);
+        }
     }
 
     /** @return array<string, string> */

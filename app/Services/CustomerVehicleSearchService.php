@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\CustomerVehicleSearch;
 use App\Models\Setting;
 use App\Exceptions\AttestrRequestException;
+use App\Services\Attestr\AttestrErrors;
 use App\Services\Attestr\AttestrRcClient;
 use Illuminate\Support\Facades\Log;
 
@@ -87,7 +88,8 @@ class CustomerVehicleSearchService
             // The client has already logged the provider status and body.
             return [
                 'success' => false,
-                'message' => $this->providerFailureMessage($e->status, 'vehicle').$this->refundNotice(),
+                'message' => (AttestrErrors::userMessage($e->attestrCode()) ?? $this->providerFailureMessage($e->status, 'vehicle'))
+                    .$this->refundNotice(),
             ];
         }
     }

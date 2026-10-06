@@ -13,6 +13,7 @@ class BladeArtifactContractTest extends TestCase
             'inertia',
             'sitemap.index',
             'emails.admin.new_listing',
+            'emails.admin.attestr_account_alert',
             'emails.customer_otp',
             'emails.customer_profile_updated',
             'emails.customer_self_profile_updated',

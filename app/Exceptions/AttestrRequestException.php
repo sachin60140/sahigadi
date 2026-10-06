@@ -21,4 +21,10 @@ class AttestrRequestException extends RuntimeException
     ) {
         parent::__construct('Attestr request failed with status '.$status);
     }
+
+    /** Attestr's own error code from the response body, e.g. 4005 or 5001. */
+    public function attestrCode(): ?int
+    {
+        return \App\Services\Attestr\AttestrErrors::codeFrom($this->body);
+    }
 }

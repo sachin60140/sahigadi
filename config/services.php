@@ -67,6 +67,11 @@ return [
         // loudly instead of sending a request Attestr will reject.
         'consent_field' => env('VEHICLE_API_CONSENT_FIELD', ''),
 
+        // Who is emailed when Attestr refuses requests for a reason only the
+        // operator can fix: low credit, bad credentials, an unwhitelisted IP,
+        // a daily limit. Same recipient as the featured-plan expiry admin copy.
+        'alert_email' => env('VEHICLE_API_ALERT_EMAIL', 'sachin60140@gmail.com'),
+
         'consent_register_url' => env(
             'VEHICLE_API_CONSENT_REGISTER_URL',
             'https://api.attestr.com/api/v3/public/consent/register'

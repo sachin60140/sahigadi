@@ -7,6 +7,7 @@ use App\Models\Dealer;
 use App\Models\Setting;
 use App\Exceptions\AttestrRequestException;
 use App\Models\VehicleDetail;
+use App\Services\Attestr\AttestrErrors;
 use App\Services\Attestr\AttestrRcClient;
 use Illuminate\Support\Facades\Log;
 
@@ -133,7 +134,8 @@ class VehicleSearchService
             return AttestrRcClient::fromConfig()->lookup($registrationNumber);
         } catch (AttestrRequestException $e) {
             throw new \App\Exceptions\ProviderLookupException(
-                $this->providerFailureMessage($e->status, 'vehicle').$this->noChargeNotice()
+                (AttestrErrors::userMessage($e->attestrCode()) ?? $this->providerFailureMessage($e->status, 'vehicle'))
+                .$this->noChargeNotice()
             );
         }
     }
